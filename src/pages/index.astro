@@ -1,0 +1,15 @@
+---
+// index.astro — the one and only page of the site (Astro turns each file in src/pages into a URL; this is "/").
+// Right now it's a Phase 1 placeholder that proves the config file is wired up. Sections get built in Phases 2–3.
+import Base from "../layouts/Base.astro";
+import { event } from "../content/event";
+---
+
+<Base>
+  <main class="mx-auto max-w-2xl px-4 py-16">
+    <h1 class="text-4xl font-bold">{event.name}</h1>
+    <p class="mt-2 text-lg">{event.tagline}</p>
+    <!-- I show "TBA" for null so we never accidentally publish an unconfirmed date. -->
+    <p class="mt-4">Date: {event.date.start ?? "TBA"} · Venue: {event.venue.name ?? "TBA"}</p>
+  </main>
+</Base>

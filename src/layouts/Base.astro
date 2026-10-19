@@ -1,0 +1,33 @@
+---
+// Base.astro — the "layout": the shared HTML shell (<html>, <head>, <body>) that wraps the page.
+// In Astro, a component is a reusable chunk of HTML in a .astro file. The part between the --- fences runs at
+// BUILD time (never in the visitor's browser), so I can read the event config here for free.
+// A "prop" is a value passed into a component, like an HTML attribute. This layout takes optional title/description props.
+import "../styles/global.css";
+import { event } from "../content/event";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = `${event.name} — Dublin's first 12-hour high school hackathon`,
+  description = `${event.name} is a 12-hour hackathon for high school students in Dublin, run by Emerald High's Computer Science Honor Society.`,
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Full SEO / Open Graph tags come in Phase 6. -->
+  </head>
+  <body>
+    <slot />
+  </body>
+</html>

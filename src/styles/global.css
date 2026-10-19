@@ -1,0 +1,5 @@
+/* global.css — site-wide styles, loaded once by src/layouts/Base.astro.
+   Tailwind is a CSS framework where you style elements with small utility classes (e.g. "px-4" = horizontal padding)
+   directly in the HTML instead of writing a separate stylesheet. This one import pulls all of Tailwind in.
+   Colors, fonts, and dark mode get defined here in Phase 5 as CSS variables. */
+@import "tailwindcss";

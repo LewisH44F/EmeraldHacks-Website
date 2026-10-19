@@ -1,0 +1,21 @@
+# netlify.toml — tells Netlify how to build and publish the site.
+# I keep this in the repo (instead of only in the Netlify dashboard) so the build settings are versioned
+# and anyone can see exactly how deploys work.
+
+[build]
+  # Netlify runs this after installing dependencies. It produces a fully static site.
+  command = "npm run build"
+  # Astro writes the finished HTML/CSS/JS here. There's no server — Netlify just serves these files.
+  publish = "dist"
+
+[build.environment]
+  # I pin Node to the minimum version Astro 7 supports so Netlify's build matches my local one.
+  NODE_VERSION = "22.22.0"
+
+# Basic security headers. The site has no logins or forms of its own, but these are free hardening.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"

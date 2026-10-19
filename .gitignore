@@ -1,0 +1,22 @@
+# I keep generated and machine-specific files out of git so the repo only holds source code.
+
+# Dependencies (npm install recreates these)
+node_modules/
+
+# Build output (Netlify rebuilds this on every deploy)
+dist/
+.astro/
+
+# Netlify CLI local state
+.netlify/
+
+# Environment files — the site shouldn't need secrets, but if one ever shows up it must never be committed
+.env*
+
+# OS / editor clutter
+.DS_Store
+Thumbs.db
+*.log
+.vscode/*
+!.vscode/extensions.json
+.idea/
