@@ -11,11 +11,11 @@ const day = parseDate(event.date.start) ? formatDay(event.date.start) : "Date TB
 ---
 
 <Section id="schedule" title="Schedule">
-  <p class="mb-6 text-neutral-700">
+  <p class="mb-8 font-display text-muted">
     {day}
     {
       !event.scheduleConfirmed && (
-        <span class="ms-2 inline-block rounded-full border border-black/20 px-2 py-0.5 text-xs font-semibold">
+        <span class="ms-2 inline-block rounded-full border border-volt/60 px-2 py-0.5 font-sans text-xs font-semibold text-volt">
           Tentative
         </span>
       )
@@ -23,17 +23,20 @@ const day = parseDate(event.date.start) ? formatDay(event.date.start) : "Date TB
   </p>
   {
     event.schedule.length === 0 ? (
-      <p class="text-neutral-700">The full schedule will be posted soon.</p>
+      <p class="text-muted">The full schedule will be posted soon.</p>
     ) : (
       // An ordered list (<ol>) because the order matters. The left border draws a simple timeline line.
-      <ol class="max-w-2xl border-s border-black/20">
+      <ol class="relative max-w-3xl border-s-2 border-line">
         {event.schedule.map((item) => (
           // grid-cols-[6rem_1fr] gives times a fixed-width column so titles line up down the list.
-          <li class="grid gap-x-4 py-3 ps-6 sm:grid-cols-[6rem_1fr]">
-            <p class="font-semibold tabular-nums">{item.time}</p>
+          <li class="group relative grid gap-x-6 py-4 ps-8 sm:grid-cols-[7rem_1fr]">
+            {/* The glowing dot sitting on the timeline line. -start-[7px] centers a 12px dot on the 2px border.
+                It lights up green when you hover the row. */}
+            <span aria-hidden="true" class="absolute top-[1.4rem] -start-[7px] size-3 rounded-full border-2 border-aero bg-ink transition-colors group-hover:bg-aero group-hover:shadow-[0_0_12px_var(--color-aero)]"></span>
+            <p class="font-display font-semibold text-aero tabular-nums">{item.time}</p>
             <div>
-              <h3 class="font-semibold">{item.title}</h3>
-              {item.description && <p class="text-neutral-700">{item.description}</p>}
+              <h3 class="font-display font-semibold">{item.title}</h3>
+              {item.description && <p class="mt-1 text-muted">{item.description}</p>}
             </div>
           </li>
         ))}

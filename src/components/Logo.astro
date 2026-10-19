@@ -1,0 +1,51 @@
+---
+// Logo.astro — the Aerohacks mark: our Aeronaut dragon drawn as angular neon line art (inspired by the
+// StangHacks mustang style). It's an inline SVG (drawn with code, not an image file) so it stays sharp at any
+// size, can change color with CSS, and can "draw itself" with the stroke animation in global.css.
+//
+// This is a placeholder until the team has an official logo. To swap it, replace the <path> lines below,
+// or replace this component with an <img src="/logo.svg">.
+interface Props {
+  class?: string;
+  // "full" = whole dragon (hero). "head" = just the head, for small spots like the nav where the body gets too thin.
+  variant?: "full" | "head";
+  // true => the lines animate in on page load (only used once, in the hero).
+  draw?: boolean;
+}
+
+const { class: className, variant = "full", draw = false } = Astro.props;
+
+// The viewBox is the SVG's internal coordinate window. Cropping it to the head region is how the
+// "head" variant works without drawing a second logo.
+const viewBox = variant === "head" ? "146 12 108 100" : "0 12 256 104";
+---
+
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox={viewBox}
+  fill="none"
+  stroke="currentColor"
+  stroke-width={variant === "head" ? 4 : 2.25}
+  stroke-linejoin="miter"
+  stroke-linecap="round"
+  class:list={[className, draw && "logo-draw"]}
+  aria-hidden="true"
+>
+  <!-- Tail fins -->
+  <path pathLength="1" d="M16 96 L6 78 L18 86 L12 64 L28 82" />
+  <path pathLength="1" d="M16 96 L4 112 L22 102" />
+  <!-- Body: top edge, bottom edge, then the zig-zag "facet" lines that give the low-poly look -->
+  <path pathLength="1" d="M16 96 L38 74 L64 62 L90 68 L112 88 L134 96 L154 84 L166 62" />
+  <path pathLength="1" d="M16 96 L42 88 L64 80 L86 88 L106 110 L134 116 L160 102 L176 80" />
+  <path pathLength="1" d="M38 74 L64 80 L90 68 L106 110 M112 88 L134 116 M134 96 L160 102 L166 62" />
+  <!-- Back fins -->
+  <path pathLength="1" d="M46 72 L36 54 L54 64 L52 46 L64 62" />
+  <path pathLength="1" d="M140 93 L134 76 L148 86 L150 70 L156 82" />
+  <!-- Head outline (open jaw), crest, facets, eye, beard, claw -->
+  <path pathLength="1" d="M166 62 L172 48 L192 44 L218 50 L244 58 L250 64 L226 68 L222 74 L216 69 L208 70 L232 78 L220 86 L196 86 L176 80 Z" />
+  <path pathLength="1" d="M172 48 L150 30 L170 40 L160 16 L182 37 L186 18 L194 44" />
+  <path pathLength="1" d="M172 48 L196 86 M192 44 L206 70" />
+  <path pathLength="1" d="M210 54 L224 56 L213 61 Z" />
+  <path pathLength="1" d="M218 86 L212 100 L222 96 L216 112" />
+  <path pathLength="1" d="M182 82 L178 100 L186 96 L186 106 L194 98" />
+</svg>

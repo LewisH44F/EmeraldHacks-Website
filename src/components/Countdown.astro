@@ -29,17 +29,17 @@ const units = [
   be unbearable); a screen-reader user hears the current value when they move onto it.
 -->
 <div id="countdown" data-start={start} data-end={end ?? ""} data-name={event.name} class="mt-8" hidden>
-  <p data-countdown-label class="text-sm font-semibold text-neutral-600"></p>
+  <p data-countdown-label class="text-xs font-semibold tracking-widest text-volt uppercase"></p>
   <div role="timer" data-countdown-clock class="mt-2 flex gap-3">
     {
       units.map((u) => (
         // min-w-16 keeps every box the same width so the row doesn't wiggle when a digit changes.
         // tabular-nums gives every digit the same width for the same reason.
-        <div class="min-w-16 rounded-lg border border-black/10 px-3 py-2 text-center">
-          <span data-unit={u.key} class="block text-2xl font-bold tabular-nums sm:text-3xl">
+        <div class="min-w-16 rounded-lg border border-line bg-ink-2/70 px-3 py-2 text-center backdrop-blur-sm">
+          <span data-unit={u.key} class="block font-display text-2xl font-bold tabular-nums sm:text-3xl">
             00
           </span>
-          <span class="text-xs text-neutral-600">{u.label}</span>
+          <span class="text-xs text-muted">{u.label}</span>
         </div>
       ))
     }

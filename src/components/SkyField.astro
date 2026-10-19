@@ -1,0 +1,346 @@
+---
+// SkyField.astro — the interactive animated background behind the whole site.
+//
+// It's a field of drifting points joined by thin lines, the same low-poly "facet" style as the dragon logo.
+// It reacts to the visitor:
+//   • Scrolling: points drift upward faster while you scroll (like gaining altitude), with near points moving
+//     faster than far ones (parallax), and the color shifts green → blue → yellow as you go down the page.
+//   • Mouse / finger: points near the pointer get pushed away and link up to it.
+//   • Click / tap: sends out a shockwave ring that knocks nearby points outward.
+//
+// It's drawn on a <canvas> (a blank drawing surface the script paints every frame), which is much cheaper than
+// hundreds of HTML elements. It sits fixed behind the content and ignores clicks (pointer-events-none), so it
+// never gets in the way of links or buttons.
+//
+// No props: it's purely decorative and reads nothing from event.ts.
+---
+
+<!--
+  -z-10 puts it behind everything. aria-hidden because it carries no information for screen readers.
+  The radial gradients underneath give a soft glow even before (or without) the canvas animation.
+-->
+<div
+  aria-hidden="true"
+  class="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_at_20%_0%,color-mix(in_oklab,var(--color-aero)_14%,transparent),transparent_55%),radial-gradient(ellipse_at_90%_100%,color-mix(in_oklab,var(--color-sky)_12%,transparent),transparent_50%)]"
+>
+  <canvas id="skyfield" class="h-full w-full"></canvas>
+</div>
+
+<script>
+  // ---------------------------------------------------------------------------
+  // Setup
+  // ---------------------------------------------------------------------------
+  const canvas = document.getElementById("skyfield") as HTMLCanvasElement | null;
+  const ctx = canvas?.getContext("2d");
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  // Brand colors as RGB, matching --color-aero / --color-sky / --color-volt in global.css.
+  const PALETTE: [number, number, number][] = [
+    [57, 217, 138],
+    [91, 155, 255],
+    [255, 210, 63],
+  ];
+
+  interface Point {
+    x: number;
+    y: number;
+    vx: number; // velocity (pixels per frame)
+    vy: number;
+    depth: number; // 0.3 (far) .. 1 (near): controls size, speed, and parallax
+  }
+
+  interface Ring {
+    x: number;
+    y: number;
+    r: number; // current radius
+    life: number; // 1 -> 0, used for fading out
+  }
+
+  let width = 0;
+  let height = 0;
+  let points: Point[] = [];
+  const rings: Ring[] = [];
+  const pointer = { x: -9999, y: -9999, active: false };
+  let lastScrollY = window.scrollY;
+  let scrollBoost = 0; // extra upward speed from recent scrolling; decays every frame
+  let running = false;
+  // Total scrollable distance. I cache it instead of reading document.scrollHeight every frame, because reading
+  // layout values forces the browser to recalculate the page layout, which is slow at 60 frames per second.
+  let maxScroll = 1;
+  // On phones I draw every other frame (~30fps). It still looks smooth for slow drifting points, and halves
+  // the battery and CPU cost, which is what Lighthouse's mobile test is most sensitive to.
+  let skipFrames = false;
+  let frameCount = 0;
+
+  // Lines are only drawn between points closer than this. Bigger = more lines = more "mesh", but more work.
+  const LINK_DIST = 120;
+
+  // ---------------------------------------------------------------------------
+  // Sizing
+  // ---------------------------------------------------------------------------
+  function resize() {
+    if (!canvas || !ctx) return;
+    width = window.innerWidth;
+    height = window.innerHeight;
+    // Draw at the screen's real pixel density so lines are crisp, but cap it at 2: on 3x phones the
+    // extra sharpness isn't visible and would cost ~2x the battery.
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    skipFrames = width < 768;
+    measure();
+
+    // Scale the number of points to the screen area so phones don't get a crowded (and slow) field.
+    // Roughly one point per 14,000 px², clamped between 35 and 110.
+    const count = Math.max(35, Math.min(110, Math.round((width * height) / 14000)));
+    points = Array.from({ length: count }, () => {
+      const depth = 0.3 + Math.random() * 0.7;
+      return {
+        x: Math.random() * width,
+        y: Math.random() * height,
+        vx: (Math.random() - 0.5) * 0.25 * depth,
+        vy: (-0.08 - Math.random() * 0.15) * depth, // a slow constant upward drift
+        depth,
+      };
+    });
+  }
+
+  function measure() {
+    maxScroll = Math.max(1, document.documentElement.scrollHeight - window.innerHeight);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Color: blend through the palette based on how far down the page you are
+  // ---------------------------------------------------------------------------
+  function colorAt(progress: number): [number, number, number] {
+    // progress 0 = top of page (green), 0.5 = middle (blue), 1 = bottom (yellow).
+    const scaled = Math.min(0.999, Math.max(0, progress)) * (PALETTE.length - 1);
+    const i = Math.floor(scaled);
+    const t = scaled - i;
+    const a = PALETTE[i]!;
+    const b = PALETTE[i + 1]!;
+    return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
+  }
+
+  // ---------------------------------------------------------------------------
+  // One frame
+  // ---------------------------------------------------------------------------
+  function frame(animate: boolean) {
+    if (!ctx) return;
+    ctx.clearRect(0, 0, width, height);
+
+    const [r, g, b] = colorAt(window.scrollY / maxScroll);
+
+    // Scrolling adds a burst of upward speed, then it eases back to normal (0.92 per frame ≈ fades in ~0.5s).
+    scrollBoost *= 0.92;
+
+    for (const p of points) {
+      if (animate) {
+        // Pointer repulsion: within 140px, push the point away, harder the closer it is.
+        if (pointer.active) {
+          const dx = p.x - pointer.x;
+          const dy = p.y - pointer.y;
+          const dist = Math.hypot(dx, dy);
+          if (dist < 140 && dist > 0.1) {
+            const force = (1 - dist / 140) * 0.6;
+            p.vx += (dx / dist) * force;
+            p.vy += (dy / dist) * force;
+          }
+        }
+
+        // Shockwave rings: points sitting right on the expanding ring's edge get kicked outward.
+        for (const ring of rings) {
+          const dx = p.x - ring.x;
+          const dy = p.y - ring.y;
+          const dist = Math.hypot(dx, dy);
+          if (Math.abs(dist - ring.r) < 24 && dist > 0.1) {
+            p.vx += (dx / dist) * 1.6 * ring.life;
+            p.vy += (dy / dist) * 1.6 * ring.life;
+          }
+        }
+
+        // Friction pulls velocities back toward the gentle default drift, so kicks don't last forever.
+        p.vx *= 0.96;
+        p.vy = p.vy * 0.96 + -0.12 * p.depth * 0.04;
+
+        // Near points (higher depth) react more to scrolling: that difference is what sells the parallax.
+        p.x += p.vx;
+        p.y += p.vy - scrollBoost * p.depth;
+
+        // Wrap around the edges so the field never empties out.
+        if (p.y < -20) p.y = height + 20;
+        if (p.y > height + 20) p.y = -20;
+        if (p.x < -20) p.x = width + 20;
+        if (p.x > width + 20) p.x = -20;
+      }
+    }
+
+    // Lines between nearby points. Each pair is checked once (j starts at i + 1).
+    // The closer two points are, the more opaque their line.
+    ctx.lineWidth = 1;
+    for (let i = 0; i < points.length; i++) {
+      const a = points[i]!;
+      for (let j = i + 1; j < points.length; j++) {
+        const b2 = points[j]!;
+        const dx = a.x - b2.x;
+        const dy = a.y - b2.y;
+        // Cheap early exit before the (slower) square root.
+        if (Math.abs(dx) > LINK_DIST || Math.abs(dy) > LINK_DIST) continue;
+        const dist = Math.hypot(dx, dy);
+        if (dist < LINK_DIST) {
+          const alpha = (1 - dist / LINK_DIST) * 0.22 * Math.min(a.depth, b2.depth);
+          ctx.strokeStyle = `rgba(${r},${g},${b},${alpha})`;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(b2.x, b2.y);
+          ctx.stroke();
+        }
+      }
+
+      // Lines from the pointer to nearby points: the mesh "grabs" your cursor/finger.
+      if (pointer.active) {
+        const dist = Math.hypot(a.x - pointer.x, a.y - pointer.y);
+        if (dist < 180) {
+          ctx.strokeStyle = `rgba(${r},${g},${b},${(1 - dist / 180) * 0.45})`;
+          ctx.beginPath();
+          ctx.moveTo(a.x, a.y);
+          ctx.lineTo(pointer.x, pointer.y);
+          ctx.stroke();
+        }
+      }
+    }
+
+    // The points themselves.
+    for (const p of points) {
+      ctx.fillStyle = `rgba(${r},${g},${b},${0.35 + p.depth * 0.5})`;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 0.6 + p.depth * 1.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // Shockwave rings: grow, fade, and get removed when invisible.
+    for (let i = rings.length - 1; i >= 0; i--) {
+      const ring = rings[i]!;
+      ctx.strokeStyle = `rgba(${r},${g},${b},${ring.life * 0.6})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(ring.x, ring.y, ring.r, 0, Math.PI * 2);
+      ctx.stroke();
+      if (animate) {
+        ring.r += 6;
+        ring.life -= 0.025;
+        if (ring.life <= 0) rings.splice(i, 1);
+      }
+    }
+  }
+
+  function loop() {
+    if (!running) return;
+    frameCount++;
+    if (!skipFrames || frameCount % 2 === 0) frame(true);
+    requestAnimationFrame(loop);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Start / stop
+  // ---------------------------------------------------------------------------
+  function start() {
+    if (running || reduceMotion.matches) return;
+    running = true;
+    requestAnimationFrame(loop);
+  }
+
+  function stop() {
+    running = false;
+  }
+
+  // With reduced motion, I draw a single still frame: the visitor still gets the look, with zero movement.
+  function applyMotionPreference() {
+    if (reduceMotion.matches) {
+      stop();
+      frame(false);
+    } else {
+      start();
+    }
+  }
+
+  // I wait until the page has fully loaded AND the browser is idle before starting the background. The text
+  // and buttons are what people came for; the decoration can arrive a moment later without anyone noticing.
+  // requestIdleCallback isn't in Safari, so there's a setTimeout fallback.
+  function whenIdle(fn: () => void) {
+    // TypeScript assumes requestIdleCallback always exists, so I mark it as possibly undefined to keep the fallback.
+    const ric = window.requestIdleCallback as typeof window.requestIdleCallback | undefined;
+    const go = () => (ric ? ric(fn, { timeout: 2000 }) : window.setTimeout(fn, 300));
+    if (document.readyState === "complete") go();
+    else window.addEventListener("load", go, { once: true });
+  }
+
+  if (canvas && ctx) whenIdle(init);
+
+  function init() {
+    if (!canvas || !ctx) return;
+    resize();
+    applyMotionPreference();
+
+    // The page can get taller after load (fonts arriving, FAQ answers opening). ResizeObserver tells me when the
+    // page's size changes, so the cached scroll distance stays correct without polling.
+    new ResizeObserver(measure).observe(document.body);
+
+    // Re-layout after the window size changes. The 150ms delay (a "debounce") waits until the user has
+    // finished resizing, instead of rebuilding the field dozens of times mid-drag.
+    let resizeTimer: number | undefined;
+    window.addEventListener("resize", () => {
+      window.clearTimeout(resizeTimer);
+      resizeTimer = window.setTimeout(() => {
+        resize();
+        if (!running) frame(false);
+      }, 150);
+    });
+
+    // Pause when the tab is in the background: no point burning battery on an animation nobody can see.
+    document.addEventListener("visibilitychange", () => (document.hidden ? stop() : applyMotionPreference()));
+    reduceMotion.addEventListener("change", applyMotionPreference);
+
+    // Scroll speed feeds the "altitude" boost. { passive: true } promises the browser this never blocks scrolling.
+    window.addEventListener(
+      "scroll",
+      () => {
+        const delta = window.scrollY - lastScrollY;
+        lastScrollY = window.scrollY;
+        // Clamp so a giant jump (like clicking a nav link) doesn't fling everything off screen.
+        scrollBoost = Math.max(-6, Math.min(6, scrollBoost + delta * 0.04));
+        if (!running) frame(false); // keep the color in sync with scroll position even when still
+      },
+      { passive: true },
+    );
+
+    // Pointer events cover mouse, touch, and pen with one API.
+    window.addEventListener(
+      "pointermove",
+      (e) => {
+        pointer.x = e.clientX;
+        pointer.y = e.clientY;
+        pointer.active = true;
+      },
+      { passive: true },
+    );
+    // When a finger lifts or the mouse leaves the window, stop attracting lines to a stale position.
+    const release = () => (pointer.active = false);
+    window.addEventListener("pointerup", (e) => e.pointerType !== "mouse" && release(), { passive: true });
+    document.documentElement.addEventListener("pointerleave", release);
+
+    // Tap / click anywhere sends a shockwave. It doesn't interfere with what you clicked: I only listen.
+    window.addEventListener(
+      "pointerdown",
+      (e) => {
+        if (reduceMotion.matches) return;
+        rings.push({ x: e.clientX, y: e.clientY, r: 4, life: 1 });
+        // Keep at most 4 rings alive so rapid tapping can't pile up work.
+        if (rings.length > 4) rings.shift();
+      },
+      { passive: true },
+    );
+  }
+</script>

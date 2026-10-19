@@ -13,18 +13,22 @@ interface Props {
 
 const { href, label, external = true, variant = "primary", size = "sm" } = Astro.props;
 
-const sizeClass = size === "lg" ? "px-5 py-3 text-base" : "px-3 py-2 text-sm";
+const sizeClass = size === "lg" ? "px-6 py-3 text-base" : "px-3 py-2 text-sm";
+
+// Primary = yellow with black text. Yellow is reserved for the main action across the whole site, so the eye
+// learns "yellow = sign up". Black on this yellow is ~14:1 contrast, far above the 4.5:1 minimum.
+// The hover lift + glow is a small "this is clickable" reward; motion-safe: skips the lift for reduced-motion users.
 const variantClass =
   variant === "primary"
-    ? "bg-black text-white hover:bg-neutral-800"
-    : "border border-black/20 text-black hover:bg-black/5";
+    ? "bg-volt text-ink shadow-[0_0_0_0_var(--color-volt)] hover:shadow-[0_0_24px_-4px_var(--color-volt)] motion-safe:hover:-translate-y-0.5"
+    : "border border-aero/60 text-aero hover:bg-aero/10 motion-safe:hover:-translate-y-0.5";
 ---
 
 {
   href ? (
     <a
       href={href}
-      class:list={["inline-block rounded-md font-semibold whitespace-nowrap", sizeClass, variantClass]}
+      class:list={["inline-block rounded-md font-semibold whitespace-nowrap transition-[translate,box-shadow,background-color]", sizeClass, variantClass]}
       {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
     >
       {label}
@@ -32,7 +36,7 @@ const variantClass =
       {external && <span class="sr-only"> (opens in a new tab)</span>}
     </a>
   ) : (
-    <span class:list={["inline-block rounded-md bg-neutral-200 font-semibold whitespace-nowrap text-neutral-700", sizeClass]}>
+    <span class:list={["inline-block rounded-md border border-dashed border-line font-semibold whitespace-nowrap text-muted", sizeClass]}>
       {label}
     </span>
   )

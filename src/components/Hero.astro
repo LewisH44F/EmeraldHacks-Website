@@ -2,12 +2,13 @@
 // Hero.astro — the first screen: event name (the page's only <h1>), tagline, date, venue, and the main button.
 //
 // Everything here comes from event.ts. Unconfirmed date/venue show "TBA". The countdown is only rendered
-// when a start date exists (see Countdown.astro).
+// when a start date exists (see Countdown.astro). The big dragon logo draws itself on load.
 import { event } from "../content/event";
 import { registerCta, sponsorCta } from "../lib/cta";
 import { formatDay, formatTimeRange, parseDate, TBA } from "../lib/format";
 import CtaButton from "./CtaButton.astro";
 import Countdown from "./Countdown.astro";
+import Logo from "./Logo.astro";
 
 const cta = registerCta();
 const sponsor = sponsorCta();
@@ -17,50 +18,84 @@ const hasDate = parseDate(event.date.start) !== null;
 const { venue } = event;
 ---
 
-<section id="hero" aria-labelledby="hero-heading" class="scroll-mt-20 py-20 sm:py-28">
-  <div class="mx-auto max-w-6xl px-4">
-    <!-- A small label above the title tells first-time visitors what this is before they read anything else. -->
-    <p class="text-sm font-semibold tracking-wide text-neutral-600 uppercase">High school hackathon · Dublin, CA</p>
-    <h1 id="hero-heading" class="mt-2 text-5xl font-bold sm:text-7xl">{event.name}</h1>
-    {event.tagline && <p class="mt-4 max-w-xl text-xl sm:text-2xl">{event.tagline}</p>}
+<!--
+  min-h-[calc(100svh-4rem)] makes the hero fill the first screen minus the 4rem nav. "svh" (small viewport height)
+  is used instead of "vh" because on phones vh ignores the address bar and the hero would be cut off.
+-->
+<section id="hero" aria-labelledby="hero-heading" class="relative flex min-h-[calc(100svh-4rem)] scroll-mt-20 items-center py-16">
+  <div class="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 lg:grid-cols-[1.1fr_1fr]">
+    <!--
+      min-w-0: grid children won't shrink narrower than their content by default, which can push past the screen.
+      @container makes this column a "container", so the title below can size itself to the column's width.
+    -->
+    <div class="@container min-w-0">
+      <!-- A small label above the title tells first-time visitors what this is before they read anything else. -->
+      <p class="inline-flex items-center gap-2 rounded-full border border-line bg-ink-2/70 px-3 py-1 text-xs font-semibold tracking-widest text-muted uppercase">
+        <!-- The pulsing dot adds life; motion-safe: means it only pulses if the visitor allows motion. -->
+        <span class="size-2 rounded-full bg-aero motion-safe:animate-pulse" aria-hidden="true"></span>
+        High school hackathon · Dublin, CA
+      </p>
+
+      <!--
+        The title size is 11.5cqi = 11.5% of the COLUMN's width (not the screen's). Unbounded is a very wide font,
+        and a 9-letter name at 11.5% fits the column exactly at every screen size. Sizing by screen width broke on
+        desktop, where the column is only about half the screen. clamp() keeps it between 2rem and 6.5rem.
+        If the event name gets longer, lower 11.5cqi until it fits.
+      -->
+      <h1 id="hero-heading" class="text-gradient mt-6 font-display text-[clamp(2rem,11.5cqi,6.5rem)] leading-[0.95] font-extrabold tracking-tight uppercase">
+        {event.name}
+      </h1>
+      {event.tagline && <p class="mt-5 max-w-xl font-display text-xl text-fg sm:text-2xl">{event.tagline}</p>}
+
+      <!--
+        A description list (<dl>) pairs labels with values ("When" → date). Screen readers understand the pairing,
+        which plain <p> tags wouldn't give them.
+      -->
+      <dl class="mt-8 grid max-w-xl gap-3 sm:grid-cols-2">
+        <div class="rounded-lg border border-line bg-ink-2/70 p-4 backdrop-blur-sm">
+          <dt class="text-xs font-semibold tracking-widest text-aero uppercase">When</dt>
+          <dd class="mt-1 text-lg font-medium">
+            {day}
+            {time && <span class="block text-sm text-muted">{time}</span>}
+          </dd>
+        </div>
+        <div class="rounded-lg border border-line bg-ink-2/70 p-4 backdrop-blur-sm">
+          <dt class="text-xs font-semibold tracking-widest text-sky uppercase">Where</dt>
+          <dd class="mt-1 text-lg font-medium">
+            {venue.name ?? TBA}
+            {venue.address && <span class="block text-sm text-muted">{venue.address}</span>}
+            {
+              venue.mapUrl && (
+                <a href={venue.mapUrl} target="_blank" rel="noopener noreferrer" class="text-sm text-sky underline underline-offset-4">
+                  Directions<span class="sr-only"> (opens in a new tab)</span>
+                </a>
+              )
+            }
+          </dd>
+        </div>
+      </dl>
+
+      {
+        /* The countdown is meaningless without a date, so the whole component is skipped until one is set. */
+        hasDate && <Countdown start={event.date.start!} end={event.date.end} />
+      }
+
+      <div class="mt-10 flex flex-wrap gap-3">
+        <CtaButton href={cta.href} label={cta.label} size="lg" />
+        <!-- Secondary button for sponsors. It's quieter on purpose so students aren't confused about which one is theirs. -->
+        {sponsor.href && <CtaButton href={sponsor.href} label={sponsor.label} external={sponsor.external} variant="secondary" size="lg" />}
+      </div>
+    </div>
 
     <!--
-      A description list (<dl>) pairs labels with values ("When" → date). Screen readers understand the pairing,
-      which plain <p> tags wouldn't give them.
+      The dragon. order-first puts it ABOVE the text on phones (a smaller version), and lg:order-none moves it
+      back to the right column on desktop. The faint circles behind it are "radar" rings for the sky theme.
     -->
-    <dl class="mt-8 grid gap-4 sm:grid-cols-2 sm:max-w-2xl">
-      <div>
-        <dt class="text-sm font-semibold text-neutral-600">When</dt>
-        <dd class="mt-1 text-lg">
-          {day}
-          {time && <span class="block text-base text-neutral-700">{time}</span>}
-        </dd>
-      </div>
-      <div>
-        <dt class="text-sm font-semibold text-neutral-600">Where</dt>
-        <dd class="mt-1 text-lg">
-          {venue.name ?? TBA}
-          {venue.address && <span class="block text-base text-neutral-700">{venue.address}</span>}
-          {
-            venue.mapUrl && (
-              <a href={venue.mapUrl} target="_blank" rel="noopener noreferrer" class="text-base underline">
-                Directions<span class="sr-only"> (opens in a new tab)</span>
-              </a>
-            )
-          }
-        </dd>
-      </div>
-    </dl>
-
-    {
-      /* The countdown is meaningless without a date, so the whole component is skipped until one is set. */
-      hasDate && <Countdown start={event.date.start!} end={event.date.end} />
-    }
-
-    <div class="mt-10 flex flex-wrap gap-3">
-      <CtaButton href={cta.href} label={cta.label} size="lg" />
-      <!-- Secondary button for sponsors. It's quieter on purpose so students aren't confused about which one is theirs. -->
-      {sponsor.href && <CtaButton href={sponsor.href} label={sponsor.label} external={sponsor.external} variant="secondary" size="lg" />}
+    <div class="relative order-first mx-auto w-full max-w-xs sm:max-w-md lg:order-none lg:max-w-none">
+      <!-- aspect-square + centered with translate makes true circles, even though the logo box is wide and short. -->
+      <div aria-hidden="true" class="absolute top-1/2 left-1/2 aspect-square w-[78%] -translate-1/2 rounded-full border border-line"></div>
+      <div aria-hidden="true" class="absolute top-1/2 left-1/2 aspect-square w-[48%] -translate-1/2 rounded-full border border-dashed border-line"></div>
+      <Logo draw class="neon relative w-full text-aero" />
     </div>
   </div>
 </section>

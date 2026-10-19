@@ -28,18 +28,19 @@ const facts = [
   <div class:list={["grid gap-10", event.about.length > 0 && "lg:grid-cols-[3fr_2fr]"]}>
     {
       event.about.length > 0 && (
-        <div class="max-w-prose space-y-4 text-lg">
+        <div class="max-w-prose space-y-5 text-lg leading-relaxed text-fg/90">
           {event.about.map((para) => <p>{para}</p>)}
         </div>
       )
     }
 
-    <dl class="max-w-md space-y-4 rounded-lg border border-black/10 p-6">
+    <!-- "spotlight" = the card glows where your pointer is (see global.css). -->
+    <dl class="spotlight max-w-md space-y-5 rounded-xl border border-line p-6">
       {
         facts.map((f) => (
           <div>
-            <dt class="text-sm font-semibold text-neutral-600">{f.label}</dt>
-            <dd class="mt-1">{f.value}</dd>
+            <dt class="text-xs font-semibold tracking-widest text-aero uppercase">{f.label}</dt>
+            <dd class="mt-1 font-medium">{f.value}</dd>
           </div>
         ))
       }

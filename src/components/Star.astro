@@ -1,0 +1,15 @@
+---
+// Star.astro — the little 4-point "✦" star used as a separator in the marquee and as a bullet in lists.
+//
+// I draw it as an SVG instead of typing the ✦ character because our fonts don't include that character,
+// so phones fall back to an emoji font and show a different colorful sparkle on every device.
+// It uses currentColor, so it takes whatever text color class you give it (e.g. class="text-volt").
+interface Props {
+  class?: string;
+}
+const { class: className } = Astro.props;
+---
+
+<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" class:list={["inline-block shrink-0", className]}>
+  <path d="M12 0 C13 8 16 11 24 12 C16 13 13 16 12 24 C11 16 8 13 0 12 C8 11 11 8 12 0 Z" />
+</svg>

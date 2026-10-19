@@ -11,12 +11,12 @@ import Section from "./Section.astro";
 <Section id="team" title="The team">
   {
     event.team.length === 0 ? (
-      <p class="text-neutral-700">Meet the organizers soon.</p>
+      <p class="text-muted">Meet the organizers soon.</p>
     ) : (
       // 2 across on phones (cards are small), up to 4 on desktop.
-      <ul class="grid grid-cols-2 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+      <ul class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {event.team.map((m) => (
-          <li class="text-center">
+          <li class="spotlight rounded-xl border border-line p-6 text-center">
             {m.photo ? (
               // width/height attributes let the browser reserve space before the image loads, so the page doesn't jump.
               <img
@@ -25,19 +25,19 @@ import Section from "./Section.astro";
                 width="96"
                 height="96"
                 loading="lazy"
-                class="mx-auto size-24 rounded-full object-cover"
+                class="mx-auto size-24 rounded-full object-cover ring-2 ring-aero/60 ring-offset-4 ring-offset-ink-2"
               />
             ) : (
               // aria-hidden: the initials are decoration; the name right below already says who it is.
               <div
                 aria-hidden="true"
-                class="mx-auto flex size-24 items-center justify-center rounded-full bg-neutral-200 text-2xl font-semibold text-neutral-700"
+                class="mx-auto flex size-24 items-center justify-center rounded-full bg-ink-3 font-display text-2xl font-semibold text-aero ring-2 ring-aero/60 ring-offset-4 ring-offset-ink-2"
               >
                 {initials(m.name)}
               </div>
             )}
-            <p class="mt-3 font-semibold">{m.name}</p>
-            <p class="text-sm text-neutral-700">{m.role}</p>
+            <p class="mt-5 font-display font-semibold">{m.name}</p>
+            <p class="mt-1 text-sm text-muted">{m.role}</p>
           </li>
         ))}
       </ul>

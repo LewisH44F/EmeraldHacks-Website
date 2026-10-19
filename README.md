@@ -39,6 +39,7 @@ TBA — `https://<our-site>.netlify.app` once Netlify is connected.
 - `beginnerFriendly` — `true` adds "None needed. Beginners welcome." to the About facts.
 - `about` — the About paragraphs (one string per paragraph).
 - `sponsorPitch` — bullet points in the "Why sponsor" box. No made-up numbers.
+- `marquee` — the words in the big sideways-scrolling bands. Decorative only; keep facts out of them.
 - `links` — form URLs, Instagram, email, code of conduct. Empty `""` hides that link.
 - **`registrationOpen`** — `false` shows "Join interest list"; `true` shows "Register". Both use `links.register`. If `links.register` is empty, the button shows a non-clickable "Sign-ups soon".
 - **`showFiscalSponsor`** — keep `false` until Hack Club HCB approves us. While `false`, no HCB branding appears anywhere.
@@ -62,13 +63,14 @@ aerohacks/
 ├── src/
 │   ├── content/event.ts   ← all event info (the only file most people edit)
 │   ├── components/        ← one file per section (Hero, About, Tracks, Schedule, Sponsors, Team, Faq)
-│   │                         plus Nav, Footer, Countdown, Section (shared wrapper), CtaButton (shared button)
+│   │                         plus Nav, Footer, Countdown, Section (shared wrapper), CtaButton (shared button),
+│   │                         Logo (the dragon), SkyField (animated background), Marquee (sideways bands), Star
 │   ├── lib/sections.ts    ← the nav links / section ids (keeps them in sync)
 │   ├── lib/cta.ts         ← decides what the Register / Become a sponsor buttons say and where they go
 │   ├── lib/format.ts      ← date formatting and the "TBA" fallback
 │   ├── layouts/Base.astro ← shared <html>/<head> shell + skip link
 │   ├── pages/index.astro  ← the single page
-│   └── styles/global.css  ← Tailwind import + theme variables
+│   └── styles/global.css  ← Tailwind import, brand colors + fonts, glow/animation styles
 ├── public/                ← files served as-is (favicon, sponsor logos, team photos)
 │   ├── sponsors/
 │   └── team/
@@ -76,6 +78,14 @@ aerohacks/
 ├── netlify.toml           ← Netlify build settings
 └── package.json
 ```
+
+## Look and feel
+
+- **Colors and fonts** are defined once, in the `@theme` block at the top of `src/styles/global.css`. Change a value there and it updates everywhere. Yellow (`volt`) is reserved for the main sign-up button.
+- **The site is dark-only** on purpose; the black theme is the brand.
+- **Fonts:** Unbounded (headings) and Inter (body text), installed from npm and served from our own site. Nothing loads from Google.
+- **Logo:** `src/components/Logo.astro` is a placeholder line-art Aeronaut dragon. To use an official logo, replace the `<path>` lines in that file, or swap the component for an `<img>`. The favicon is `public/favicon.svg`.
+- **Motion:** the animated background (`SkyField.astro`) reacts to scrolling, pointer movement and taps. The marquee bands slide as you scroll, and sections fade in. Visitors with "reduce motion" turned on in their device settings get a still version, and it all still works with JavaScript off.
 
 ## Deploying
 

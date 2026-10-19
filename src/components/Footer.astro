@@ -4,32 +4,61 @@
 // Every link is optional: if its value in event.ts is empty, it's simply left out rather than shown broken.
 // The fiscal sponsor line only appears once `showFiscalSponsor` is true (after Hack Club HCB approves us).
 import { event } from "../content/event";
+import Logo from "./Logo.astro";
 
 const { email, instagram, codeOfConduct } = event.links;
 // Screen readers announce lists ("list, 0 items"), so I skip the <ul> entirely when there's nothing in it.
 const hasLinks = Boolean(email || instagram || codeOfConduct);
 ---
 
-<footer class="border-t border-black/10 py-10 text-sm text-neutral-700">
-  <div class="mx-auto flex max-w-6xl flex-col gap-4 px-4">
-    {hasLinks && (
-    <ul class="flex flex-wrap gap-x-6 gap-y-2">
-      {email && <li><a class="underline" href={`mailto:${email}`}>{email}</a></li>}
-      {instagram && <li><a class="underline" href={instagram} target="_blank" rel="noopener noreferrer">Instagram</a></li>}
-      {codeOfConduct && <li><a class="underline" href={codeOfConduct} target="_blank" rel="noopener noreferrer">Code of Conduct</a></li>}
-    </ul>
-    )}
-    <p>{event.name} is organized by the Computer Science Honor Society at Emerald High School.</p>
-    {
-      event.showFiscalSponsor && (
-        <p>
-          Fiscally sponsored by{" "}
-          <a class="underline" href={event.fiscalSponsor.url} target="_blank" rel="noopener noreferrer">
-            {event.fiscalSponsor.name}
-          </a>
-          .
-        </p>
-      )
-    }
+<!-- bg-ink/80 + backdrop-blur: the animated background still shows through faintly at the bottom. -->
+<footer class="border-t border-line bg-ink/80 py-12 text-sm text-muted backdrop-blur-md">
+  <div class="mx-auto flex max-w-6xl flex-col gap-6 px-4 sm:flex-row sm:items-start sm:justify-between">
+    <div class="flex items-center gap-3">
+      <Logo variant="head" class="neon size-10 text-aero" />
+      <div>
+        <p class="font-display font-bold text-fg">{event.name}</p>
+        <p>Organized by the Computer Science Honor Society at Emerald High School.</p>
+      </div>
+    </div>
+
+    <div class="space-y-3 sm:text-end">
+      {
+        hasLinks && (
+          <ul class="flex flex-wrap gap-x-6 gap-y-2 sm:justify-end">
+            {email && (
+              <li>
+                <a class="hover:text-aero" href={`mailto:${email}`}>{email}</a>
+              </li>
+            )}
+            {instagram && (
+              <li>
+                <a class="hover:text-aero" href={instagram} target="_blank" rel="noopener noreferrer">
+                  Instagram<span class="sr-only"> (opens in a new tab)</span>
+                </a>
+              </li>
+            )}
+            {codeOfConduct && (
+              <li>
+                <a class="hover:text-aero" href={codeOfConduct} target="_blank" rel="noopener noreferrer">
+                  Code of Conduct<span class="sr-only"> (opens in a new tab)</span>
+                </a>
+              </li>
+            )}
+          </ul>
+        )
+      }
+      {
+        event.showFiscalSponsor && (
+          <p>
+            Fiscally sponsored by{" "}
+            <a class="underline underline-offset-4 hover:text-aero" href={event.fiscalSponsor.url} target="_blank" rel="noopener noreferrer">
+              {event.fiscalSponsor.name}
+            </a>
+            .
+          </p>
+        )
+      }
+    </div>
   </div>
 </footer>

@@ -57,6 +57,7 @@ export interface EventConfig {
   beginnerFriendly: boolean;
   about: string[];
   sponsorPitch: string[];
+  marquee: string[];
   links: {
     register: string;
     sponsorForm: string;
@@ -127,6 +128,10 @@ export const event: EventConfig = {
     "Support Dublin's first high school hackathon and help beginners write their first lines of code.",
     "Logo placement on this site and at the event, by tier.",
   ],
+
+  // Words in the big sideways-scrolling bands between sections. Short and punchy; they repeat to fill the width.
+  // Keep them decorative. Don't put facts (dates, prizes) here, they'd be easy to forget when things change.
+  marquee: ["12 hours", "Build anything", "Ship it", "Learn fast", "Find your team", "Dublin, CA"],
 
   links: {
     // Registration (or interest-list) form — Google Form, Tally, etc. I link out instead of building a form

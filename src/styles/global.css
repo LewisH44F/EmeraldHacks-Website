@@ -1,21 +1,137 @@
 /* global.css — site-wide styles, loaded once by src/layouts/Base.astro.
+
    Tailwind is a CSS framework where you style elements with small utility classes (e.g. "px-4" = horizontal padding)
-   directly in the HTML instead of writing a separate stylesheet. This one import pulls all of Tailwind in.
-   Colors, fonts, and dark mode get defined here in Phase 5 as CSS variables. */
+   directly in the HTML instead of writing a separate stylesheet. The @import below pulls all of Tailwind in.
+
+   Below that, the @theme block defines our brand colors and fonts as CSS variables. Tailwind turns each one into
+   utility classes automatically: --color-aero becomes `text-aero`, `bg-aero`, `border-aero`, and so on.
+   To re-theme the whole site, change the values in @theme. Don't hunt through components for hex codes. */
 @import "tailwindcss";
 
-/* Smooth scrolling when a nav link jumps to a section.
-   I only turn it on for people who haven't asked their device to reduce motion: for some people (e.g. with
-   vestibular disorders) a long animated scroll causes real dizziness, and an instant jump is better for them.
-   The browser still updates the URL (#faq) and moves keyboard focus to the section either way. */
+/* Fonts are self-hosted (installed from npm, served from our own site) instead of loaded from Google, which keeps
+   the page faster and means visitors' browsers don't ping a third party. Two families max, per the spec:
+   Unbounded = big, wide, sporty display font for headings; Inter = very readable font for body text. */
+@import "@fontsource-variable/unbounded";
+@import "@fontsource-variable/inter";
+
+@theme {
+  /* --- Colors ---------------------------------------------------------------------------------------------
+     The site is dark by design (majority black). The accents are brightened versions of the Aeronauts
+     mascot colors (green, blue, plus yellow) so they glow against black AND pass contrast checks.
+     Every text color below meets WCAG AA (4.5:1) on --color-ink. */
+  --color-ink: #07090a; /* page background: near-black with a hint of green so it isn't flat #000 */
+  --color-ink-2: #0d1214; /* cards / raised surfaces */
+  --color-ink-3: #141b1e; /* hover state for surfaces */
+  --color-line: #22302e; /* borders and dividers */
+  --color-fg: #eef3f1; /* main text */
+  --color-muted: #9aa8a4; /* secondary text */
+  --color-aero: #39d98a; /* signature green (the dragon) */
+  --color-sky: #5b9bff; /* blue accent */
+  --color-volt: #ffd23f; /* yellow: reserved for the main call-to-action so it always stands out */
+  --color-ember: #ff8a3d; /* orange from the mascot's fins, used sparingly */
+
+  /* --- Fonts --- */
+  --font-display: "Unbounded Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Tell the browser the site is dark, so built-in things (scrollbars, form controls, the FAQ marker)
+   are drawn dark too. There's no light mode on purpose: the brand IS the dark theme. */
+:root {
+  color-scheme: dark;
+}
+
+body {
+  background-color: var(--color-ink);
+  color: var(--color-fg);
+}
+
+/* Highlighted text in our green instead of the browser's default blue. */
+::selection {
+  background: var(--color-aero);
+  color: var(--color-ink);
+}
+
+/* A clearly visible focus ring for keyboard users on every link and button. :focus-visible only shows it for
+   keyboard navigation, not mouse clicks, so it doesn't look odd to mouse users. */
+:focus-visible {
+  outline: 2px solid var(--color-volt);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+/* ---------------------------------------------------------------------------------------------------------
+   Reusable effects (used as class names in components)
+   --------------------------------------------------------------------------------------------------------- */
+
+/* Gradient text for the big hero title. background-clip: text paints the gradient only inside the letters. */
+.text-gradient {
+  background: linear-gradient(100deg, var(--color-aero) 10%, var(--color-sky) 60%, var(--color-volt) 110%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Neon glow for the line-art logo. drop-shadow follows the actual lines (box-shadow would glow around a rectangle). */
+.neon {
+  filter: drop-shadow(0 0 6px color-mix(in oklab, currentColor 60%, transparent));
+}
+
+/* "Spotlight" cards: a soft glow follows the mouse/finger across the card. The --mx/--my variables are set by
+   the pointer script in Base.astro; until then the glow sits off-card (-999px) so nothing shows. */
+.spotlight {
+  background:
+    radial-gradient(320px circle at var(--mx, -999px) var(--my, -999px), color-mix(in oklab, var(--color-aero) 14%, transparent), transparent 70%),
+    var(--color-ink-2);
+}
+
+/* ---------------------------------------------------------------------------------------------------------
+   Motion
+   Everything that moves lives inside "no-preference": if someone has asked their device to reduce motion
+   (e.g. because animation makes them dizzy), they get a fully working, still site.
+   --------------------------------------------------------------------------------------------------------- */
 @media (prefers-reduced-motion: no-preference) {
+  /* Smooth scrolling for nav jump links. The URL hash and keyboard focus still update normally. */
   html {
     scroll-behavior: smooth;
   }
+
+  /* The hero logo "draws itself". Every path has pathLength="1", so a dash of length 1 offset by 1 hides the
+     whole line, and animating the offset to 0 reveals it from start to end. Each path starts a bit later
+     (staggered with nth-child) so the dragon draws from tail to head. */
+  .logo-draw path {
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: draw 1.4s cubic-bezier(0.6, 0, 0.2, 1) forwards;
+  }
+  .logo-draw path:nth-child(n + 3) { animation-delay: 0.15s; }
+  .logo-draw path:nth-child(n + 6) { animation-delay: 0.35s; }
+  .logo-draw path:nth-child(n + 8) { animation-delay: 0.55s; }
+  .logo-draw path:nth-child(n + 10) { animation-delay: 0.75s; }
+
+  /* Scroll reveal: sections slide up and fade in as they enter the screen. Only applied when the `js` class is
+     on <html> (added by a script in Base.astro), so if JavaScript fails, content is never stuck invisible. */
+  .js [data-reveal] {
+    opacity: 0;
+    translate: 0 24px;
+    transition:
+      opacity 0.7s ease,
+      translate 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .js [data-reveal].is-visible {
+    opacity: 1;
+    translate: 0 0;
+  }
 }
 
-/* Same idea for small UI animations, like the FAQ "+" rotating into an "×". With reduced motion on,
-   things still change state, they just don't animate. */
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* With reduced motion on, kill any remaining transitions/animations (like the FAQ "+" rotating).
+   Things still change state; they just don't animate. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

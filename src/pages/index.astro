@@ -13,6 +13,7 @@ import Sponsors from "../components/Sponsors.astro";
 import Team from "../components/Team.astro";
 import Faq from "../components/Faq.astro";
 import Footer from "../components/Footer.astro";
+import Marquee from "../components/Marquee.astro";
 ---
 
 <Base>
@@ -20,8 +21,11 @@ import Footer from "../components/Footer.astro";
   <!-- id="main" is the target of the "Skip to content" link in Base.astro. -->
   <main id="main">
     <Hero />
+    <!-- Marquee bands break up the page and slide sideways as you scroll. They're decoration (aria-hidden). -->
+    <Marquee />
     <About />
     <Tracks />
+    <Marquee reverse />
     <Schedule />
     <Sponsors />
     <Team />

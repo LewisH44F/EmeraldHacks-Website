@@ -1,0 +1,118 @@
+---
+// Marquee.astro — a big band of words that slides sideways as you scroll down the page.
+//
+// It's not on a timer: the sideways position is tied to the vertical scroll, so it moves only when you do
+// (scroll down → it slides one way, scroll up → it slides back). Two rows slide in opposite directions.
+// The words come from `marquee` in event.ts.
+import { event } from "../content/event";
+import Star from "./Star.astro";
+
+interface Props {
+  // Flips which row goes which way, so consecutive bands don't all move identically.
+  reverse?: boolean;
+}
+
+const { reverse = false } = Astro.props;
+
+// Repeat the word list enough times that the row is always wider than any screen, even mid-slide.
+const words = Array.from({ length: 4 }, () => event.marquee).flat();
+---
+
+{
+  event.marquee.length > 0 && (
+    // aria-hidden: it's decoration that repeats the same words; a screen reader reading it would just be noise.
+    // overflow-hidden clips the extra-wide rows so the page never scrolls sideways.
+    // -rotate-2 tilts the band slightly for energy; the vertical padding keeps the tilted corners from clipping.
+    <div aria-hidden="true" class="marquee relative overflow-hidden py-10 select-none" data-marquee data-reverse={reverse ? "1" : undefined}>
+      <div class="-rotate-2 space-y-2 border-y border-line bg-ink-2/80 py-4 backdrop-blur-sm">
+        <div data-marquee-row="1" class="flex w-max gap-8 font-display text-4xl font-bold whitespace-nowrap uppercase sm:text-6xl">
+          {words.map((w, i) => (
+            <span class:list={["flex items-center gap-8", i % 2 ? "text-transparent [-webkit-text-stroke:1.5px_var(--color-aero)]" : "text-fg"]}>
+              {w}
+              <Star class="size-[0.6em] text-volt" />
+            </span>
+          ))}
+        </div>
+        <div data-marquee-row="-1" class="flex w-max gap-8 font-display text-4xl font-bold whitespace-nowrap uppercase sm:text-6xl">
+          {words.map((w, i) => (
+            <span class:list={["flex items-center gap-8", i % 2 ? "text-fg" : "text-transparent [-webkit-text-stroke:1.5px_var(--color-sky)]"]}>
+              {w}
+              <Star class="size-[0.6em] text-aero" />
+            </span>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+<script>
+  // Moves every marquee row sideways based on scroll position. Astro only includes this script once,
+  // even though the component appears several times on the page.
+  const bands = [...document.querySelectorAll<HTMLElement>("[data-marquee]")];
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+  // Only bands currently on screen get updated; IntersectionObserver (a browser feature that reports when
+  // elements enter/leave the screen) keeps this list current so off-screen bands cost nothing.
+  const visible = new Set<HTMLElement>();
+  const io = new IntersectionObserver((entries) => {
+    for (const e of entries) {
+      if (e.isIntersecting) visible.add(e.target as HTMLElement);
+      else visible.delete(e.target as HTMLElement);
+    }
+    schedule();
+  });
+  bands.forEach((b) => io.observe(b));
+
+  // Each row's width, measured once (and again on resize) instead of on every scroll.
+  const rowWidths = new Map<HTMLElement, number>();
+  function measureRows() {
+    document.querySelectorAll<HTMLElement>("[data-marquee-row]").forEach((row) => rowWidths.set(row, row.scrollWidth));
+  }
+  measureRows();
+
+  function update() {
+    ticking = false;
+    if (reduceMotion.matches) return;
+
+    // Phase 1: READ every position first. Phase 2: WRITE every transform. Mixing reads and writes
+    // (read, write, read, write...) forces the browser to redo layout after each write, which causes jank.
+    const jobs: { row: HTMLElement; x: number }[] = [];
+    for (const band of visible) {
+      // How far the band's center is from the screen's center, in pixels. 0 = perfectly centered.
+      const rect = band.getBoundingClientRect();
+      const offset = rect.top + rect.height / 2 - window.innerHeight / 2;
+      const flip = band.dataset.reverse ? -1 : 1;
+      band.querySelectorAll<HTMLElement>("[data-marquee-row]").forEach((row) => {
+        const dir = Number(row.dataset.marqueeRow) * flip;
+        // Start each row shifted left by a quarter of its width so there's always text on both sides,
+        // then slide by 0.6px per pixel of vertical scroll.
+        jobs.push({ row, x: -(rowWidths.get(row) ?? 0) / 4 + offset * 0.6 * dir });
+      });
+    }
+    // translate3d nudges the browser to move the row on the GPU, so it stays smooth on phones.
+    for (const { row, x } of jobs) row.style.transform = `translate3d(${x}px,0,0)`;
+  }
+
+  // requestAnimationFrame batches updates to at most once per screen refresh, no matter how many scroll
+  // events fire. Doing layout work directly in every scroll event is a classic cause of janky scrolling.
+  let ticking = false;
+  function schedule() {
+    if (!ticking) {
+      ticking = true;
+      requestAnimationFrame(update);
+    }
+  }
+
+  window.addEventListener("scroll", schedule, { passive: true });
+  window.addEventListener("resize", () => {
+    measureRows();
+    schedule();
+  });
+  // Fonts load after first paint and change the text width, so re-measure once they're ready.
+  document.fonts?.ready.then(() => {
+    measureRows();
+    schedule();
+  });
+  schedule();
+</script>
