@@ -7,6 +7,7 @@
 import { event } from "../content/event";
 import { navSections } from "../lib/sections";
 import { registerCta } from "../lib/cta";
+import CtaButton from "./CtaButton.astro";
 
 const cta = registerCta();
 ---
@@ -54,22 +55,7 @@ const cta = registerCta();
       ms-auto here only matters on mobile (where the link list above is hidden) to push it right.
     -->
     <div class="ms-auto flex items-center gap-2 lg:ms-0">
-      {
-        cta.href ? (
-          <a
-            href={cta.href}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="rounded-md bg-black px-3 py-2 text-sm font-semibold whitespace-nowrap text-white hover:bg-neutral-800"
-          >
-            {cta.label}
-          </a>
-        ) : (
-          <span class="rounded-md bg-neutral-200 px-3 py-2 text-sm font-semibold whitespace-nowrap text-neutral-700">
-            {cta.label}
-          </span>
-        )
-      }
+      <CtaButton href={cta.href} label={cta.label} />
 
       <!--
         Hamburger button, mobile only. aria-expanded tells screen readers whether the menu is open, and
@@ -192,7 +178,7 @@ const cta = registerCta();
 
   sections.forEach((s) => observer.observe(s));
 
-  // Edge case: the last section (Team) can be too short to ever reach the 40% line, so at the very bottom of
+  // Edge case: the last section (FAQ) can be too short to ever reach the 40% line, so at the very bottom of
   // the page I force it active. { passive: true } tells the browser this listener never blocks scrolling.
   window.addEventListener(
     "scroll",

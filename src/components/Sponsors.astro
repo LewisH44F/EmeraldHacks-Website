@@ -1,0 +1,74 @@
+---
+// Sponsors.astro — sponsor logos grouped by tier, plus the pitch for companies thinking about sponsoring.
+//
+// Reads `sponsors`, `sponsorPitch`, and the sponsor links from event.ts. With no sponsors yet, it shows a
+// "be our first sponsor" message instead of an empty grid — an empty grid looks like nobody believes in the event.
+import { event, type SponsorTier } from "../content/event";
+import { sponsorCta } from "../lib/cta";
+import Section from "./Section.astro";
+import CtaButton from "./CtaButton.astro";
+
+const cta = sponsorCta();
+
+// Tiers in display order, with logo heights: bigger sponsors get bigger logos, which is part of what they pay for.
+const tiers: { tier: SponsorTier; label: string; logoClass: string }[] = [
+  { tier: "gold", label: "Gold", logoClass: "h-16" },
+  { tier: "silver", label: "Silver", logoClass: "h-12" },
+  { tier: "bronze", label: "Bronze", logoClass: "h-10" },
+];
+
+// Only keep tiers that actually have sponsors, so we don't print an empty "Bronze" heading.
+const groups = tiers
+  .map((t) => ({ ...t, sponsors: event.sponsors.filter((s) => s.tier === t.tier) }))
+  .filter((g) => g.sponsors.length > 0);
+---
+
+<Section id="sponsors" title="Sponsors">
+  {
+    groups.length === 0 ? (
+      <p class="text-lg text-neutral-700">We're lining up sponsors now. Want your logo here first?</p>
+    ) : (
+      <div class="space-y-10">
+        {groups.map((g) => (
+          <div>
+            <h3 class="text-sm font-semibold tracking-wide text-neutral-600 uppercase">{g.label}</h3>
+            <ul class="mt-4 flex flex-wrap items-center gap-x-10 gap-y-6">
+              {g.sponsors.map((s) => (
+                <li>
+                  <a href={s.url} target="_blank" rel="noopener noreferrer" class="block">
+                    {/* alt is the sponsor's name, so the link still makes sense if the image fails or for screen readers.
+                        w-auto keeps the logo's own proportions; the tier sets only the height. */}
+                    <img src={s.logo} alt={s.name} loading="lazy" class:list={["w-auto max-w-[12rem] object-contain", g.logoClass]} />
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
+    )
+  }
+
+  <!-- The pitch box. It's always shown, because we want new sponsors even after we have some. -->
+  <div class="mt-12 rounded-lg border border-black/10 p-6 sm:p-8">
+    <h3 class="text-xl font-semibold">Why sponsor {event.name}?</h3>
+    {
+      event.sponsorPitch.length > 0 && (
+        <ul class="mt-4 list-disc space-y-2 ps-5 text-neutral-800">
+          {event.sponsorPitch.map((point) => <li>{point}</li>)}
+        </ul>
+      )
+    }
+    <div class="mt-6 flex flex-wrap items-center gap-4">
+      <CtaButton href={cta.href} label={cta.label} external={cta.external} size="lg" />
+      {
+        /* If the button goes to a form, I still show the email so sponsors who prefer a human can reach one. */
+        cta.external && event.links.email && (
+          <a href={`mailto:${event.links.email}`} class="underline">
+            {event.links.email}
+          </a>
+        )
+      }
+    </div>
+  </div>
+</Section>

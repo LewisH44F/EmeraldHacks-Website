@@ -1,0 +1,39 @@
+---
+// CtaButton.astro — the one button style used for every call to action (Register, Become a sponsor).
+//
+// It takes an href (or null). With a link it renders a real <a>; with null it renders a greyed-out, non-clickable
+// label. I do it this way so we never ship a button that looks clickable but goes nowhere.
+interface Props {
+  href: string | null;
+  label: string;
+  external?: boolean; // true => opens in a new tab (used for Google Forms etc. so the site stays open)
+  variant?: "primary" | "secondary";
+  size?: "sm" | "lg";
+}
+
+const { href, label, external = true, variant = "primary", size = "sm" } = Astro.props;
+
+const sizeClass = size === "lg" ? "px-5 py-3 text-base" : "px-3 py-2 text-sm";
+const variantClass =
+  variant === "primary"
+    ? "bg-black text-white hover:bg-neutral-800"
+    : "border border-black/20 text-black hover:bg-black/5";
+---
+
+{
+  href ? (
+    <a
+      href={href}
+      class:list={["inline-block rounded-md font-semibold whitespace-nowrap", sizeClass, variantClass]}
+      {...(external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+    >
+      {label}
+      {/* Screen readers otherwise give no warning that a new tab is about to open. */}
+      {external && <span class="sr-only"> (opens in a new tab)</span>}
+    </a>
+  ) : (
+    <span class:list={["inline-block rounded-md bg-neutral-200 font-semibold whitespace-nowrap text-neutral-700", sizeClass]}>
+      {label}
+    </span>
+  )
+}

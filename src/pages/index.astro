@@ -1,41 +1,31 @@
 ---
 // index.astro — the one and only page of the site (Astro turns each file in src/pages into a URL; this is "/").
 //
-// It just stacks the sections in order. Each section's id comes from src/lib/sections.ts so it always matches
-// the nav. Phase 2 = empty section shells; the real content (pulled from event.ts) gets filled in during Phase 3.
+// It just stacks the section components in order. Each component reads its own data from event.ts.
+// If you reorder sections here, also reorder src/lib/sections.ts so the nav matches the page.
 import Base from "../layouts/Base.astro";
 import Nav from "../components/Nav.astro";
-import Section from "../components/Section.astro";
+import Hero from "../components/Hero.astro";
+import About from "../components/About.astro";
+import Tracks from "../components/Tracks.astro";
+import Schedule from "../components/Schedule.astro";
+import Sponsors from "../components/Sponsors.astro";
+import Team from "../components/Team.astro";
+import Faq from "../components/Faq.astro";
 import Footer from "../components/Footer.astro";
-import { event } from "../content/event";
-import { navSections } from "../lib/sections";
 ---
 
 <Base>
   <Nav />
   <!-- id="main" is the target of the "Skip to content" link in Base.astro. -->
   <main id="main">
-    <!--
-      The hero is the only place with an <h1> (one per page is best for accessibility and SEO).
-      It isn't in the nav list, so it's written out here instead of looped.
-    -->
-    <section id="hero" aria-labelledby="hero-heading" class="scroll-mt-20 py-24">
-      <div class="mx-auto max-w-6xl px-4">
-        <h1 id="hero-heading" class="text-5xl font-bold">{event.name}</h1>
-        <p class="mt-3 text-xl">{event.tagline}</p>
-        <!-- I show "TBA" for null so we never accidentally publish an unconfirmed date. -->
-        <p class="mt-4">Date: {event.date.start ?? "TBA"} · Venue: {event.venue.name ?? "TBA"}</p>
-      </div>
-    </section>
-
-    {
-      navSections.map((s) => (
-        <Section id={s.id} title={s.label}>
-          {/* Temporary filler so each section has height and the scroll highlight can be tested. Replaced in Phase 3. */}
-          <p class="min-h-[40vh] text-neutral-600">Details coming soon.</p>
-        </Section>
-      ))
-    }
+    <Hero />
+    <About />
+    <Tracks />
+    <Schedule />
+    <Sponsors />
+    <Team />
+    <Faq />
   </main>
   <Footer />
 </Base>

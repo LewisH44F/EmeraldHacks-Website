@@ -1,0 +1,29 @@
+---
+// Tracks.astro — the themes teams can build for, each with its prize (or "Prize TBA").
+//
+// Reads `tracks` from event.ts. If the list is empty, it shows a "coming soon" note instead of a blank section.
+import { event } from "../content/event";
+import Section from "./Section.astro";
+---
+
+<Section id="tracks" title="Tracks & prizes">
+  {
+    event.tracks.length === 0 ? (
+      <p class="text-neutral-700">Tracks and prizes will be announced soon.</p>
+    ) : (
+      // Cards stack on phones, 2 across on tablets, 3 on desktop. auto-rows-fr keeps every card in a row the same height.
+      <ul class="grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {event.tracks.map((t) => (
+          <li class="flex flex-col rounded-lg border border-black/10 p-6">
+            <h3 class="text-xl font-semibold">{t.name}</h3>
+            <p class="mt-2 flex-1 text-neutral-700">{t.description}</p>
+            {/* mt-4 + flex-1 above pins the prize line to the bottom of the card so prizes line up across cards. */}
+            <p class="mt-4 text-sm font-semibold">
+              Prize: <span class="font-normal">{t.prize ?? "TBA"}</span>
+            </p>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+</Section>

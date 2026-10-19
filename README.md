@@ -30,14 +30,18 @@ TBA — `https://<our-site>.netlify.app` once Netlify is connected.
 **Edit only `src/content/event.ts`.** Every fact on the site comes from that file.
 
 - **`null` means "not confirmed".** The site shows "TBA" for it. Never type a guess for a date, venue, or prize.
-- `date.start` / `date.end` — ISO strings with timezone, e.g. `"2026-03-14T09:00:00-07:00"`. While `start` is `null`, the countdown is hidden.
+- `date.start` / `date.end` — ISO strings with timezone, e.g. `"2026-03-14T09:00:00-07:00"`. The site always displays them in Pacific time. While `start` is `null`, the hero says "TBA" and the countdown is hidden.
 - `venue` — `name`, `address`, `mapUrl`; each can be confirmed independently.
 - `cost`, `eligibility` — short phrases, or `null` for TBA.
+- `beginnerFriendly` — `true` adds "None needed. Beginners welcome." to the About facts.
+- `about` — the About paragraphs (one string per paragraph).
+- `sponsorPitch` — bullet points in the "Why sponsor" box. No made-up numbers.
 - `links` — form URLs, Instagram, email, code of conduct. Empty `""` hides that link.
 - **`registrationOpen`** — `false` shows "Join interest list"; `true` shows "Register". Both use `links.register`. If `links.register` is empty, the button shows a non-clickable "Sign-ups soon".
 - **`showFiscalSponsor`** — keep `false` until Hack Club HCB approves us. While `false`, no HCB branding appears anywhere.
 - `scheduleConfirmed` — `false` labels the schedule "Tentative".
-- `tracks`, `schedule`, `sponsors`, `faq`, `team` — lists; add or remove entries.
+- `tracks`, `schedule`, `sponsors`, `faq`, `team` — lists; add or remove entries. An empty list shows a "coming soon" message instead of a blank section.
+- `links.sponsorForm` — if empty, "Become a sponsor" falls back to emailing `links.email`; if both are empty it shows "Sponsor info coming soon".
 
 Example — the date gets confirmed:
 
@@ -54,9 +58,11 @@ date: {
 aerohacks/
 ├── src/
 │   ├── content/event.ts   ← all event info (the only file most people edit)
-│   ├── components/        ← reusable pieces: Nav, Section wrapper, Footer
+│   ├── components/        ← one file per section (Hero, About, Tracks, Schedule, Sponsors, Team, Faq)
+│   │                         plus Nav, Footer, Section (shared wrapper), CtaButton (shared button)
 │   ├── lib/sections.ts    ← the nav links / section ids (keeps them in sync)
-│   ├── lib/cta.ts         ← decides what the Register button says and where it goes
+│   ├── lib/cta.ts         ← decides what the Register / Become a sponsor buttons say and where they go
+│   ├── lib/format.ts      ← date formatting and the "TBA" fallback
 │   ├── layouts/Base.astro ← shared <html>/<head> shell + skip link
 │   ├── pages/index.astro  ← the single page
 │   └── styles/global.css  ← Tailwind import + theme variables

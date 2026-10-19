@@ -1,0 +1,44 @@
+---
+// Faq.astro — questions and answers from `faq` in event.ts, shown as an accordion (click a question to open it).
+//
+// I use the browser's built-in <details>/<summary> elements instead of custom JavaScript: they open and close
+// with a click or the keyboard, screen readers already understand them, and they work even if JS fails to load.
+import { event } from "../content/event";
+import Section from "./Section.astro";
+---
+
+<Section id="faq" title="FAQ">
+  {
+    event.faq.length === 0 ? (
+      // The email line below covers "ask us"; this text just shouldn't promise an email that may not exist.
+      <p class="text-neutral-700">Answers to common questions are coming soon.</p>
+    ) : (
+      <div class="max-w-3xl divide-y divide-black/10 border-y border-black/10">
+        {event.faq.map((item) => (
+          <details class="group">
+            {/* list-none hides the default triangle so I can draw my own "+" that rotates when open. */}
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 py-4 font-semibold [&::-webkit-details-marker]:hidden">
+              {item.q}
+              {/* group-open:rotate-45 turns the "+" into an "×" when this <details> is open. */}
+              <span aria-hidden="true" class="text-xl leading-none transition-transform group-open:rotate-45">
+                +
+              </span>
+            </summary>
+            <p class="pb-4 text-neutral-700">{item.a}</p>
+          </details>
+        ))}
+      </div>
+    )
+  }
+  {
+    event.links.email && (
+      <p class="mt-6 text-neutral-700">
+        Still have a question? Email{" "}
+        <a class="underline" href={`mailto:${event.links.email}`}>
+          {event.links.email}
+        </a>
+        .
+      </p>
+    )
+  }
+</Section>

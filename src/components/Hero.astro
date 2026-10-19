@@ -1,0 +1,66 @@
+---
+// Hero.astro — the first screen: event name (the page's only <h1>), tagline, date, venue, and the main button.
+//
+// Everything here comes from event.ts. Unconfirmed date/venue show "TBA". The countdown slot is only rendered
+// when a start date exists; the ticking logic itself gets added in Phase 4.
+import { event } from "../content/event";
+import { registerCta, sponsorCta } from "../lib/cta";
+import { formatDay, formatTimeRange, parseDate, TBA } from "../lib/format";
+import CtaButton from "./CtaButton.astro";
+
+const cta = registerCta();
+const sponsor = sponsorCta();
+const day = formatDay(event.date.start);
+const time = formatTimeRange(event.date.start, event.date.end);
+const hasDate = parseDate(event.date.start) !== null;
+const { venue } = event;
+---
+
+<section id="hero" aria-labelledby="hero-heading" class="scroll-mt-20 py-20 sm:py-28">
+  <div class="mx-auto max-w-6xl px-4">
+    <!-- A small label above the title tells first-time visitors what this is before they read anything else. -->
+    <p class="text-sm font-semibold tracking-wide text-neutral-600 uppercase">High school hackathon · Dublin, CA</p>
+    <h1 id="hero-heading" class="mt-2 text-5xl font-bold sm:text-7xl">{event.name}</h1>
+    {event.tagline && <p class="mt-4 max-w-xl text-xl sm:text-2xl">{event.tagline}</p>}
+
+    <!--
+      A description list (<dl>) pairs labels with values ("When" → date). Screen readers understand the pairing,
+      which plain <p> tags wouldn't give them.
+    -->
+    <dl class="mt-8 grid gap-4 sm:grid-cols-2 sm:max-w-2xl">
+      <div>
+        <dt class="text-sm font-semibold text-neutral-600">When</dt>
+        <dd class="mt-1 text-lg">
+          {day}
+          {time && <span class="block text-base text-neutral-700">{time}</span>}
+        </dd>
+      </div>
+      <div>
+        <dt class="text-sm font-semibold text-neutral-600">Where</dt>
+        <dd class="mt-1 text-lg">
+          {venue.name ?? TBA}
+          {venue.address && <span class="block text-base text-neutral-700">{venue.address}</span>}
+          {
+            venue.mapUrl && (
+              <a href={venue.mapUrl} target="_blank" rel="noopener noreferrer" class="text-base underline">
+                Directions<span class="sr-only"> (opens in a new tab)</span>
+              </a>
+            )
+          }
+        </dd>
+      </div>
+    </dl>
+
+    {
+      /* The countdown is meaningless without a date, so the whole block is skipped until one is set.
+         data-start hands the ISO date to the Phase 4 script without it needing to import the config. */
+      hasDate && <div id="countdown" data-start={event.date.start} class="mt-8" aria-live="off" />
+    }
+
+    <div class="mt-10 flex flex-wrap gap-3">
+      <CtaButton href={cta.href} label={cta.label} size="lg" />
+      <!-- Secondary button for sponsors. It's quieter on purpose so students aren't confused about which one is theirs. -->
+      {sponsor.href && <CtaButton href={sponsor.href} label={sponsor.label} external={sponsor.external} variant="secondary" size="lg" />}
+    </div>
+  </div>
+</section>

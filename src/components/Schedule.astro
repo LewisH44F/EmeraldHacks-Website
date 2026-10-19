@@ -1,0 +1,43 @@
+---
+// Schedule.astro — the 12-hour timeline, in the order listed in `schedule` in event.ts.
+//
+// While `scheduleConfirmed` is false, a "Tentative" label is shown so nobody plans their day around draft times.
+import { event } from "../content/event";
+import { formatDay, parseDate } from "../lib/format";
+import Section from "./Section.astro";
+
+// "Date TBA" reads better than a lone "TBA" sitting above the timeline.
+const day = parseDate(event.date.start) ? formatDay(event.date.start) : "Date TBA";
+---
+
+<Section id="schedule" title="Schedule">
+  <p class="mb-6 text-neutral-700">
+    {day}
+    {
+      !event.scheduleConfirmed && (
+        <span class="ms-2 inline-block rounded-full border border-black/20 px-2 py-0.5 text-xs font-semibold">
+          Tentative
+        </span>
+      )
+    }
+  </p>
+  {
+    event.schedule.length === 0 ? (
+      <p class="text-neutral-700">The full schedule will be posted soon.</p>
+    ) : (
+      // An ordered list (<ol>) because the order matters. The left border draws a simple timeline line.
+      <ol class="max-w-2xl border-s border-black/20">
+        {event.schedule.map((item) => (
+          // grid-cols-[6rem_1fr] gives times a fixed-width column so titles line up down the list.
+          <li class="grid gap-x-4 py-3 ps-6 sm:grid-cols-[6rem_1fr]">
+            <p class="font-semibold tabular-nums">{item.time}</p>
+            <div>
+              <h3 class="font-semibold">{item.title}</h3>
+              {item.description && <p class="text-neutral-700">{item.description}</p>}
+            </div>
+          </li>
+        ))}
+      </ol>
+    )
+  }
+</Section>

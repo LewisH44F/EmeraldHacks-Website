@@ -55,6 +55,8 @@ export interface EventConfig {
   cost: string | null;
   eligibility: string | null;
   beginnerFriendly: boolean;
+  about: string[];
+  sponsorPitch: string[];
   links: {
     register: string;
     sponsorForm: string;
@@ -110,6 +112,21 @@ export const event: EventConfig = {
   // true => the About section says "No experience needed". Only set true if we really will support beginners
   // (workshops, mentors). false => the line is simply left out.
   beginnerFriendly: true,
+
+  // Paragraphs for the About section, written for beginners AND parents. Each string is one paragraph.
+  // I keep this copy here (not in the component) so the team can reword it without touching code.
+  about: [
+    "A hackathon is a day-long event where students team up to build a project from scratch: an app, a website, a game, a robot, anything. Most hackathons also have workshops, mentors, food, and prizes.",
+    "Aerohacks runs for 12 hours in a single day and ends the same evening. It's organized by students in Emerald High's Computer Science Honor Society.",
+    // TODO: once confirmed, add a sentence about adult supervision / chaperones. Parents look for this first.
+  ],
+
+  // Bullet points in the "Why sponsor" box. Keep these honest: don't add attendee numbers until we have real ones.
+  sponsorPitch: [
+    "Put your brand in front of motivated high school students in Dublin.",
+    "Support Dublin's first high school hackathon and help beginners write their first lines of code.",
+    "Logo placement on this site and at the event, by tier.",
+  ],
 
   links: {
     // Registration (or interest-list) form — Google Form, Tally, etc. I link out instead of building a form
