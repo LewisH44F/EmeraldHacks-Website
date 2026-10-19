@@ -27,7 +27,7 @@ const words = Array.from({ length: 4 }, () => event.marquee).flat();
       <div class="-rotate-2 space-y-2 border-y border-line bg-ink-2/80 py-4 backdrop-blur-sm">
         <div data-marquee-row="1" class="flex w-max gap-8 font-display text-4xl font-bold whitespace-nowrap uppercase sm:text-6xl">
           {words.map((w, i) => (
-            <span class:list={["flex items-center gap-8", i % 2 ? "text-transparent [-webkit-text-stroke:1.5px_var(--color-aero)]" : "text-fg"]}>
+            <span class:list={["flex items-center gap-8", i % 2 ? "outline-text [--stroke:var(--color-aero)]" : "text-fg"]}>
               {w}
               <Star class="size-[0.6em] text-volt" />
             </span>
@@ -35,7 +35,7 @@ const words = Array.from({ length: 4 }, () => event.marquee).flat();
         </div>
         <div data-marquee-row="-1" class="flex w-max gap-8 font-display text-4xl font-bold whitespace-nowrap uppercase sm:text-6xl">
           {words.map((w, i) => (
-            <span class:list={["flex items-center gap-8", i % 2 ? "text-fg" : "text-transparent [-webkit-text-stroke:1.5px_var(--color-sky)]"]}>
+            <span class:list={["flex items-center gap-8", i % 2 ? "text-fg" : "outline-text [--stroke:var(--color-sky)]"]}>
               {w}
               <Star class="size-[0.6em] text-aero" />
             </span>
@@ -45,6 +45,18 @@ const words = Array.from({ length: 4 }, () => event.marquee).flat();
     </div>
   )
 }
+
+<style>
+  /* Outlined words. Variable fonts build letters from overlapping shapes, so a plain text outline also traces
+     the overlaps INSIDE each letter (stray lines). paint-order: stroke fill draws the outline first and the fill
+     on top; filling with the band's own background color covers those inner lines and the inner half of the
+     stroke, which is why the stroke is 3px (only ~1.5px stays visible). */
+  .outline-text {
+    color: var(--color-ink-2);
+    -webkit-text-stroke: 3px var(--stroke);
+    paint-order: stroke fill;
+  }
+</style>
 
 <script>
   // Moves every marquee row sideways based on scroll position. Astro only includes this script once,
