@@ -109,7 +109,9 @@ aerohacks-website/
 │   │   ├── sections.ts       ← nav links + section order (keeps nav and page in sync)
 │   │   ├── cta.ts            ← decides what the Register / Become a sponsor buttons say and where they go
 │   │   └── format.ts         ← date formatting and the "TBA" fallback
-│   ├── scripts/flights.ts    ← sends the flyers on random trips (speeds, pauses, dragon stunts)
+│   ├── scripts/dragon.ts     ← the dragon's flight engine (steering, follow-the-leader body, loops)
+│   ├── scripts/flights.ts    ← random trips for the astronaut and space station
+│   ├── scripts/stage.ts      ← lets the astronaut and dragon tag-team so one is always on screen
 │   ├── layouts/Base.astro    ← the <html>/<head> shell: SEO + link-preview tags, skip link, site-wide scripts
 │   ├── pages/index.astro     ← the single page: stacks the sections in order
 │   └── styles/global.css     ← brand colors + fonts (@theme), glow and animation styles
@@ -134,7 +136,9 @@ aerohacks-website/
 - **Motion:**
   - The background mesh (`SkyField.astro`) reacts to scrolling, mouse/finger movement, and taps.
   - The marquee bands (`Marquee.astro`) slide continuously and never stop. To change the speed, edit `70s` in that file (higher = slower).
-  - Three flyers cross the screen on **random** trips (random side, height, speed, and pause each time): the jetpack astronaut (`Astronaut.astro`), the Aeronaut sky dragon (`SkyDragon.astro`), and a space station (`Iss.astro`). The dragon randomly cruises, swoops, does Rayquaza-style loop-de-loops, or U-turns and flies back. All of the randomness is tuned in the `CONFIG` block at the top of `src/scripts/flights.ts` (speeds, pauses, which stunts).
+  - **The Aeronaut dragon** (`SkyDragon.astro` draws it, `src/scripts/dragon.ts` flies it). Only its head is steered, along a smooth winding path; every body segment follows exactly where the head has been, so the body flows like a real serpent. On most trips it does a Rayquaza-style loop-de-loop: it coils into a circle, and either carries on or exits the loop heading the other way, head first, then rolls upright with the twist rippling down its body. Its size is set from the screen width, so it fits phones and big screens.
+  - **The astronaut and the space station** (`Astronaut.astro`, `Iss.astro`, moved by `src/scripts/flights.ts`) cross on random trips: random side, heights, speed, and path (glide, swoop, zig-zag, corner-to-corner). Tune speeds and pauses in the `CONFIG` block at the top of that file.
+  - **Someone's always flying:** the astronaut and the dragon tag-team (`src/scripts/stage.ts`). When one leaves, it wakes the other, and a watchdog makes sure the sky is never empty of both.
   - `SpaceScene.astro` adds a ringed planet in the bottom-right corner (turning cloud bands, glowing atmosphere, particles streaming around both rings), a satellite orbiting it with a blinking light, and twinkling stars.
   - Text-heavy areas (the schedule, the About text) sit on frosted `.readable-panel` backgrounds that dim and blur whatever flies behind them.
   - Sections fade in as you reach them. On phones, cards and schedule rows light up as they cross the middle of the screen (phones can't hover).

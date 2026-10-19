@@ -85,7 +85,8 @@ const ogImage = new URL("/og.png", Astro.site);
     <!--
       The background layers, all fixed behind the content. Later ones draw on top of earlier ones:
       the mesh, then the planet/satellite/stars, then the space station, the jetpack aeronaut, and the dragon.
-      The three flyers are moved around by src/scripts/flights.ts (imported in the script below).
+      The flyers are moved by src/scripts/flights.ts (astronaut, station) and src/scripts/dragon.ts (dragon),
+      both imported in the script below.
     -->
     <SkyField />
     <SpaceScene />
@@ -95,8 +96,9 @@ const ogImage = new URL("/og.png", Astro.site);
     <slot />
 
     <script>
-      // Random flight paths for the astronaut, dragon, and space station.
+      // Random flight paths for the astronaut and space station, and the dragon's flight engine.
       import "../scripts/flights.ts";
+      import "../scripts/dragon.ts";
 
       // Site-wide pointer + scroll effects that don't belong to any single component.
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");

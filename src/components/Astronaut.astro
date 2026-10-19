@@ -3,7 +3,7 @@
 //
 // This file only draws him and handles his "body" animations (bobbing, tumbling, waving, jetpack flicker).
 // WHERE he flies is decided by src/scripts/flights.ts, which sends him on a new random trip each time
-// (random side, height, speed, and pause between trips). Look for data-flyer="astronaut" there.
+// (random side, heights, speed, and path shape). Look for data-flyer="astronaut" there.
 //
 // He's behind all content and ignores taps. No props; pure decoration.
 ---
@@ -56,11 +56,12 @@
 </div>
 
 <style>
-  /* 60px on phones up to 100px on big screens. At 80% opacity he's clearly visible but still reads as
-     background, and the frosted panels (.readable-panel) dim him wherever there's a lot of text. */
+  /* Sized from the screen width: ~46px on phones (small enough to roam the whole screen) up to 96px on big
+     screens. Nearly solid, so he's clearly visible; the frosted panels (.readable-panel) still dim him wherever
+     there's a lot of text. */
   .aeronaut {
-    width: clamp(60px, 6.5vw, 100px);
-    opacity: 0.8;
+    width: clamp(46px, 6vw, 96px);
+    opacity: 0.95;
   }
 
   /* A gentle float up and down with a slow tilt, like drifting in zero gravity. "alternate" plays it forward

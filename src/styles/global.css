@@ -183,7 +183,7 @@ body {
 }
 
 /* ---------------------------------------------------------------------------------------------------------
-   Flyers (Astronaut, SkyDragon, Iss)
+   Flyers (Astronaut, Iss). The dragon has its own engine and styles (dragon.ts, SkyDragon.astro).
    src/scripts/flights.ts moves each .flyer around the screen. Before the script runs (or if it can't), they
    wait far off-screen, so nothing ever flashes in the top-left corner.
    --------------------------------------------------------------------------------------------------------- */
@@ -194,8 +194,7 @@ body {
   transform: translate3d(-300vw, 0, 0);
   will-change: transform;
 }
-.flyer-face,
-.dragon-spin {
+.flyer-face {
   will-change: transform;
 }
 @media print {
