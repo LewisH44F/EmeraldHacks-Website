@@ -16,7 +16,8 @@ import Section from "./Section.astro";
       <div class="max-w-3xl space-y-3">
         {event.faq.map((item) => (
           // open: styles = a green border on the open question so you can see where you are in the list.
-          <details class="group rounded-xl border border-line bg-ink-2/80 backdrop-blur-sm transition-colors open:border-aero/50">
+          // No backdrop-blur here: blur on 11 stacked cards is expensive to redraw on every scroll frame on phones.
+          <details class="group rounded-xl border border-line bg-ink-2/90 transition-colors open:border-aero/50">
             {/* list-none hides the default triangle so I can draw my own "+" that rotates when open. */}
             <summary class="flex cursor-pointer list-none items-center justify-between gap-4 px-5 py-4 font-display font-medium [&::-webkit-details-marker]:hidden">
               {item.q}

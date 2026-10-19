@@ -16,7 +16,7 @@ import Section from "./Section.astro";
       // 2 across on phones (cards are small), up to 4 on desktop.
       <ul class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
         {event.team.map((m) => (
-          <li class="spotlight rounded-xl border border-line p-6 text-center">
+          <li data-focus class="spotlight rounded-xl border border-line p-6 text-center">
             {m.photo ? (
               // width/height attributes let the browser reserve space before the image loads, so the page doesn't jump.
               <img

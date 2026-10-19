@@ -85,6 +85,14 @@ body {
     var(--color-ink-2);
 }
 
+/* On phones (no hover), the script in Base.astro adds .in-focus to cards crossing the middle of the screen.
+   For spotlight cards, the glow sits in the card's center instead of following a mouse. */
+.spotlight.in-focus {
+  --mx: 50%;
+  --my: 50%;
+  border-color: color-mix(in oklab, var(--color-aero) 50%, transparent);
+}
+
 /* ---------------------------------------------------------------------------------------------------------
    Motion
    Everything that moves lives inside "no-preference": if someone has asked their device to reduce motion

@@ -88,13 +88,14 @@ const { venue } = event;
     </div>
 
     <!--
-      The dragon. order-first puts it ABOVE the text on phones (a smaller version), and lg:order-none moves it
+      The dragon. order-first puts it ABOVE the text on phones (kept small, 9.5rem, so the Register button still
+      fits on the first screen of a phone), and lg:order-none moves it
       back to the right column on desktop. The faint circles behind it are "radar" rings for the sky theme.
     -->
-    <div class="relative order-first mx-auto w-full max-w-xs sm:max-w-md lg:order-none lg:max-w-none">
+    <div class="relative order-first mx-auto w-full max-w-[9.5rem] sm:max-w-xs lg:order-none lg:max-w-none">
       <!-- aspect-square + centered with translate makes true circles, even though the logo box is wide and short. -->
-      <div aria-hidden="true" class="absolute top-1/2 left-1/2 aspect-square w-[78%] -translate-1/2 rounded-full border border-line"></div>
-      <div aria-hidden="true" class="absolute top-1/2 left-1/2 aspect-square w-[48%] -translate-1/2 rounded-full border border-dashed border-line"></div>
+      <div aria-hidden="true" class="absolute top-1/2 left-1/2 aspect-square w-[105%] -translate-1/2 rounded-full border border-line"></div>
+      <div aria-hidden="true" class="absolute top-1/2 left-1/2 aspect-square w-[70%] -translate-1/2 rounded-full border border-dashed border-line"></div>
       <Logo draw class="neon relative w-full text-aero" />
     </div>
   </div>

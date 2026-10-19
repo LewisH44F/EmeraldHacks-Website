@@ -24,9 +24,9 @@ const cta = registerCta();
   -->
   <div id="scroll-progress" aria-hidden="true" class="absolute inset-x-0 bottom-0 h-0.5 origin-left scale-x-0 bg-volt"></div>
   <nav aria-label="Main" class="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4 sm:gap-4">
-    <!-- Logo links back to the top. The nav uses the head-only crop because the full dragon is too thin at this size. -->
+    <!-- Logo links back to the top. "bold" = thicker lines, so the mark stays readable at 32px tall. -->
     <a href="#hero" class="flex shrink-0 items-center gap-2 font-display font-bold tracking-tight">
-      <Logo variant="head" class="neon size-8 text-aero" />
+      <Logo bold class="neon h-8 w-auto text-aero" />
       <!--
         On very narrow phones (under 400px) the name + button + hamburger don't fit on one row, so I hide the name
         visually and keep just the icon. sr-only (not display:none) keeps it readable by screen readers, which

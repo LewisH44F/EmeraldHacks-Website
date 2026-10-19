@@ -326,8 +326,22 @@
       },
       { passive: true },
     );
+    // Phones: as soon as a finger starts SCROLLING, the browser cancels pointer events (it takes over the
+    // gesture), so pointermove stops arriving. Touch events keep firing during the scroll, so I also listen to
+    // those. That's what lets the mesh follow your thumb while you scroll on a phone.
+    const followTouch = (e: TouchEvent) => {
+      const t = e.touches[0];
+      if (!t) return;
+      pointer.x = t.clientX;
+      pointer.y = t.clientY;
+      pointer.active = true;
+    };
+    window.addEventListener("touchstart", followTouch, { passive: true });
+    window.addEventListener("touchmove", followTouch, { passive: true });
+
     // When a finger lifts or the mouse leaves the window, stop attracting lines to a stale position.
     const release = () => (pointer.active = false);
+    window.addEventListener("touchend", release, { passive: true });
     window.addEventListener("pointerup", (e) => e.pointerType !== "mouse" && release(), { passive: true });
     document.documentElement.addEventListener("pointerleave", release);
 

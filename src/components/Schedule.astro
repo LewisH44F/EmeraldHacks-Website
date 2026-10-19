@@ -29,10 +29,10 @@ const day = parseDate(event.date.start) ? formatDay(event.date.start) : "Date TB
       <ol class="relative max-w-3xl border-s-2 border-line">
         {event.schedule.map((item) => (
           // grid-cols-[6rem_1fr] gives times a fixed-width column so titles line up down the list.
-          <li class="group relative grid gap-x-6 py-4 ps-8 sm:grid-cols-[7rem_1fr]">
+          <li data-focus class="group relative grid gap-x-6 py-4 ps-8 sm:grid-cols-[7rem_1fr]">
             {/* The glowing dot sitting on the timeline line. -start-[7px] centers a 12px dot on the 2px border.
-                It lights up green when you hover the row. */}
-            <span aria-hidden="true" class="absolute top-[1.4rem] -start-[7px] size-3 rounded-full border-2 border-aero bg-ink transition-colors group-hover:bg-aero group-hover:shadow-[0_0_12px_var(--color-aero)]"></span>
+                It lights up green when you hover the row, or (on phones) when the row scrolls through the middle of the screen. */}
+            <span aria-hidden="true" class="absolute top-[1.4rem] -start-[7px] size-3 rounded-full border-2 border-aero bg-ink transition-colors group-hover:bg-aero group-hover:shadow-[0_0_12px_var(--color-aero)] group-[.in-focus]:bg-aero group-[.in-focus]:shadow-[0_0_12px_var(--color-aero)]"></span>
             <p class="font-display font-semibold text-aero tabular-nums">{item.time}</p>
             <div>
               <h3 class="font-display font-semibold">{item.title}</h3>

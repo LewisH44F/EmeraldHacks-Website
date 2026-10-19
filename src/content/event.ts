@@ -164,23 +164,12 @@ export const event: EventConfig = {
   scheduleConfirmed: false,
 
   // Themes people can build for. prize: null => "Prize TBA".
-  tracks: [
-    {
-      name: "Open Skies",
-      description: "Build anything you want. No theme, no limits.",
-      prize: null,
-    },
-    {
-      name: "First Flight",
-      description: "For teams where everyone is attending their first hackathon.",
-      prize: null,
-    },
-    {
-      name: "Social Good",
-      description: "Projects that help your school, your city, or the planet.",
-      prize: null,
-    },
-  ],
+  // Empty list => the Tracks section shows a "Coming soon" card. That's the current state on purpose.
+  // When tracks are decided, add them like this (these were our early drafts):
+  //   { name: "Open Skies", description: "Build anything you want. No theme, no limits.", prize: null },
+  //   { name: "First Flight", description: "For teams where everyone is attending their first hackathon.", prize: null },
+  //   { name: "Social Good", description: "Projects that help your school, your city, or the planet.", prize: null },
+  tracks: [],
 
   // The 12-hour timeline, in order. These are DRAFT times — see scheduleConfirmed above.
   schedule: [

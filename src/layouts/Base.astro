@@ -71,7 +71,22 @@ const {
       );
       document.querySelectorAll("[data-reveal]").forEach((el) => revealer.observe(el));
 
-      // 2. Spotlight cards: store the pointer position *relative to the card* in CSS variables (--mx, --my).
+      // 2. "In focus" on phones. Phones can't hover, so every hover effect (card glow, card lift, schedule dot
+      //    lighting up) would be invisible on them. Instead, on devices without hover, whatever element with
+      //    data-focus is crossing the middle band of the screen gets the "in-focus" class, and the CSS gives it
+      //    the same look as hovering. Result: effects light up one by one as you scroll with your thumb.
+      //    rootMargin "-40% 0px -40% 0px" shrinks the watched area to the middle 20% of the screen.
+      if (window.matchMedia("(hover: none)").matches) {
+        const focuser = new IntersectionObserver(
+          (entries) => {
+            for (const e of entries) e.target.classList.toggle("in-focus", e.isIntersecting);
+          },
+          { rootMargin: "-40% 0px -40% 0px" },
+        );
+        document.querySelectorAll("[data-focus]").forEach((el) => focuser.observe(el));
+      }
+
+      // 3. Spotlight cards: store the pointer position *relative to the card* in CSS variables (--mx, --my).
       //    The .spotlight style in global.css draws a glow at that spot. One listener on the whole document
       //    ("event delegation") is cheaper than one per card.
       document.addEventListener(
