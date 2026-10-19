@@ -63,24 +63,30 @@
   let stars: Star[] = [];
   let maxScroll = 1;
 
-  // Make a fresh field sized to the screen. Roughly one star per 14,000 px², clamped to 35..110, so phones
-  // get a lighter field than big monitors.
-  function build() {
+  // Match the canvas's drawing surface to its real on-screen size. A canvas has two sizes: its size on the page
+  // (set by CSS) and its internal pixel grid (canvas.width/height). If they don't match, the browser STRETCHES
+  // the drawing, which is what made the stars look like tall smears on iPhones: the grid was set once at load,
+  // then the visible area changed (address bar, toolbars). So this runs whenever the on-page size changes.
+  function fitCanvas(w: number, h: number) {
     if (!canvas || !ctx) return;
-    width = canvas.clientWidth;
-    height = canvas.clientHeight;
+    width = w;
+    height = h;
     // Draw at the screen's real pixel density so lines are crisp, capped at 2 to save battery on 3x phones.
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     canvas.width = Math.round(width * dpr);
     canvas.height = Math.round(height * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  // Scatter a fresh set of stars over the current width and height. Roughly one star per 14,000 px², clamped
+  // to 35..110, so phones get a lighter field than big monitors.
+  function makeStars() {
     const count = Math.max(35, Math.min(110, Math.round((width * height) / 14000)));
     stars = Array.from({ length: count }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
       depth: 0.3 + Math.random() * 0.7,
     }));
-    measure();
   }
 
   // The page's total scrollable distance; re-measured only when the page or window changes size.
@@ -158,29 +164,30 @@
   }
 
   if (canvas && ctx) {
-    build();
+    // First size: the canvas's own size, falling back to the window if layout hasn't settled yet.
+    fitCanvas(canvas.clientWidth || window.innerWidth, canvas.clientHeight || window.innerHeight);
+    makeStars();
+    measure();
     draw();
     window.addEventListener("scroll", requestDraw, { passive: true });
 
-    // Rebuild on real resizes (rotating a phone, resizing a window). On phones, the address bar sliding in and out
-    // also fires "resize" with only a small height change; for those I just resize the canvas and keep the stars,
-    // so they don't jump around while you scroll. The 150ms wait ("debounce") skips the in-between sizes.
-    let resizeTimer: number | undefined;
-    let lastWidth = width;
-    window.addEventListener("resize", () => {
-      window.clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(() => {
-        if (Math.abs(canvas.clientWidth - lastWidth) > 1) {
-          build();
-          lastWidth = width;
-        } else {
-          const keep = stars;
-          build();
-          stars = keep;
-        }
-        draw();
-      }, 150);
-    });
+    // Whenever the canvas's on-page size changes (rotating a phone, resizing a window, the phone's address bar
+    // or toolbar sliding in or out), resize the drawing surface to match, so nothing is ever stretched.
+    // ResizeObserver reports the new size directly, so this never forces the browser to re-measure the page.
+    //   • Width changed (rotation, new window size): scatter a fresh field for the new shape.
+    //   • Only height changed (phone toolbars): keep the same stars, stretched over the new height by moving
+    //     their positions (not their shapes), so nothing jumps while you scroll.
+    new ResizeObserver((entries) => {
+      const box = entries[0]?.contentRect;
+      if (!box || box.width < 1 || box.height < 1) return;
+      if (Math.abs(box.width - width) < 0.5 && Math.abs(box.height - height) < 0.5) return;
+      const widthChanged = Math.abs(box.width - width) > 1;
+      const scaleY = box.height / (height || box.height);
+      fitCanvas(box.width, box.height);
+      if (widthChanged) makeStars();
+      else stars.forEach((st) => (st.y *= scaleY));
+      requestDraw();
+    }).observe(canvas);
 
     // The page gets taller after load (fonts, FAQ answers opening); keep the color mapping accurate.
     new ResizeObserver(() => {
