@@ -31,6 +31,9 @@ TBA — `https://<our-site>.netlify.app` once Netlify is connected.
 
 - **`null` means "not confirmed".** The site shows "TBA" for it. Never type a guess for a date, venue, or prize.
 - `date.start` / `date.end` — ISO strings with timezone, e.g. `"2026-03-14T09:00:00-07:00"`. The site always displays them in Pacific time. While `start` is `null`, the hero says "TBA" and the countdown is hidden.
+  - **Offset gotcha:** use `-07:00` for dates during daylight saving time (mid-March to early November) and `-08:00` otherwise. A wrong offset shifts every displayed time by an hour. After editing, check that the hero shows the time you meant.
+  - If the date isn't a valid ISO string (e.g. `"March 13th"`), the site falls back to "TBA" rather than breaking.
+  - The countdown counts to the start, then to the end ("Hacking ends in") during the event, then shows a thank-you message.
 - `venue` — `name`, `address`, `mapUrl`; each can be confirmed independently.
 - `cost`, `eligibility` — short phrases, or `null` for TBA.
 - `beginnerFriendly` — `true` adds "None needed. Beginners welcome." to the About facts.
@@ -59,7 +62,7 @@ aerohacks/
 ├── src/
 │   ├── content/event.ts   ← all event info (the only file most people edit)
 │   ├── components/        ← one file per section (Hero, About, Tracks, Schedule, Sponsors, Team, Faq)
-│   │                         plus Nav, Footer, Section (shared wrapper), CtaButton (shared button)
+│   │                         plus Nav, Footer, Countdown, Section (shared wrapper), CtaButton (shared button)
 │   ├── lib/sections.ts    ← the nav links / section ids (keeps them in sync)
 │   ├── lib/cta.ts         ← decides what the Register / Become a sponsor buttons say and where they go
 │   ├── lib/format.ts      ← date formatting and the "TBA" fallback

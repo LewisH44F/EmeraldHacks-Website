@@ -1,0 +1,132 @@
+---
+// Countdown.astro — the live "starts in 12d 04h 33m 10s" timer in the hero.
+//
+// Hero.astro only includes this component when `date.start` in event.ts is a real date, so there's never a
+// countdown to "TBA". The numbers are filled in by the <script> below in the visitor's browser, because a number
+// baked in at build time would be wrong by the time anyone saw it.
+import { event } from "../content/event";
+
+interface Props {
+  start: string; // ISO date from event.ts
+  end: string | null;
+}
+
+const { start, end } = Astro.props;
+
+// The four boxes, in order. `key` matches the data-unit attribute the script writes into.
+const units = [
+  { key: "days", label: "Days" },
+  { key: "hours", label: "Hours" },
+  { key: "minutes", label: "Minutes" },
+  { key: "seconds", label: "Seconds" },
+];
+---
+
+<!--
+  `hidden` keeps the whole block invisible until the script has real numbers to show. If JavaScript is off or
+  fails, visitors simply don't see a countdown (the date is still shown right above it), instead of seeing "00 00 00 00".
+  role="timer" tells screen readers this is a ticking clock. Timers are NOT announced on every tick (that would
+  be unbearable); a screen-reader user hears the current value when they move onto it.
+-->
+<div id="countdown" data-start={start} data-end={end ?? ""} data-name={event.name} class="mt-8" hidden>
+  <p data-countdown-label class="text-sm font-semibold text-neutral-600"></p>
+  <div role="timer" data-countdown-clock class="mt-2 flex gap-3">
+    {
+      units.map((u) => (
+        // min-w-16 keeps every box the same width so the row doesn't wiggle when a digit changes.
+        // tabular-nums gives every digit the same width for the same reason.
+        <div class="min-w-16 rounded-lg border border-black/10 px-3 py-2 text-center">
+          <span data-unit={u.key} class="block text-2xl font-bold tabular-nums sm:text-3xl">
+            00
+          </span>
+          <span class="text-xs text-neutral-600">{u.label}</span>
+        </div>
+      ))
+    }
+  </div>
+  <!-- Shown instead of the clock once the event has finished. -->
+  <p data-countdown-done class="mt-2 text-lg" hidden></p>
+</div>
+
+<script>
+  // Runs in the browser. It works out which phase we're in (before / during / after the event) and updates the
+  // numbers once a second.
+  const root = document.getElementById("countdown");
+
+  if (root) {
+    const start = new Date(root.dataset.start ?? "").getTime();
+    // An empty data-end means no end time is configured; I treat that as "we don't know when it ends".
+    const end = root.dataset.end ? new Date(root.dataset.end).getTime() : NaN;
+    const name = root.dataset.name ?? "The event";
+
+    const label = root.querySelector<HTMLElement>("[data-countdown-label]")!;
+    const clock = root.querySelector<HTMLElement>("[data-countdown-clock]")!;
+    const done = root.querySelector<HTMLElement>("[data-countdown-done]")!;
+    const unitEls = {
+      days: root.querySelector<HTMLElement>('[data-unit="days"]')!,
+      hours: root.querySelector<HTMLElement>('[data-unit="hours"]')!,
+      minutes: root.querySelector<HTMLElement>('[data-unit="minutes"]')!,
+      seconds: root.querySelector<HTMLElement>('[data-unit="seconds"]')!,
+    };
+
+    // Pads to 2 digits ("7" -> "07") so the boxes look consistent.
+    const pad = (n: number) => String(n).padStart(2, "0");
+
+    // Splits a number of milliseconds into days/hours/minutes/seconds.
+    // I round UP (ceil) so the clock shows "00:00:00:01" during the last second and flips to the next phase
+    // exactly at the start time. Rounding down would show "00:00:00:00" for a full second while still "starting".
+    function split(ms: number) {
+      const total = Math.max(0, Math.ceil(ms / 1000));
+      return {
+        days: Math.floor(total / 86400),
+        hours: Math.floor((total % 86400) / 3600),
+        minutes: Math.floor((total % 3600) / 60),
+        seconds: total % 60,
+      };
+    }
+
+    let timer: number | undefined;
+
+    function tick() {
+      const now = Date.now();
+
+      // Phase 1: before the event — count down to the start.
+      // Phase 2: during the event — count down to the end (submission pressure!), if we know the end time.
+      // Phase 3: after the end (or after the start, with no end set) — stop the clock and show a message.
+      let target: number | null = null;
+      if (now < start) {
+        label.textContent = "Hacking starts in";
+        target = start;
+      } else if (!Number.isNaN(end) && now < end) {
+        label.textContent = "Hacking ends in";
+        target = end;
+      }
+
+      if (target === null) {
+        const isOver = Number.isNaN(end) ? false : now >= end;
+        label.hidden = true;
+        clock.hidden = true;
+        done.hidden = false;
+        done.textContent = isOver ? "That's a wrap. Thanks to everyone who came!" : `${name} is happening now!`;
+        window.clearTimeout(timer);
+        return;
+      }
+
+      const parts = split(target - now);
+      unitEls.days.textContent = pad(parts.days);
+      unitEls.hours.textContent = pad(parts.hours);
+      unitEls.minutes.textContent = pad(parts.minutes);
+      unitEls.seconds.textContent = pad(parts.seconds);
+
+      // I schedule the next update for the start of the next real second instead of using a plain 1000ms
+      // interval. setInterval slowly drifts, which makes the seconds occasionally skip or repeat a number.
+      timer = window.setTimeout(tick, 1000 - (now % 1000));
+    }
+
+    // A bad date string would give NaN and the clock would show nonsense, so in that case I leave it hidden.
+    if (!Number.isNaN(start)) {
+      tick();
+      root.hidden = false;
+    }
+  }
+</script>

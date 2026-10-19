@@ -3,3 +3,25 @@
    directly in the HTML instead of writing a separate stylesheet. This one import pulls all of Tailwind in.
    Colors, fonts, and dark mode get defined here in Phase 5 as CSS variables. */
 @import "tailwindcss";
+
+/* Smooth scrolling when a nav link jumps to a section.
+   I only turn it on for people who haven't asked their device to reduce motion: for some people (e.g. with
+   vestibular disorders) a long animated scroll causes real dizziness, and an instant jump is better for them.
+   The browser still updates the URL (#faq) and moves keyboard focus to the section either way. */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Same idea for small UI animations, like the FAQ "+" rotating into an "×". With reduced motion on,
+   things still change state, they just don't animate. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

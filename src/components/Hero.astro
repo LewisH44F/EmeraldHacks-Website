@@ -1,12 +1,13 @@
 ---
 // Hero.astro — the first screen: event name (the page's only <h1>), tagline, date, venue, and the main button.
 //
-// Everything here comes from event.ts. Unconfirmed date/venue show "TBA". The countdown slot is only rendered
-// when a start date exists; the ticking logic itself gets added in Phase 4.
+// Everything here comes from event.ts. Unconfirmed date/venue show "TBA". The countdown is only rendered
+// when a start date exists (see Countdown.astro).
 import { event } from "../content/event";
 import { registerCta, sponsorCta } from "../lib/cta";
 import { formatDay, formatTimeRange, parseDate, TBA } from "../lib/format";
 import CtaButton from "./CtaButton.astro";
+import Countdown from "./Countdown.astro";
 
 const cta = registerCta();
 const sponsor = sponsorCta();
@@ -52,9 +53,8 @@ const { venue } = event;
     </dl>
 
     {
-      /* The countdown is meaningless without a date, so the whole block is skipped until one is set.
-         data-start hands the ISO date to the Phase 4 script without it needing to import the config. */
-      hasDate && <div id="countdown" data-start={event.date.start} class="mt-8" aria-live="off" />
+      /* The countdown is meaningless without a date, so the whole component is skipped until one is set. */
+      hasDate && <Countdown start={event.date.start!} end={event.date.end} />
     }
 
     <div class="mt-10 flex flex-wrap gap-3">
