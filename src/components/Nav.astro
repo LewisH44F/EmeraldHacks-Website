@@ -1,0 +1,205 @@
+---
+// Nav.astro — the sticky bar at the top of the page: logo, jump links, and the Register button.
+//
+// The links come from src/lib/sections.ts and the button text/link from src/lib/cta.ts, so this file
+// never needs editing when event details change. The <script> at the bottom adds the two interactive bits:
+// highlighting the section you're currently reading, and opening/closing the mobile menu.
+import { event } from "../content/event";
+import { navSections } from "../lib/sections";
+import { registerCta } from "../lib/cta";
+
+const cta = registerCta();
+---
+
+<!--
+  "sticky top-0" keeps the bar pinned while you scroll. z-50 keeps it above section content.
+  The semi-opaque background + backdrop-blur lets content show faintly underneath without hurting readability.
+-->
+<header class="sticky top-0 z-50 border-b border-black/10 bg-white/90 backdrop-blur">
+  <nav aria-label="Main" class="mx-auto flex h-16 max-w-6xl items-center gap-2 px-4 sm:gap-4">
+    <!-- Logo links back to the top. It's a placeholder mark until we have a real logo. -->
+    <a href="#hero" class="flex shrink-0 items-center gap-2 font-bold">
+      <img src="/favicon.svg" alt="" width="28" height="28" />
+      <!--
+        On very narrow phones (under 400px) the name + button + hamburger don't fit on one row, so I hide the name
+        visually and keep just the icon. sr-only (not display:none) keeps it readable by screen readers, which
+        matters because the icon's alt is empty.
+      -->
+      <span class="max-[399px]:sr-only">{event.name}</span>
+    </a>
+
+    <!--
+      Desktop links. "hidden lg:flex" = hidden on small screens, shown from 1024px up. I picked lg (not md)
+      because six links + logo + button get cramped on 768px tablets; those get the hamburger instead.
+      ms-auto pushes the links (and everything after them) to the right.
+    -->
+    <ul class="ms-auto hidden items-center gap-1 lg:flex">
+      {
+        navSections.map((s) => (
+          <li>
+            <a
+              href={`#${s.id}`}
+              data-nav-link={s.id}
+              class="rounded-md px-3 py-2 text-sm font-medium text-neutral-700 hover:bg-black/5 aria-[current=location]:bg-black/10 aria-[current=location]:text-black"
+            >
+              {s.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <!--
+      The Register button stays visible at every screen size because it's the main thing we want people to do.
+      ms-auto here only matters on mobile (where the link list above is hidden) to push it right.
+    -->
+    <div class="ms-auto flex items-center gap-2 lg:ms-0">
+      {
+        cta.href ? (
+          <a
+            href={cta.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            class="rounded-md bg-black px-3 py-2 text-sm font-semibold whitespace-nowrap text-white hover:bg-neutral-800"
+          >
+            {cta.label}
+          </a>
+        ) : (
+          <span class="rounded-md bg-neutral-200 px-3 py-2 text-sm font-semibold whitespace-nowrap text-neutral-700">
+            {cta.label}
+          </span>
+        )
+      }
+
+      <!--
+        Hamburger button, mobile only. aria-expanded tells screen readers whether the menu is open, and
+        aria-controls points at the panel it opens. The script below keeps aria-expanded in sync.
+      -->
+      <button
+        type="button"
+        id="menu-toggle"
+        class="rounded-md p-2 hover:bg-black/5 lg:hidden"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <span class="sr-only">Menu</span>
+        <!-- Two icons; the script swaps which one is visible. aria-hidden because the sr-only text already labels it. -->
+        <svg data-icon="open" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M4 7h16M4 12h16M4 17h16"></path>
+        </svg>
+        <svg data-icon="close" class="hidden" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18"></path>
+        </svg>
+      </button>
+    </div>
+  </nav>
+
+  <!--
+    Mobile menu panel. The `hidden` attribute keeps it closed until the button is pressed.
+    lg:hidden makes sure it never shows on desktop, even if it was left open before resizing.
+  -->
+  <div id="mobile-menu" class="border-t border-black/10 lg:hidden" hidden>
+    <ul class="mx-auto max-w-6xl px-4 py-2">
+      {
+        navSections.map((s) => (
+          <li>
+            <a
+              href={`#${s.id}`}
+              data-nav-link={s.id}
+              class="block rounded-md px-3 py-3 font-medium text-neutral-700 hover:bg-black/5 aria-[current=location]:bg-black/10 aria-[current=location]:text-black"
+            >
+              {s.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</header>
+
+<script>
+  // This script runs in the visitor's browser (unlike the code between the --- fences above, which runs at build time).
+  // Astro bundles it once and loads it as a small module, so it doesn't slow down the first paint.
+
+  // ---------------------------------------------------------------------------
+  // 1. Mobile menu
+  // ---------------------------------------------------------------------------
+  const toggle = document.getElementById("menu-toggle");
+  const menu = document.getElementById("mobile-menu");
+
+  function setMenu(open: boolean) {
+    if (!toggle || !menu) return;
+    menu.hidden = !open;
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.querySelector('[data-icon="open"]')?.classList.toggle("hidden", open);
+    toggle.querySelector('[data-icon="close"]')?.classList.toggle("hidden", !open);
+  }
+
+  // If the menu is currently hidden, the click opens it; otherwise it closes it.
+  toggle?.addEventListener("click", () => setMenu(menu?.hidden === true));
+
+  // I close the menu after a link is tapped; otherwise it would sit open on top of the section you jumped to.
+  menu?.addEventListener("click", (e) => {
+    if ((e.target as HTMLElement).closest("a")) setMenu(false);
+  });
+
+  // Escape closes the menu and puts keyboard focus back on the button, so keyboard users don't get lost.
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && menu && !menu.hidden) {
+      setMenu(false);
+      toggle?.focus();
+    }
+  });
+
+  // If someone opens the menu on a narrow window and then widens it past the desktop breakpoint, reset it
+  // so aria-expanded doesn't claim a menu is open when it's actually hidden by CSS.
+  window.matchMedia("(min-width: 1024px)").addEventListener("change", (e) => {
+    if (e.matches) setMenu(false);
+  });
+
+  // ---------------------------------------------------------------------------
+  // 2. Highlight the section currently on screen
+  // ---------------------------------------------------------------------------
+  // IntersectionObserver is a browser feature that tells me when an element enters or leaves a region of the
+  // screen — much cheaper than checking positions on every scroll event.
+  //
+  // The rootMargin shrinks the "watched region" to a thin horizontal line ~40% down the screen. Whichever
+  // section crosses that line is the one you're reading. A line (instead of "any part visible") avoids two
+  // sections being "active" at once when both are partly on screen.
+  const links = document.querySelectorAll<HTMLAnchorElement>("[data-nav-link]");
+  const sections = document.querySelectorAll<HTMLElement>("main section[id]");
+
+  function setActive(id: string | null) {
+    links.forEach((link) => {
+      // aria-current="location" is the accessible way to say "this link points to where you are now".
+      // The nav's CSS (aria-[current=location]:...) styles off this attribute, so there's no separate "active" class.
+      if (link.dataset.navLink === id) link.setAttribute("aria-current", "location");
+      else link.removeAttribute("aria-current");
+    });
+  }
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          // The hero isn't in the nav, so when it's active no link is highlighted.
+          setActive(entry.target.id);
+        }
+      }
+    },
+    { rootMargin: "-40% 0px -59% 0px" },
+  );
+
+  sections.forEach((s) => observer.observe(s));
+
+  // Edge case: the last section (Team) can be too short to ever reach the 40% line, so at the very bottom of
+  // the page I force it active. { passive: true } tells the browser this listener never blocks scrolling.
+  window.addEventListener(
+    "scroll",
+    () => {
+      const atBottom = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2;
+      if (atBottom && sections.length) setActive(sections[sections.length - 1].id);
+    },
+    { passive: true },
+  );
+</script>

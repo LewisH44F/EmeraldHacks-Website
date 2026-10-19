@@ -23,7 +23,7 @@ TBA — `https://<our-site>.netlify.app` once Netlify is connected.
 3. `npm run dev`
 4. Open **http://localhost:4321**. The page reloads when you save a file.
 
-`npm run build` makes the production version in `dist/`; `npm run preview` serves it.
+`npm run build` makes the production version in `dist/`; `npm run preview` serves it. `npm run check` catches typos in `event.ts` (like a misspelled sponsor tier) before you push.
 
 ## How to update event info
 
@@ -34,7 +34,7 @@ TBA — `https://<our-site>.netlify.app` once Netlify is connected.
 - `venue` — `name`, `address`, `mapUrl`; each can be confirmed independently.
 - `cost`, `eligibility` — short phrases, or `null` for TBA.
 - `links` — form URLs, Instagram, email, code of conduct. Empty `""` hides that link.
-- **`registrationOpen`** — `false` shows "Join interest list"; `true` shows "Register". Both use `links.register`.
+- **`registrationOpen`** — `false` shows "Join interest list"; `true` shows "Register". Both use `links.register`. If `links.register` is empty, the button shows a non-clickable "Sign-ups soon".
 - **`showFiscalSponsor`** — keep `false` until Hack Club HCB approves us. While `false`, no HCB branding appears anywhere.
 - `scheduleConfirmed` — `false` labels the schedule "Tentative".
 - `tracks`, `schedule`, `sponsors`, `faq`, `team` — lists; add or remove entries.
@@ -54,7 +54,10 @@ date: {
 aerohacks/
 ├── src/
 │   ├── content/event.ts   ← all event info (the only file most people edit)
-│   ├── layouts/Base.astro ← shared <html>/<head> shell
+│   ├── components/        ← reusable pieces: Nav, Section wrapper, Footer
+│   ├── lib/sections.ts    ← the nav links / section ids (keeps them in sync)
+│   ├── lib/cta.ts         ← decides what the Register button says and where it goes
+│   ├── layouts/Base.astro ← shared <html>/<head> shell + skip link
 │   ├── pages/index.astro  ← the single page
 │   └── styles/global.css  ← Tailwind import + theme variables
 ├── public/                ← files served as-is (favicon, sponsor logos, team photos)

@@ -1,0 +1,28 @@
+---
+// Section.astro — the shared wrapper for every content section (About, Tracks, Schedule, ...).
+//
+// I wrap sections in one component so they all get the same spacing, width, and heading style, and so
+// each one is guaranteed to have the id the nav links point to. Section-specific content goes inside
+// the <Section> tag and appears where <slot /> is (a "slot" is Astro's placeholder for child content).
+interface Props {
+  id: string; // must match an id in src/lib/sections.ts so the nav link works
+  title: string; // the section's <h2>
+}
+
+const { id, title } = Astro.props;
+// aria-labelledby connects the section to its heading, so screen readers announce "About, region" etc.
+const headingId = `${id}-heading`;
+---
+
+<!--
+  scroll-mt-20 (scroll-margin-top: 5rem) leaves room for the 4rem sticky nav when you jump here, so the
+  heading isn't hidden underneath it. py-16 gives each section breathing room.
+-->
+<section id={id} aria-labelledby={headingId} class="scroll-mt-20 py-16">
+  <div class="mx-auto max-w-6xl px-4">
+    <h2 id={headingId} class="text-3xl font-bold">{title}</h2>
+    <div class="mt-6">
+      <slot />
+    </div>
+  </div>
+</section>

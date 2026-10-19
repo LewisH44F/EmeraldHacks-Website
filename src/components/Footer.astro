@@ -1,0 +1,35 @@
+---
+// Footer.astro — contact links and credits at the bottom of the page.
+//
+// Every link is optional: if its value in event.ts is empty, it's simply left out rather than shown broken.
+// The fiscal sponsor line only appears once `showFiscalSponsor` is true (after Hack Club HCB approves us).
+import { event } from "../content/event";
+
+const { email, instagram, codeOfConduct } = event.links;
+// Screen readers announce lists ("list, 0 items"), so I skip the <ul> entirely when there's nothing in it.
+const hasLinks = Boolean(email || instagram || codeOfConduct);
+---
+
+<footer class="border-t border-black/10 py-10 text-sm text-neutral-700">
+  <div class="mx-auto flex max-w-6xl flex-col gap-4 px-4">
+    {hasLinks && (
+    <ul class="flex flex-wrap gap-x-6 gap-y-2">
+      {email && <li><a class="underline" href={`mailto:${email}`}>{email}</a></li>}
+      {instagram && <li><a class="underline" href={instagram} target="_blank" rel="noopener noreferrer">Instagram</a></li>}
+      {codeOfConduct && <li><a class="underline" href={codeOfConduct} target="_blank" rel="noopener noreferrer">Code of Conduct</a></li>}
+    </ul>
+    )}
+    <p>{event.name} is organized by the Computer Science Honor Society at Emerald High School.</p>
+    {
+      event.showFiscalSponsor && (
+        <p>
+          Fiscally sponsored by{" "}
+          <a class="underline" href={event.fiscalSponsor.url} target="_blank" rel="noopener noreferrer">
+            {event.fiscalSponsor.name}
+          </a>
+          .
+        </p>
+      )
+    }
+  </div>
+</footer>
