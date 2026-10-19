@@ -39,6 +39,9 @@
    are drawn dark too. There's no light mode on purpose: the brand IS the dark theme. */
 :root {
   color-scheme: dark;
+  /* When the browser scrolls something into view (a jump link, or the next link while tabbing with the
+     keyboard), keep it 5rem below the top so the 4rem sticky nav doesn't cover it. */
+  scroll-padding-top: 5rem;
 }
 
 body {
@@ -106,7 +109,8 @@ body {
 
   /* The hero logo "draws itself". Every path has pathLength="1", so a dash of length 1 offset by 1 hides the
      whole line, and animating the offset to 0 reveals it from start to end. Each path starts a bit later
-     (staggered with nth-child) so the dragon draws from tail to head. */
+     (staggered with nth-child) so the dragon draws in waves: mane and jaw first, then the eye and horns, then the
+     neck and facet lines. */
   .logo-draw path {
     stroke-dasharray: 1;
     stroke-dashoffset: 1;
@@ -118,7 +122,9 @@ body {
   .logo-draw path:nth-child(n + 10) { animation-delay: 0.75s; }
 
   /* Scroll reveal: sections slide up and fade in as they enter the screen. Only applied when the `js` class is
-     on <html> (added by a script in Base.astro), so if JavaScript fails, content is never stuck invisible. */
+     on <html> (added by a script in Base.astro), so if JavaScript fails, content is never stuck invisible.
+     @media screen keeps it off when printing: a printout never "scrolls", so sections would print blank. */
+  @media screen {
   .js [data-reveal] {
     opacity: 0;
     translate: 0 24px;
@@ -129,6 +135,7 @@ body {
   .js [data-reveal].is-visible {
     opacity: 1;
     translate: 0 0;
+  }
   }
 }
 

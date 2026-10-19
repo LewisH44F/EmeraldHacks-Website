@@ -1,3 +1,6 @@
+// tsconfig.json — settings for TypeScript, the "typed" JavaScript used in event.ts and the components.
+// "strict" makes `npm run check` flag mistakes (like a typo in a sponsor tier) before they reach the live site.
+// Rarely needs editing.
 {
   "extends": "astro/tsconfigs/strict",
   "include": [".astro/types.d.ts", "**/*"],

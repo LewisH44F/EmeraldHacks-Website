@@ -1,0 +1,4 @@
+# robots.txt — tells search engines what they may crawl. I allow everything: the whole site is public info
+# and we want it found when people search for "Dublin hackathon".
+User-agent: *
+Allow: /

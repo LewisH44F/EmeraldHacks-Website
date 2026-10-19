@@ -2,8 +2,9 @@
 // Nav.astro — the sticky bar at the top of the page: logo, jump links, and the Register button.
 //
 // The links come from src/lib/sections.ts and the button text/link from src/lib/cta.ts, so this file
-// never needs editing when event details change. The <script> at the bottom adds the two interactive bits:
-// highlighting the section you're currently reading, and opening/closing the mobile menu.
+// never needs editing when event details change. The <script> at the bottom adds the interactive bits:
+// opening/closing the mobile menu, highlighting the section you're currently reading, and filling the
+// yellow scroll-progress bar.
 import { event } from "../content/event";
 import { navSections } from "../lib/sections";
 import { registerCta } from "../lib/cta";

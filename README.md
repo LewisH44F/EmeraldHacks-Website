@@ -1,109 +1,172 @@
 # Aerohacks
 
-> **Draft README (Phase 1).** I'll finalize it in Phase 6 so it matches the finished code.
-
 ## What this is
 
-Aerohacks is Dublin's first 12-hour high school hackathon, run by the Computer Science Honor Society (CSHS) at Emerald High. This repo is the event website: a single page that explains the event to students, parents, and sponsors, and sends them to our registration and sponsor forms. It's a static site — no backend, no database, no student data stored by us.
+Aerohacks is Dublin's first 12-hour high school hackathon, run by the Computer Science Honor Society (CSHS) at Emerald High. This repo is the event website: a single page that explains the event to students, parents, and sponsors, and sends them to our registration and sponsor forms. It's a static site: no backend, no database, and no student data stored by us. Sign-ups go through an outside form (Google Forms, Tally, etc.) because our attendees are minors and I don't want us holding their personal data on something we built ourselves.
 
 ## Live site
 
-TBA — `https://<our-site>.netlify.app` once Netlify is connected.
+**https://aerohacks.netlify.app**
 
 ## Tech stack
 
-- **Astro** — turns my components and the config file into plain HTML at build time. I picked it because the site is content, not an app, so it ships almost no JavaScript and loads fast.
-- **Tailwind CSS** — styling with small utility classes in the HTML. I picked it so styles live next to the markup they affect and we don't fight a giant stylesheet.
-- **Netlify** — hosts the built files and rebuilds the site every time we push to `main`. Free for a site this size.
+- **Astro** turns my components and the config file into plain HTML at build time. I picked it because the site is content, not an app, so it ships very little JavaScript and loads fast.
+- **Tailwind CSS** handles styling with small utility classes written right in the HTML. I picked it so styles live next to the markup they affect, and our brand colors are defined in one place.
+- **Netlify** hosts the built files and rebuilds the site every time we push to `main`. It's free for a site this size.
 
 ## Run it locally
 
-1. Install **Node.js 22.22.0 or newer** (Astro 7 requires it). If you use `nvm`: `nvm install` (it reads `.nvmrc`).
+1. Install **Node.js 22.22.0 or newer** (Astro 7 requires it). If you use `nvm`, run `nvm install` in this folder; it reads the version from `.nvmrc`.
 2. `npm install`
 3. `npm run dev`
-4. Open **http://localhost:4321**. The page reloads when you save a file.
+4. Open **http://localhost:4321**. The page reloads every time you save a file.
 
-`npm run build` makes the production version in `dist/`; `npm run preview` serves it. `npm run check` catches typos in `event.ts` (like a misspelled sponsor tier) before you push.
+Other commands:
+
+| Command | What it does |
+| --- | --- |
+| `npm run check` | Catches mistakes in `event.ts` (like a misspelled sponsor tier or a deleted field) **before** you push. Run it after every config edit. |
+| `npm run build` | Builds the production site into `dist/`. This is exactly what Netlify runs. |
+| `npm run preview` | Serves the built `dist/` folder so you can check the real build locally. |
 
 ## How to update event info
 
-**Edit only `src/content/event.ts`.** Every fact on the site comes from that file.
+**Edit only `src/content/event.ts`.** Every fact on the site comes from that file; you never need to touch component code to change event details. Every field also has a comment in the file itself.
 
-- **`null` means "not confirmed".** The site shows "TBA" for it. Never type a guess for a date, venue, or prize.
-- `date.start` / `date.end` — ISO strings with timezone, e.g. `"2026-03-14T09:00:00-07:00"`. The site always displays them in Pacific time. While `start` is `null`, the hero says "TBA" and the countdown is hidden.
-  - **Offset gotcha:** use `-07:00` for dates during daylight saving time (mid-March to early November) and `-08:00` otherwise. A wrong offset shifts every displayed time by an hour. After editing, check that the hero shows the time you meant.
-  - If the date isn't a valid ISO string (e.g. `"March 13th"`), the site falls back to "TBA" rather than breaking.
-  - The countdown counts to the start, then to the end ("Hacking ends in") during the event, then shows a thank-you message.
-- `venue` — `name`, `address`, `mapUrl`; each can be confirmed independently.
-- `cost`, `eligibility` — short phrases, or `null` for TBA.
-- `beginnerFriendly` — `true` adds "None needed. Beginners welcome." to the About facts.
-- `about` — the About paragraphs (one string per paragraph).
-- `sponsorPitch` — bullet points in the "Why sponsor" box. No made-up numbers.
-- `marquee` — the words in the big sideways-scrolling bands. Decorative only; keep facts out of them.
-- `links` — form URLs, Instagram, email, code of conduct. Empty `""` hides that link.
-- **`registrationOpen`** — `false` shows "Join interest list"; `true` shows "Register". Both use `links.register`. If `links.register` is empty, the button shows a non-clickable "Sign-ups soon".
-- **`showFiscalSponsor`** — keep `false` until Hack Club HCB approves us. While `false`, no HCB branding appears anywhere.
-- `scheduleConfirmed` — `false` labels the schedule "Tentative".
-- `tracks`, `schedule`, `sponsors`, `faq`, `team` — lists; add or remove entries. An empty list shows a "coming soon" message instead of a blank section.
-- `links.sponsorForm` — if empty, "Become a sponsor" falls back to emailing `links.email`; if both are empty it shows "Sponsor info coming soon".
+### The golden rule: `null` means "not confirmed"
 
-Example — the date gets confirmed:
+If something isn't confirmed, set it to `null` (or leave a list empty). The site shows **"TBA"** or a "coming soon" message instead. Never type in a guess for a date, venue, prize, or policy "just as a placeholder". Parents and students will believe it.
+
+### Fields
+
+| Field | What it controls | When empty / `null` |
+| --- | --- | --- |
+| `name`, `tagline` | Title in the hero, nav, browser tab, and link previews | Tagline line is hidden |
+| `date.start`, `date.end` | Hero date/time, schedule date, countdown | "TBA", no countdown |
+| `venue.name`, `.address`, `.mapUrl` | "Where" box in the hero; each part can be confirmed separately | "TBA" / hidden |
+| `cost`, `eligibility` | "Cost" and "Who" in the About facts | "TBA" |
+| `beginnerFriendly` | `true` adds "None needed. Beginners welcome." to About | Line left out |
+| `about` | About paragraphs (one string per paragraph) | Facts box only |
+| `sponsorPitch` | Bullet points in the "Why sponsor" box. No made-up numbers. | Box shows just the button |
+| `marquee` | Words in the big sideways-scrolling bands. Decorative only, so keep facts out of them. | Bands hidden |
+| `links.register` | Where every Register / Join interest list button goes | Grey "Sign-ups soon" (not clickable) |
+| `links.sponsorForm` | Where "Become a sponsor" goes | Falls back to emailing `links.email`; if that's empty too, "Sponsor info coming soon" |
+| `links.email`, `.instagram`, `.codeOfConduct` | Footer, FAQ, sponsor links | Hidden |
+| `tracks` | Track cards with prizes (`prize: null` → "Prize: TBA") | "Coming soon" card |
+| `schedule` | Timeline items, in the order listed | "Posted soon" |
+| `sponsors` | Logos grouped by tier | "Want your logo here first?" |
+| `team` | Organizer cards | "Meet the organizers soon" |
+| `faq` | Questions and answers | "Coming soon" |
+
+### The three switches
+
+- **`registrationOpen`**: `false` makes the buttons say "Join interest list", and `true` makes them say "Register". Both go to `links.register`. Flip it to `true` the day real registration opens.
+- **`showFiscalSponsor`**: keep this `false` until Hack Club HCB approves us. While it's `false`, no Hack Club / HCB name or branding appears anywhere. When it's `true`, the footer shows the `fiscalSponsor` line.
+- **`scheduleConfirmed`**: `false` puts a "Tentative" label on the schedule. Flip it once times are final.
+
+### Dates: the one thing that's easy to get wrong
+
+Dates are ISO strings **with a timezone offset**, and the site always displays them in Pacific time:
+
+- Use `-07:00` during daylight saving time (mid-March to early November) and `-08:00` otherwise. A wrong offset shifts every time on the site by an hour, so after editing, check that the hero shows the time you meant.
+- A date that isn't valid ISO (like `"March 13th"`) just shows "TBA"; it won't break the site.
+- The countdown appears automatically once `date.start` is set. It counts to the start, then to the end ("Hacking ends in") during the event, then shows a thank-you message.
+
+### Example edit: the date and venue get confirmed
 
 ```ts
 date: {
-  start: "2026-03-14T08:00:00-07:00",
-  end: "2026-03-14T20:00:00-07:00",
+  start: "2027-03-13T08:00:00-08:00",
+  end: "2027-03-13T20:00:00-08:00",
+},
+venue: {
+  name: "Emerald High School",
+  address: "123 Example St, Dublin, CA",
+  mapUrl: "https://maps.google.com/?q=...",
 },
 ```
+
+Save, run `npm run check`, commit, push. The live site updates in about a minute.
 
 ## Project structure
 
 ```
-aerohacks/
+aerohacks-website/
 ├── src/
-│   ├── content/event.ts   ← all event info (the only file most people edit)
-│   ├── components/        ← one file per section (Hero, About, Tracks, Schedule, Sponsors, Team, Faq)
-│   │                         plus Nav, Footer, Countdown, Section (shared wrapper), CtaButton (shared button),
-│   │                         Logo (the dragon), SkyField (animated background), Marquee (sideways bands), Star
-│   ├── lib/sections.ts    ← the nav links / section ids (keeps them in sync)
-│   ├── lib/cta.ts         ← decides what the Register / Become a sponsor buttons say and where they go
-│   ├── lib/format.ts      ← date formatting and the "TBA" fallback
-│   ├── layouts/Base.astro ← shared <html>/<head> shell + skip link
-│   ├── pages/index.astro  ← the single page
-│   └── styles/global.css  ← Tailwind import, brand colors + fonts, glow/animation styles
-├── public/                ← files served as-is (favicon, sponsor logos, team photos)
-│   ├── sponsors/
-│   └── team/
-├── astro.config.mjs       ← Astro + Tailwind settings
-├── netlify.toml           ← Netlify build settings
-└── package.json
+│   ├── content/event.ts      ← ALL event info. The only file most people ever edit.
+│   ├── components/           ← reusable pieces of the page:
+│   │   ├── Hero, About, Tracks, Schedule, Sponsors, Team, Faq   ← one per section
+│   │   ├── Nav, Footer       ← top bar (with mobile menu) and bottom bar
+│   │   ├── Section           ← shared wrapper: spacing, "01 / ABOUT" label, heading
+│   │   ├── CtaButton         ← the one button style (yellow = sign up)
+│   │   ├── Countdown         ← live timer in the hero
+│   │   ├── Logo, Star        ← the dragon mark and the little ✦ star, drawn as SVG
+│   │   ├── SkyField          ← the interactive animated background
+│   │   └── Marquee           ← the big sideways-scrolling word bands
+│   ├── lib/
+│   │   ├── sections.ts       ← nav links + section order (keeps nav and page in sync)
+│   │   ├── cta.ts            ← decides what the Register / Become a sponsor buttons say and where they go
+│   │   └── format.ts         ← date formatting and the "TBA" fallback
+│   ├── layouts/Base.astro    ← the <html>/<head> shell: SEO + link-preview tags, skip link, site-wide scripts
+│   ├── pages/index.astro     ← the single page: stacks the sections in order
+│   └── styles/global.css     ← brand colors + fonts (@theme), glow and animation styles
+├── public/                   ← files served as-is
+│   ├── favicon.svg, apple-touch-icon.png   ← browser tab icon / iPhone home-screen icon
+│   ├── og.png                ← 1200×630 link-preview image (iMessage, Instagram, Discord…)
+│   ├── robots.txt            ← lets search engines index the site
+│   ├── sponsors/             ← sponsor logo files
+│   └── team/                 ← organizer photos
+├── astro.config.mjs          ← Astro + Tailwind settings, and the site URL
+├── netlify.toml              ← Netlify build settings
+├── package.json              ← dependencies and the npm commands above (JSON can't hold comments)
+└── .nvmrc                    ← the Node version (just the number, no comments allowed)
 ```
 
 ## Look and feel
 
 - **Colors and fonts** are defined once, in the `@theme` block at the top of `src/styles/global.css`. Change a value there and it updates everywhere. Yellow (`volt`) is reserved for the main sign-up button.
 - **The site is dark-only** on purpose; the black theme is the brand.
-- **Fonts:** Unbounded (headings) and Inter (body text), installed from npm and served from our own site. Nothing loads from Google.
-- **Logo:** `src/components/Logo.astro` is a placeholder line-art Aeronaut dragon. To use an official logo, replace the `<path>` lines in that file, or swap the component for an `<img>`. The favicon is `public/favicon.svg`.
-- **Motion:** the animated background (`SkyField.astro`) reacts to scrolling, pointer movement and taps. The marquee bands slide as you scroll, and sections fade in. Visitors with "reduce motion" turned on in their device settings get a still version, and it all still works with JavaScript off.
+- **Fonts:** Unbounded (headings) and Inter (body text), installed from npm and served from our own site, so nothing loads from Google.
+- **Logo:** `src/components/Logo.astro` is a line-art Aeronaut dragon head. To use an official logo, replace the `<path>` lines in that file (and in `public/favicon.svg`), or swap the component for an `<img>`. Also replace `public/og.png` and `public/apple-touch-icon.png`.
+- **Motion:** the background reacts to scrolling, mouse/finger movement, and taps; the marquee bands slide as you scroll; sections fade in. On phones, cards and schedule rows light up as they cross the middle of the screen (phones can't hover). Visitors with "reduce motion" turned on get a still version, and everything still works with JavaScript off.
+- **Link previews:** `public/og.png` is what shows when someone pastes our link into a chat. Replace it with any 1200×630 PNG of the same name.
 
 ## Deploying
 
-Pushing to `main` triggers a Netlify build automatically. Check progress under **Deploys** in the Netlify dashboard. Opening a pull request creates a **deploy preview** URL so you can see changes before merging.
+- Every push to `main` triggers a Netlify build and goes live automatically, usually in about a minute.
+- To check a deploy: Netlify dashboard → the **aerohacks** site → **Deploys**. A failed deploy leaves the previous version live, so a broken push never takes the site down. Open the failed deploy to read the build log.
+- **Deploy previews:** every pull request gets its own preview URL (Netlify posts it on the PR). Click through it before merging.
 
 ## Adding a sponsor / FAQ / team member
 
-*(Expanded in Phase 6.)*
+**Sponsor**
 
-- **Sponsor:** put the logo in `public/sponsors/` (e.g. `acme.svg`), then add `{ name: "Acme", tier: "gold", logo: "/sponsors/acme.svg", url: "https://acme.com" }` to `sponsors`.
-- **FAQ:** add `{ q: "...", a: "..." }` to `faq`.
-- **Team member:** put a square photo in `public/team/` (optional), then add `{ name: "...", role: "...", photo: "/team/name.jpg" }` (or `photo: null`).
+1. Put the logo file in `public/sponsors/`, e.g. `public/sponsors/acme.svg`. SVG is best; otherwise a PNG at least 400px wide. Logos sit on a light tile, so standard dark-on-white logos work.
+2. In `event.ts`, add to `sponsors`:
+   ```ts
+   { name: "Acme", tier: "gold", logo: "/sponsors/acme.svg", url: "https://acme.com" },
+   ```
+   `tier` must be `"gold"`, `"silver"`, or `"bronze"` (`npm run check` will complain about anything else). Note the logo path starts at `/sponsors/`, not `/public/sponsors/`.
+
+**FAQ**
+
+1. Add to `faq`: `{ q: "Is there Wi-Fi?", a: "Yes, ..." }`. Questions show in the order listed.
+
+**Team member**
+
+1. Optional: put a square photo (about 400×400) in `public/team/`, e.g. `public/team/jane.jpg`.
+2. Add to `team`: `{ name: "Jane Doe", role: "Logistics", photo: "/team/jane.jpg" }`. Use `photo: null` and the site shows their initials instead.
+
+**Track** (when they're decided)
+
+1. Add to `tracks`: `{ name: "Open Skies", description: "Build anything.", prize: null }`. There are example drafts in a comment right above `tracks` in `event.ts`.
 
 ## Contributing
 
-1. `git checkout -b your-change`
-2. Make your edit, then `git commit -am "Describe the change"`
-3. `git push -u origin your-change` and open a pull request on GitHub. Check the deploy preview before merging.
+1. Make a branch: `git checkout -b your-change`
+2. Edit, run `npm run check`, then commit: `git commit -am "Add Acme as a gold sponsor"`
+3. Push: `git push -u origin your-change`, then open a pull request on GitHub.
+4. Check the Netlify deploy preview on the PR, then merge. Merging to `main` publishes it.
 
 ## Credits
 

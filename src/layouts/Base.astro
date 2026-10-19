@@ -16,6 +16,12 @@ const {
   title = `${event.name} — Dublin's first 12-hour high school hackathon`,
   description = `${event.name} is a 12-hour hackathon for high school students in Dublin, run by Emerald High's Computer Science Honor Society.`,
 } = Astro.props;
+
+// Absolute URLs for link previews. Social apps (iMessage, Instagram, Discord, Slack) fetch these from their own
+// servers, so a relative path like "/og.png" doesn't work; they need the full https:// address.
+// Astro.site comes from `site` in astro.config.mjs; update it there if the domain changes.
+const canonical = new URL(Astro.url.pathname, Astro.site);
+const ogImage = new URL("/og.png", Astro.site);
 ---
 
 <!doctype html>
@@ -25,7 +31,32 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <!-- The canonical URL tells search engines which address is the "real" one (e.g. if the site is also reachable
+         at a Netlify preview URL), so search rankings don't get split between copies. -->
+    <link rel="canonical" href={canonical} />
+
+    <!-- Icons: SVG favicon for browser tabs; a 180×180 PNG for iPhone home screens (iOS ignores SVG icons). -->
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!--
+      Open Graph + Twitter card tags: these control the preview card when someone pastes our link into
+      iMessage, Instagram DMs, Discord, Slack, etc. og.png is a 1200×630 image in /public. To change the
+      preview picture, replace that file with another 1200×630 PNG of the same name.
+    -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={event.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${event.name}: 12 hours. Build anything.`} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
     <!-- Colors the phone's browser bar to match the site instead of a white strip on top. -->
     <meta name="theme-color" content="#07090a" />
     <!--
@@ -33,7 +64,6 @@ const {
       CSS in global.css waits for. That way, if JavaScript is blocked, nothing gets stuck invisible.
     -->
     <script is:inline>document.documentElement.classList.add("js");</script>
-    <!-- Full SEO / Open Graph tags come in Phase 6. -->
   </head>
   <!-- font-sans = Inter for body text; antialiased makes light-on-dark text look thinner and crisper on Macs. -->
   <body class="bg-ink font-sans text-fg antialiased">
