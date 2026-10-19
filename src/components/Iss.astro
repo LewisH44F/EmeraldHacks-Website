@@ -1,0 +1,87 @@
+---
+// Iss.astro — a space station (styled after the ISS) that slowly drifts across the background now and then.
+//
+// It's the biggest and slowest of the flying objects, so it reads as "far away". It slowly rotates and its
+// beacon blinks. WHERE and WHEN it flies is decided by src/scripts/flights.ts (look for data-flyer="iss").
+// Behind all content, ignores taps. No props; pure decoration.
+---
+
+<div aria-hidden="true" class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+  <div class="flyer iss" data-flyer="iss">
+    <div class="flyer-face">
+      <div class="iss-drift">
+        <svg viewBox="0 0 200 92" xmlns="http://www.w3.org/2000/svg">
+          <!-- Main truss: the long beam everything hangs off -->
+          <rect x="6" y="44" width="188" height="4" rx="1" fill="#9aa8a4"></rect>
+          <!-- Solar array wings: four pairs, gold like the real ISS, with panel lines -->
+          <g fill="#d9a925" stroke="#7a5d10" stroke-width="0.6">
+            <rect x="12" y="4" width="18" height="36"></rect>
+            <rect x="12" y="52" width="18" height="36"></rect>
+            <rect x="36" y="4" width="18" height="36"></rect>
+            <rect x="36" y="52" width="18" height="36"></rect>
+            <rect x="146" y="4" width="18" height="36"></rect>
+            <rect x="146" y="52" width="18" height="36"></rect>
+            <rect x="170" y="4" width="18" height="36"></rect>
+            <rect x="170" y="52" width="18" height="36"></rect>
+          </g>
+          <path d="M12 13h18M12 22h18M12 31h18M36 13h18M36 22h18M36 31h18M146 13h18M146 22h18M146 31h18M170 13h18M170 22h18M170 31h18M12 61h18M12 70h18M12 79h18M36 61h18M36 70h18M36 79h18M146 61h18M146 70h18M146 79h18M170 61h18M170 70h18M170 79h18" stroke="#7a5d10" stroke-width="0.6"></path>
+          <!-- Radiators: white fins near the middle -->
+          <rect x="64" y="52" width="10" height="20" fill="#eef3f1" opacity="0.85"></rect>
+          <rect x="126" y="52" width="10" height="20" fill="#eef3f1" opacity="0.85"></rect>
+          <!-- Pressurized modules: a long horizontal one crossed by a vertical one -->
+          <rect x="76" y="38" width="48" height="16" rx="8" fill="#eef3f1"></rect>
+          <rect x="93" y="22" width="14" height="48" rx="7" fill="#d9dfe2"></rect>
+          <!-- Green brand stripe on the main module -->
+          <rect x="82" y="44" width="36" height="4" rx="2" fill="#39d98a"></rect>
+          <!-- Blinking beacon -->
+          <circle class="iss-beacon" cx="100" cy="24" r="2.6" fill="#ff8a3d"></circle>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* 130px on phones up to 260px on big screens. */
+  .iss {
+    width: clamp(130px, 17vw, 260px);
+    opacity: 0.75;
+  }
+  /* A slow, gentle rotation back and forth, like a station adjusting its attitude. */
+  .iss-drift {
+    animation: iss-drift 16s ease-in-out infinite alternate;
+  }
+  @keyframes iss-drift {
+    from {
+      transform: rotate(-10deg);
+    }
+    to {
+      transform: rotate(8deg);
+    }
+  }
+  .iss svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .iss-beacon {
+    animation: iss-blink 1.8s steps(1, end) infinite;
+  }
+  @keyframes iss-blink {
+    0%,
+    60% {
+      opacity: 1;
+    }
+    61%,
+    100% {
+      opacity: 0.1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .iss-drift,
+    .iss-beacon {
+      animation: none;
+    }
+  }
+</style>

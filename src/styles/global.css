@@ -170,14 +170,55 @@ body {
   }
 }
 
-/* With reduced motion on, kill any remaining transitions/animations (like the FAQ "+" rotating).
-   Things still change state; they just don't animate. */
+/* With "reduce motion" on, hover/open transitions (like the FAQ "+" rotating or cards lifting) happen instantly.
+   I deliberately DON'T blanket-kill all animations here: each moving piece decides its own calm version.
+   The marquee bands keep sliding (just much slower), and the flying objects park in place.
+   See Marquee.astro, SpaceScene.astro, and src/scripts/flights.ts. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     transition-duration: 0.01ms !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
   }
+}
+
+/* ---------------------------------------------------------------------------------------------------------
+   Flyers (Astronaut, SkyDragon, Iss)
+   src/scripts/flights.ts moves each .flyer around the screen. Before the script runs (or if it can't), they
+   wait far off-screen, so nothing ever flashes in the top-left corner.
+   --------------------------------------------------------------------------------------------------------- */
+.flyer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transform: translate3d(-300vw, 0, 0);
+  will-change: transform;
+}
+.flyer-face,
+.dragon-spin {
+  will-change: transform;
+}
+@media print {
+  .flyer {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------------------------------------
+   Readable panels
+   A frosted, darker backing for text-heavy areas (the schedule, the About text). It dims and blurs whatever is
+   flying or twinkling behind it, so the words stay easy to read while the background stays alive.
+   --------------------------------------------------------------------------------------------------------- */
+.readable-panel {
+  --panel-blur: blur(14px) saturate(0.7);
+  background: rgba(9, 13, 14, 0.78);
+  backdrop-filter: var(--panel-blur);
+  border: 1px solid var(--color-line);
+  border-radius: 1rem;
+}
+/* Safari before 18 only understands the -webkit- version. It lives in its own rule with an equivalent
+   selector ([class~=...] matches the same elements as .readable-panel) because the CSS minifier merges
+   same-selector rules and keeps only one of the two lines. I checked the built CSS to confirm both survive. */
+[class~="readable-panel"] {
+  -webkit-backdrop-filter: var(--panel-blur);
 }

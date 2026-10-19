@@ -1,14 +1,17 @@
 ---
 // SkyDragon.astro — our Aeronaut dragon, a long sky serpent (inspired by the way Rayquaza flies) that glides
-// across the background of the site every few minutes, its body rippling in an S-curve.
+// across the background of the site, its body rippling in an S-curve.
+//
+// This file draws the dragon and its body ripple. WHERE it flies, and the stunts it does (loop-de-loops,
+// U-turns at the edge of the screen, swoops) are decided per trip by src/scripts/flights.ts
+// (look for data-flyer="dragon").
 //
 // The body is a chain of capsule-shaped segments. Every segment runs the same up-and-down animation, each one a
 // little later than the one in front of it, which turns into a wave rolling from head to tail. A second animation
 // tilts each segment along the slope of the wave, so the body reads as one smooth curve instead of a stack of
 // bobbing beads. The head uses the same shapes as our logo (Logo.astro), filled in.
 //
-// 100% CSS (no JavaScript), behind all content, ignores taps, and parks motionless for "reduce motion" users.
-// No props; it's decoration.
+// Behind all content, ignores taps, and rests motionless for "reduce motion" users. No props; it's decoration.
 
 // Segments from tail to head, getting bigger toward the head. --i = distance from the head (0 = head),
 // which sets each segment's delay in the wave. --s = segment size in "em" (the whole dragon scales with one
@@ -33,8 +36,11 @@ const segments = Array.from({ length: SEGMENTS }, (_, k) => {
     </symbol>
   </svg>
 
-  <div class="dragon-route">
-    <div class="dragon-face">
+  <!-- .flyer = moved by flights.ts. .flyer-face = mirrored to face the direction of travel.
+       .dragon-spin = rotated by flights.ts for loop-de-loops. -->
+  <div class="flyer dragon" data-flyer="dragon">
+    <div class="flyer-face">
+      <div class="dragon-spin">
       <div class="dragon-body">
         <!-- Tail fin -->
         <div class="dragon-seg dragon-tail" style={`--i:${SEGMENTS + 1};--s:4em`}>
@@ -66,64 +72,22 @@ const segments = Array.from({ length: SEGMENTS }, (_, k) => {
           </svg>
         </div>
       </div>
+      </div>
     </div>
   </div>
 </div>
 
 <style>
-  /* One font-size scales the whole dragon (every size inside is in "em"): about 380px long on phones,
+  /* One font-size scales the whole dragon (every size inside is in "em"): about 430px long on phones,
      up to ~700px on big screens. */
-  .dragon-route {
-    position: absolute;
-    top: 0;
-    left: 0;
-    font-size: clamp(7px, 0.9vw, 13px);
-    opacity: 0.55;
-    will-change: transform;
-    animation: dragon-route 150s linear infinite;
-    /* Start partway into the loop so visitors see the dragon within the first minute, and so it doesn't
-       share the screen with the astronaut (their loops are different lengths, so they rarely overlap). */
-    animation-delay: -6s;
+  .dragon {
+    font-size: clamp(8px, 0.95vw, 13px);
+    opacity: 0.85;
   }
 
-  /* The flight path. Percentages in translate are relative to the dragon's own width, so "-100%" means
-     "exactly one dragon-length off the left edge", whatever size it is on this screen.
-     0–42%: flies right → left high up. 42–50%: off-screen, drops lower. 50–92%: flies left → right.
-     92–100%: off-screen, climbs back to the start. */
-  @keyframes dragon-route {
-    0% {
-      transform: translate3d(105vw, 30vh, 0);
-    }
-    42% {
-      transform: translate3d(calc(-100% - 5vw), 10vh, 0);
-    }
-    50% {
-      transform: translate3d(calc(-100% - 5vw), 62vh, 0);
-    }
-    92% {
-      transform: translate3d(105vw, 44vh, 0);
-    }
-    100% {
-      transform: translate3d(105vw, 30vh, 0);
-    }
-  }
-
-  /* The dragon is drawn facing right. On the first (leftward) leg it's mirrored so it flies head-first.
-     The flips happen at 46% and 96%, while it's off-screen. step-end = flip instantly. */
-  .dragon-face {
-    animation: dragon-face 150s step-end infinite;
-    animation-delay: -6s;
-  }
-  @keyframes dragon-face {
-    0% {
-      transform: scaleX(-1);
-    }
-    46% {
-      transform: scaleX(1);
-    }
-    96% {
-      transform: scaleX(-1);
-    }
+  /* Loops spin around the middle of the body, so it looks like the serpent is coiling through a circle. */
+  .dragon-spin {
+    transform-origin: 50% 50%;
   }
 
   .dragon-body {
@@ -193,30 +157,12 @@ const segments = Array.from({ length: SEGMENTS }, (_, k) => {
     }
   }
 
-  /* Phones: fainter, since it passes behind the text you're reading. */
-  @media (max-width: 767px) {
-    .dragon-route {
-      opacity: 0.3;
-    }
-  }
-
-  /* "Reduce motion": no flying and no rippling. The dragon rests, still, near the top-left. */
+  /* "Reduce motion": no rippling. (flights.ts also parks the dragon instead of flying it.) */
   @media (prefers-reduced-motion: reduce) {
-    .dragon-route,
-    .dragon-face,
     .dragon-seg,
     .dragon-seg svg {
       animation: none;
     }
-    .dragon-route {
-      transform: translate3d(2vw, 14vh, 0);
-      opacity: 0.25;
-    }
   }
 
-  @media print {
-    .dragon-route {
-      display: none;
-    }
-  }
 </style>

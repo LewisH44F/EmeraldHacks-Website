@@ -102,14 +102,14 @@ aerohacks-website/
 │   │   ├── Countdown         ← live timer in the hero
 │   │   ├── Logo, Star        ← the dragon mark and the little ✦ star, drawn as SVG
 │   │   ├── SkyField          ← the interactive animated background
-│   │   ├── Astronaut         ← the little jetpack aeronaut floating across the background
-│   │   ├── SkyDragon         ← the Aeronaut sky-serpent dragon
+│   │   ├── Astronaut, SkyDragon, Iss   ← the three background flyers (drawings + body animations)
 │   │   ├── SpaceScene        ← planet, orbiting satellite, twinkling stars
 │   │   └── Marquee           ← the big, endlessly sliding word bands
 │   ├── lib/
 │   │   ├── sections.ts       ← nav links + section order (keeps nav and page in sync)
 │   │   ├── cta.ts            ← decides what the Register / Become a sponsor buttons say and where they go
 │   │   └── format.ts         ← date formatting and the "TBA" fallback
+│   ├── scripts/flights.ts    ← sends the flyers on random trips (speeds, pauses, dragon stunts)
 │   ├── layouts/Base.astro    ← the <html>/<head> shell: SEO + link-preview tags, skip link, site-wide scripts
 │   ├── pages/index.astro     ← the single page: stacks the sections in order
 │   └── styles/global.css     ← brand colors + fonts (@theme), glow and animation styles
@@ -133,12 +133,12 @@ aerohacks-website/
 - **Logo:** `src/components/Logo.astro` is a line-art Aeronaut dragon head. To use an official logo, replace the `<path>` lines in that file (and in `public/favicon.svg`), or swap the component for an `<img>`. Also replace `public/og.png` and `public/apple-touch-icon.png`.
 - **Motion:**
   - The background mesh (`SkyField.astro`) reacts to scrolling, mouse/finger movement, and taps.
-  - The marquee bands (`Marquee.astro`) slide continuously on their own (pure CSS) and never stop. To change the speed, edit `70s` in that file (higher = slower).
-  - A small jetpack aeronaut (`Astronaut.astro`) floats across the background every ~2 minutes, waving. Change `110s` there to make the trip slower or faster.
-  - The Aeronaut dragon (`SkyDragon.astro`), a long sky serpent, glides across every ~2.5 minutes with its body rippling. Change `150s` for the trip length; `SEGMENTS` at the top sets how long the body is.
-  - `SpaceScene.astro` adds a ringed planet in the bottom-right corner, a satellite orbiting it with a blinking light, and twinkling stars. Star positions are a list at the top of that file.
+  - The marquee bands (`Marquee.astro`) slide continuously and never stop. To change the speed, edit `70s` in that file (higher = slower).
+  - Three flyers cross the screen on **random** trips (random side, height, speed, and pause each time): the jetpack astronaut (`Astronaut.astro`), the Aeronaut sky dragon (`SkyDragon.astro`), and a space station (`Iss.astro`). The dragon randomly cruises, swoops, does Rayquaza-style loop-de-loops, or U-turns and flies back. All of the randomness is tuned in the `CONFIG` block at the top of `src/scripts/flights.ts` (speeds, pauses, which stunts).
+  - `SpaceScene.astro` adds a ringed planet in the bottom-right corner (turning cloud bands, glowing atmosphere, particles streaming around both rings), a satellite orbiting it with a blinking light, and twinkling stars.
+  - Text-heavy areas (the schedule, the About text) sit on frosted `.readable-panel` backgrounds that dim and blur whatever flies behind them.
   - Sections fade in as you reach them. On phones, cards and schedule rows light up as they cross the middle of the screen (phones can't hover).
-  - Visitors with "reduce motion" turned on (iOS, Android, macOS, or Windows settings) get a still version, and everything still works with JavaScript off.
+  - **"Reduce motion"** (iPhone: Settings → Accessibility → Motion; also on Android, macOS, Windows): the bands still drift, about 3x slower, and the flyers, planet, and stars stay still in place. If the site looks frozen on someone's phone, this setting is the reason.
 - **Browser support:** current Safari (Mac + iPhone), Chrome, Edge, Firefox, and Samsung Internet. The floor is set by Tailwind CSS 4: Safari/iOS 16.4+, Chrome/Edge 111+, Firefox 128+. Older browsers still show all the content, just with simpler styling.
 - **Link previews:** `public/og.png` is what shows when someone pastes our link into a chat. Replace it with any 1200×630 PNG of the same name.
 

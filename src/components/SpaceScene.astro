@@ -1,6 +1,7 @@
 ---
-// SpaceScene.astro — the still-ish scenery behind the site: a ringed planet peeking in from the bottom-right
-// corner, a satellite slowly orbiting it with a blinking light, and a scattering of twinkling stars.
+// SpaceScene.astro — the scenery behind the site: a ringed planet in the bottom-right corner (its cloud bands
+// turn, its atmosphere glows, and particles stream around both rings), a satellite orbiting it with a blinking
+// light, and a scattering of twinkling stars.
 //
 // Like the other background pieces (SkyField, Astronaut, SkyDragon), it's fixed behind all content, ignores
 // taps, and is pure CSS animation. Everything here moves slowly on purpose: it should feel like a backdrop,
@@ -32,9 +33,16 @@ const stars = [
 
   <!-- Planet + ring + orbiting satellite, anchored to the bottom-right corner and mostly off-screen. -->
   <div class="space-planet-wrap">
-    <!-- Back half of the ring (drawn first, so the planet covers it) -->
+    <!--
+      Rings, back half (drawn first, so the planet covers it). Each ring is two layers: a faint solid band, and a
+      dashed copy whose dashes slide along it (animated stroke-dashoffset), which looks like ring particles
+      orbiting. The two rings orbit in opposite directions.
+    -->
     <svg class="space-ring" viewBox="0 0 200 200">
-      <ellipse cx="100" cy="100" rx="96" ry="22" fill="none" stroke="#ffd23f" stroke-width="3" stroke-opacity="0.5"></ellipse>
+      <ellipse cx="100" cy="100" rx="96" ry="22" fill="none" stroke="#ffd23f" stroke-width="3" stroke-opacity="0.35"></ellipse>
+      <ellipse class="ring-flow" cx="100" cy="100" rx="96" ry="22" fill="none" stroke="#ffd23f" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="1.5 10"></ellipse>
+      <ellipse cx="100" cy="100" rx="80" ry="17" fill="none" stroke="#39d98a" stroke-width="2" stroke-opacity="0.3"></ellipse>
+      <ellipse class="ring-flow ring-flow--reverse" cx="100" cy="100" rx="80" ry="17" fill="none" stroke="#39d98a" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="1 8"></ellipse>
     </svg>
 
     <!-- The planet: a sphere made with a radial gradient (light from the top-left), with slowly drifting
@@ -43,9 +51,12 @@ const stars = [
       <div class="space-bands"></div>
     </div>
 
-    <!-- Front half of the ring: only the lower half of the ellipse, clipped, so it passes in front of the planet. -->
+    <!-- Rings, front half: the same rings again, clipped to their lower half so they pass in front of the planet. -->
     <svg class="space-ring space-ring--front" viewBox="0 0 200 200">
-      <ellipse cx="100" cy="100" rx="96" ry="22" fill="none" stroke="#ffd23f" stroke-width="3" stroke-opacity="0.8"></ellipse>
+      <ellipse cx="100" cy="100" rx="96" ry="22" fill="none" stroke="#ffd23f" stroke-width="3" stroke-opacity="0.6"></ellipse>
+      <ellipse class="ring-flow" cx="100" cy="100" rx="96" ry="22" fill="none" stroke="#ffd23f" stroke-width="3.5" stroke-linecap="round" stroke-dasharray="1.5 10"></ellipse>
+      <ellipse cx="100" cy="100" rx="80" ry="17" fill="none" stroke="#39d98a" stroke-width="2" stroke-opacity="0.5"></ellipse>
+      <ellipse class="ring-flow ring-flow--reverse" cx="100" cy="100" rx="80" ry="17" fill="none" stroke="#39d98a" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="1 8"></ellipse>
     </svg>
 
     <!-- The orbit: this box spins around the planet's center, carrying the satellite with it. -->
@@ -96,11 +107,11 @@ const stars = [
      bottom-right corner so only part of the planet peeks in. */
   .space-planet-wrap {
     position: absolute;
-    right: -9vmin;
-    bottom: -12vmin;
-    width: clamp(160px, 30vmin, 380px);
+    right: -6vmin;
+    bottom: -8vmin;
+    width: clamp(220px, 42vmin, 500px);
     aspect-ratio: 1;
-    opacity: 0.6;
+    opacity: 0.9;
   }
   .space-planet {
     position: absolute;
@@ -109,7 +120,16 @@ const stars = [
     overflow: hidden;
     /* Light from the top-left: bright blue-green highlight fading to deep navy on the shadow side. */
     background: radial-gradient(circle at 32% 30%, #5bb3ff 0%, #2756a8 38%, #0e2142 70%, #07090a 100%);
-    box-shadow: 0 0 40px rgba(91, 155, 255, 0.25);
+    /* The atmosphere: a soft blue glow that slowly breathes in and out. */
+    animation: space-atmosphere 6s ease-in-out infinite alternate;
+  }
+  @keyframes space-atmosphere {
+    from {
+      box-shadow: 0 0 30px 2px rgba(91, 155, 255, 0.25);
+    }
+    to {
+      box-shadow: 0 0 60px 10px rgba(91, 155, 255, 0.45);
+    }
   }
   /* Cloud bands: soft stripes, twice as wide as the planet, sliding sideways so the planet seems to rotate. */
   .space-bands {
@@ -142,6 +162,20 @@ const stars = [
   }
   .space-ring--front {
     clip-path: inset(50% 0 0 0);
+  }
+  /* Ring particles: sliding the dash pattern along the ellipse makes the dots travel around the ring.
+     A full lap of dashes repeats every 11.5 units (1.5 dash + 10 gap), so animating by 115 loops seamlessly. */
+  .ring-flow {
+    animation: ring-flow 8s linear infinite;
+  }
+  .ring-flow--reverse {
+    animation-direction: reverse;
+    animation-duration: 11s;
+  }
+  @keyframes ring-flow {
+    to {
+      stroke-dashoffset: -115;
+    }
   }
 
   /* ---------- Satellite ----------
@@ -196,9 +230,9 @@ const stars = [
   /* Phones: smaller and fainter, since the corner is closer to the text. */
   @media (max-width: 767px) {
     .space-planet-wrap {
-      opacity: 0.4;
-      right: -14vmin;
-      bottom: -16vmin;
+      opacity: 0.8;
+      right: -16vmin;
+      bottom: -12vmin;
     }
   }
 
@@ -208,7 +242,9 @@ const stars = [
     .space-bands,
     .space-orbit,
     .space-satellite,
-    .space-beacon {
+    .space-beacon,
+    .space-planet,
+    .ring-flow {
       animation: none;
     }
     .space-star {

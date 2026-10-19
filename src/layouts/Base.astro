@@ -9,6 +9,7 @@ import SkyField from "../components/SkyField.astro";
 import Astronaut from "../components/Astronaut.astro";
 import SpaceScene from "../components/SpaceScene.astro";
 import SkyDragon from "../components/SkyDragon.astro";
+import Iss from "../components/Iss.astro";
 
 interface Props {
   title?: string;
@@ -83,15 +84,20 @@ const ogImage = new URL("/og.png", Astro.site);
     <!-- The animated, interactive background. It's fixed behind all content. -->
     <!--
       The background layers, all fixed behind the content. Later ones draw on top of earlier ones:
-      the mesh, then the planet/satellite/stars, then the jetpack aeronaut, then the Aeronaut dragon.
+      the mesh, then the planet/satellite/stars, then the space station, the jetpack aeronaut, and the dragon.
+      The three flyers are moved around by src/scripts/flights.ts (imported in the script below).
     -->
     <SkyField />
     <SpaceScene />
+    <Iss />
     <Astronaut />
     <SkyDragon />
     <slot />
 
     <script>
+      // Random flight paths for the astronaut, dragon, and space station.
+      import "../scripts/flights.ts";
+
       // Site-wide pointer + scroll effects that don't belong to any single component.
       const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 

@@ -28,7 +28,8 @@ const facts = [
   <div class:list={["grid gap-10", event.about.length > 0 && "lg:grid-cols-[3fr_2fr]"]}>
     {
       event.about.length > 0 && (
-        <div class="max-w-prose space-y-5 text-lg leading-relaxed text-fg/90">
+        // readable-panel (global.css): frosted backing so the paragraph stays easy to read over the moving background.
+        <div class="readable-panel max-w-prose space-y-5 p-6 text-lg leading-relaxed text-fg/90 sm:p-8">
           {event.about.map((para) => <p>{para}</p>)}
         </div>
       )
