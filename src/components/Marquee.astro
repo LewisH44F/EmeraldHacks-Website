@@ -1,6 +1,7 @@
 ---
 // Marquee.astro — a big tilted band of words that slides sideways forever, on its own (not tied to scrolling).
 //
+// It never stops: not on hover, not on scroll. (Visitors with "reduce motion" turned on get a still band.)
 // It's pure CSS animation: no JavaScript. That makes it smooth on every device (the browser hands the movement
 // to the GPU) and means it keeps working even if scripts fail. Two rows slide in opposite directions.
 // The words come from `marquee` in event.ts.
@@ -89,14 +90,6 @@ const rows = [
     }
     to {
       transform: translate3d(0, 0, 0);
-    }
-  }
-
-  /* Hovering with a mouse pauses the band, so anyone who finds it distracting (or wants to read it) can stop it.
-     (hover: hover) limits this to real mice/trackpads; on phones a tap would otherwise "stick" the pause. */
-  @media (hover: hover) {
-    .marquee:hover .marquee-row {
-      animation-play-state: paused;
     }
   }
 

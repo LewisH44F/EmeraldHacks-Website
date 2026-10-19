@@ -1,0 +1,225 @@
+---
+// SpaceScene.astro — the still-ish scenery behind the site: a ringed planet peeking in from the bottom-right
+// corner, a satellite slowly orbiting it with a blinking light, and a scattering of twinkling stars.
+//
+// Like the other background pieces (SkyField, Astronaut, SkyDragon), it's fixed behind all content, ignores
+// taps, and is pure CSS animation. Everything here moves slowly on purpose: it should feel like a backdrop,
+// not something asking for attention. "Reduce motion" users get the same scene, perfectly still.
+
+// Twinkling stars: position (% of the screen), size (px), color, and a delay so they don't blink in unison.
+// I picked the spots by hand to avoid the middle of the screen, where the text is.
+const stars = [
+  { x: 6, y: 14, s: 10, c: "#ffd23f", d: 0 },
+  { x: 92, y: 9, s: 8, c: "#eef3f1", d: 1.4 },
+  { x: 17, y: 58, s: 7, c: "#5b9bff", d: 2.6 },
+  { x: 84, y: 38, s: 9, c: "#39d98a", d: 0.8 },
+  { x: 4, y: 86, s: 8, c: "#eef3f1", d: 3.3 },
+  { x: 48, y: 5, s: 6, c: "#5b9bff", d: 2 },
+  { x: 70, y: 74, s: 7, c: "#ffd23f", d: 4.1 },
+  { x: 30, y: 30, s: 5, c: "#eef3f1", d: 1.1 },
+];
+---
+
+<div aria-hidden="true" class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+  <!-- Stars: 4-point sparkles that slowly fade in and out. -->
+  {
+    stars.map((st) => (
+      <svg class="space-star" viewBox="0 0 24 24" style={`left:${st.x}%;top:${st.y}%;width:${st.s}px;--d:${st.d}s`}>
+        <path d="M12 0 C13 8 16 11 24 12 C16 13 13 16 12 24 C11 16 8 13 0 12 C8 11 11 8 12 0 Z" fill={st.c} />
+      </svg>
+    ))
+  }
+
+  <!-- Planet + ring + orbiting satellite, anchored to the bottom-right corner and mostly off-screen. -->
+  <div class="space-planet-wrap">
+    <!-- Back half of the ring (drawn first, so the planet covers it) -->
+    <svg class="space-ring" viewBox="0 0 200 200">
+      <ellipse cx="100" cy="100" rx="96" ry="22" fill="none" stroke="#ffd23f" stroke-width="3" stroke-opacity="0.5"></ellipse>
+    </svg>
+
+    <!-- The planet: a sphere made with a radial gradient (light from the top-left), with slowly drifting
+         cloud bands inside it. overflow:hidden + border-radius:50% clips the bands to the circle. -->
+    <div class="space-planet">
+      <div class="space-bands"></div>
+    </div>
+
+    <!-- Front half of the ring: only the lower half of the ellipse, clipped, so it passes in front of the planet. -->
+    <svg class="space-ring space-ring--front" viewBox="0 0 200 200">
+      <ellipse cx="100" cy="100" rx="96" ry="22" fill="none" stroke="#ffd23f" stroke-width="3" stroke-opacity="0.8"></ellipse>
+    </svg>
+
+    <!-- The orbit: this box spins around the planet's center, carrying the satellite with it. -->
+    <div class="space-orbit">
+      <div class="space-satellite">
+        <svg viewBox="0 0 64 40">
+          <!-- Solar panels -->
+          <rect x="0" y="12" width="20" height="16" rx="1.5" fill="#5b9bff"></rect>
+          <rect x="44" y="12" width="20" height="16" rx="1.5" fill="#5b9bff"></rect>
+          <path d="M7 12v16M13 12v16M51 12v16M57 12v16" stroke="#07090a" stroke-width="1" opacity="0.5"></path>
+          <!-- Arms + body -->
+          <rect x="18" y="19" width="28" height="2" fill="#9aa8a4"></rect>
+          <rect x="24" y="10" width="16" height="20" rx="3" fill="#eef3f1"></rect>
+          <!-- Antenna dish + mast -->
+          <path d="M32 10 L32 3" stroke="#9aa8a4" stroke-width="1.5"></path>
+          <path d="M26 4 Q32 -2 38 4" fill="none" stroke="#9aa8a4" stroke-width="1.5"></path>
+          <!-- Blinking beacon -->
+          <circle class="space-beacon" cx="32" cy="20" r="2.6" fill="#39d98a"></circle>
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* ---------- Stars ---------- */
+  .space-star {
+    position: absolute;
+    height: auto;
+    opacity: 0.2;
+    animation: space-twinkle 5s ease-in-out infinite;
+    animation-delay: var(--d);
+  }
+  @keyframes space-twinkle {
+    0%,
+    100% {
+      opacity: 0.15;
+      transform: scale(0.7);
+    }
+    50% {
+      opacity: 0.85;
+      transform: scale(1);
+    }
+  }
+
+  /* ---------- Planet ----------
+     The wrapper is a square sized to the screen (bigger on bigger screens), pushed partly off the
+     bottom-right corner so only part of the planet peeks in. */
+  .space-planet-wrap {
+    position: absolute;
+    right: -9vmin;
+    bottom: -12vmin;
+    width: clamp(160px, 30vmin, 380px);
+    aspect-ratio: 1;
+    opacity: 0.6;
+  }
+  .space-planet {
+    position: absolute;
+    inset: 22%;
+    border-radius: 50%;
+    overflow: hidden;
+    /* Light from the top-left: bright blue-green highlight fading to deep navy on the shadow side. */
+    background: radial-gradient(circle at 32% 30%, #5bb3ff 0%, #2756a8 38%, #0e2142 70%, #07090a 100%);
+    box-shadow: 0 0 40px rgba(91, 155, 255, 0.25);
+  }
+  /* Cloud bands: soft stripes, twice as wide as the planet, sliding sideways so the planet seems to rotate. */
+  .space-bands {
+    position: absolute;
+    inset: 0 -100% 0 0;
+    background: repeating-linear-gradient(
+      172deg,
+      transparent 0 14%,
+      rgba(57, 217, 138, 0.18) 14% 19%,
+      transparent 19% 31%,
+      rgba(238, 243, 241, 0.12) 31% 34%
+    );
+    animation: space-spin 60s linear infinite;
+  }
+  @keyframes space-spin {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+
+  /* Ring: a flat ellipse tilted slightly. The front copy is clipped to its lower half so the ring appears to
+     wrap around the planet (behind on top, in front on the bottom). */
+  .space-ring {
+    position: absolute;
+    inset: 0;
+    transform: rotate(-16deg);
+  }
+  .space-ring--front {
+    clip-path: inset(50% 0 0 0);
+  }
+
+  /* ---------- Satellite ----------
+     .space-orbit is a box the same size as the wrapper, rotating around its own center = the planet's center.
+     The satellite sits at the box's top edge, so it travels in a circle around the planet. */
+  .space-orbit {
+    position: absolute;
+    inset: -18%;
+    animation: space-orbit 70s linear infinite;
+  }
+  @keyframes space-orbit {
+    to {
+      transform: rotate(-360deg);
+    }
+  }
+  .space-satellite {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: clamp(30px, 4vmin, 48px);
+    translate: -50% 0;
+    /* A slow independent tumble, so it isn't rigidly glued to the orbit. */
+    animation: space-tumble 18s ease-in-out infinite alternate;
+  }
+  .space-satellite svg {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  @keyframes space-tumble {
+    from {
+      transform: rotate(-20deg);
+    }
+    to {
+      transform: rotate(25deg);
+    }
+  }
+  .space-beacon {
+    animation: space-blink 2.2s steps(1, end) infinite;
+  }
+  @keyframes space-blink {
+    0%,
+    70% {
+      opacity: 1;
+    }
+    71%,
+    100% {
+      opacity: 0.15;
+    }
+  }
+
+  /* Phones: smaller and fainter, since the corner is closer to the text. */
+  @media (max-width: 767px) {
+    .space-planet-wrap {
+      opacity: 0.4;
+      right: -14vmin;
+      bottom: -16vmin;
+    }
+  }
+
+  /* "Reduce motion": the whole scene stays, but nothing moves or blinks. */
+  @media (prefers-reduced-motion: reduce) {
+    .space-star,
+    .space-bands,
+    .space-orbit,
+    .space-satellite,
+    .space-beacon {
+      animation: none;
+    }
+    .space-star {
+      opacity: 0.5;
+    }
+  }
+
+  @media print {
+    .space-planet-wrap,
+    .space-star {
+      display: none;
+    }
+  }
+</style>
