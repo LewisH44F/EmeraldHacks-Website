@@ -1,23 +1,20 @@
-// flights.ts — sends the astronaut (Astronaut.astro) and the space station (Iss.astro) on random trips.
-// (The dragon has its own, fancier flight engine: dragon.ts.)
+// flights.ts — sends the astronaut (Astronaut.astro) and the satellite (Satellite.astro) on random trips
+// across the background.
 //
 // Each flyer is an element with data-flyer="name". Forever, for each one: wait a pause, pick a random side to
 // enter from, random heights, a random speed, and a random path shape, then fly it across. No two trips match.
+// The astronaut only pauses briefly between trips, so he's on screen most of the time; the satellite passes
+// by now and then.
 //
-// Rule shared with dragon.ts (via stage.ts): the astronaut or the dragon should always be on screen. So when
-// the astronaut finishes a trip and the dragon isn't out, it heads straight back out instead of resting.
-//
-// The movement uses the Web Animations API (element.animate): the same engine as CSS animations, so it's smooth
-// and GPU-friendly, but I can choose new points every trip. Works in all current browsers, Safari/iOS included.
-// Loaded once by src/layouts/Base.astro.
-
-import { isFlying, onScreen, rest, setFlying, setVisibleCheck, wakePartner } from "./stage";
+// The movement uses the Web Animations API (element.animate): the same engine as CSS animations, so the browser
+// runs it on the GPU (smooth, light on phones), but I can choose new points every trip. Works in all current
+// browsers, Safari/iOS included. Loaded once by src/layouts/Base.astro.
 
 type PathShape = "glide" | "swoop" | "zigzag" | "diagonal";
 
 interface FlyerConfig {
   speed: [number, number]; // pixels per second, min..max
-  gap: [number, number]; // normal pause between trips, ms
+  gap: [number, number]; // pause between trips, ms
   firstDelay: [number, number]; // pause before the first trip, ms
   shapes: PathShape[]; // picked at random each trip
   park: { x: number; y: number }; // where it rests for "reduce motion" users (fractions of the screen)
@@ -26,17 +23,17 @@ interface FlyerConfig {
 const CONFIG: Record<string, FlyerConfig> = {
   astronaut: {
     speed: [55, 95],
-    gap: [1500, 5000],
+    gap: [600, 2000],
     firstDelay: [300, 800],
     shapes: ["glide", "swoop", "zigzag", "diagonal"],
     park: { x: 0.86, y: 0.7 },
   },
-  iss: {
-    speed: [25, 45],
-    gap: [8000, 20000],
-    firstDelay: [4000, 8000],
-    shapes: ["glide", "glide", "diagonal"],
-    park: { x: 0.78, y: 0.08 },
+  satellite: {
+    speed: [30, 55],
+    gap: [6000, 15000],
+    firstDelay: [3000, 6000],
+    shapes: ["glide", "diagonal"],
+    park: { x: 0.12, y: 0.12 },
   },
 };
 
@@ -51,6 +48,7 @@ const clamp = (v: number, min: number, max: number) => Math.min(max, Math.max(mi
 const sleep = (ms: number) => new Promise<void>((resolve) => window.setTimeout(resolve, ms));
 const at = (x: number, y: number) => `translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, 0)`;
 
+// Don't start new trips while the tab is in the background; nobody would see them.
 function whenVisible(): Promise<void> {
   if (!document.hidden) return Promise.resolve();
   return new Promise((resolve) => {
@@ -64,6 +62,7 @@ function whenVisible(): Promise<void> {
   });
 }
 
+// Resolves when the "reduce motion" setting changes, so a parked flyer can take off if it's turned off.
 function whenMotionSettingChanges(): Promise<void> {
   return new Promise((resolve) => reduceMotion.addEventListener("change", () => resolve(), { once: true }));
 }
@@ -75,6 +74,7 @@ const running = new Map<HTMLElement, Animation>();
 
 async function trip(el: HTMLElement, cfg: FlyerConfig) {
   const face = el.querySelector<HTMLElement>(".flyer-face");
+  // Sizes are read once per trip (not every frame), so this costs nothing noticeable.
   const w = el.offsetWidth;
   const h = el.offsetHeight;
   const vw = window.innerWidth;
@@ -132,19 +132,16 @@ async function trip(el: HTMLElement, cfg: FlyerConfig) {
 
   const flight = el.animate(keyframes, { duration, fill: "forwards" });
   running.set(el, flight);
-  // Tag-team: when the astronaut is 80% of the way across, nudge the dragon so it's already entering
-  // while he's still on screen (no empty sky in between).
-  const handoff = el.dataset.flyer === "astronaut" ? window.setTimeout(() => wakePartner("astronaut"), duration * 0.8) : 0;
   try {
     await flight.finished;
   } finally {
-    window.clearTimeout(handoff);
     running.delete(el);
     el.style.transform = at(-w - 300, -h - 300);
     flight.cancel();
   }
 }
 
+// Places a flyer still, on screen, for "reduce motion" users.
 function park(el: HTMLElement, cfg: FlyerConfig) {
   const face = el.querySelector<HTMLElement>(".flyer-face");
   if (face) face.style.transform = "scaleX(1)";
@@ -155,7 +152,8 @@ function park(el: HTMLElement, cfg: FlyerConfig) {
 // ---------------------------------------------------------------------------------------------------------
 // The forever-loop for one flyer
 // ---------------------------------------------------------------------------------------------------------
-async function fly(name: string, el: HTMLElement, cfg: FlyerConfig) {
+async function fly(el: HTMLElement, cfg: FlyerConfig) {
+  // The staggered first delay only applies to flying; "reduce motion" users see everything parked right away.
   if (!reduceMotion.matches) await sleep(rand(...cfg.firstDelay));
   for (;;) {
     if (reduceMotion.matches) {
@@ -164,35 +162,25 @@ async function fly(name: string, el: HTMLElement, cfg: FlyerConfig) {
       continue;
     }
     await whenVisible();
-    setFlying(name, true);
     try {
       await trip(el, cfg);
     } catch {
       // A cancelled trip (e.g. reduce motion switched on mid-flight) lands here; the loop carries on.
-    } finally {
-      setFlying(name, false);
     }
-    if (reduceMotion.matches) continue;
-    if (name === "astronaut") {
-      // Tag-team with the dragon: wake it if it's resting, so one of them is always on screen. If the dragon
-      // isn't out at all, come straight back; otherwise rest (the dragon can still wake us early).
-      wakePartner("astronaut");
-      await rest("astronaut", isFlying("dragon") ? rand(...cfg.gap) : 300);
-    } else {
-      await sleep(rand(...cfg.gap));
-    }
+    // Skip the pause if reduce motion was just switched on, so the flyer parks right away.
+    if (!reduceMotion.matches) await sleep(rand(...cfg.gap));
   }
 }
 
+// If the visitor switches "reduce motion" on mid-flight, stop every flight immediately.
 reduceMotion.addEventListener("change", () => {
   if (reduceMotion.matches) running.forEach((a) => a.cancel());
 });
 
+// Start every flyer on the page. Very old browsers without element.animate simply keep them hidden.
 if (typeof Element.prototype.animate === "function") {
   document.querySelectorAll<HTMLElement>("[data-flyer]").forEach((el) => {
-    const name = el.dataset.flyer ?? "";
-    const cfg = CONFIG[name];
-    if (name === "astronaut") setVisibleCheck("astronaut", () => onScreen(el));
-    if (cfg) void fly(name, el, cfg);
+    const cfg = CONFIG[el.dataset.flyer ?? ""];
+    if (cfg) void fly(el, cfg);
   });
 }

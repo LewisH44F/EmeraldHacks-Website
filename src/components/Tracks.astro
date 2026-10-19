@@ -1,45 +1,47 @@
 ---
-// Tracks.astro — the themes teams can build for, each with its prize (or "Prize TBA").
+// Tracks.astro — the themes teams can build for, as cut-corner cards.
 //
-// Reads `tracks` from event.ts. If the list is empty, it shows a "coming soon" note instead of a blank section.
+// Reads `tracks` from event.ts. Each card gets an accent color (green → orange → blue, repeating) for its dot and
+// title. If a track has its own prize set, it's shown on the card; overall prizes live in the Prizes section.
+// If the list is empty, a "Coming soon" card shows instead.
 import { event } from "../content/event";
 import Section from "./Section.astro";
-import Star from "./Star.astro";
 
-// Each card gets an accent color, cycling green → blue → yellow, so the grid doesn't look monotone.
-// These are full class names (not built from pieces) because Tailwind only generates classes it can find
-// written out in full in the source code.
-const accents = ["text-aero", "text-sky", "text-volt"];
+// Full class names written out (Tailwind only generates classes it can find spelled out in the code).
+const accents = [
+  { text: "text-aero", dot: "bg-aero" },
+  { text: "text-ember", dot: "bg-ember" },
+  { text: "text-sky", dot: "bg-sky" },
+];
 ---
 
-<Section id="tracks" title="Tracks & prizes">
+<Section id="tracks" title="Tracks" lead="Pick a theme for your project, or build across them." accent="ember">
   {
     event.tracks.length === 0 ? (
-      // Empty state: a dashed "placeholder" card. Dashed borders read as "something goes here later",
-      // which feels intentional rather than broken.
-      <div class="spotlight flex flex-col items-center gap-3 rounded-xl border border-dashed border-aero/50 px-6 py-14 text-center" data-focus>
-        <Star class="size-6 text-volt motion-safe:animate-pulse" />
-        <p class="font-display text-2xl font-bold tracking-tight sm:text-3xl">Coming soon</p>
-        <p class="max-w-md text-muted">Tracks and prizes are being finalized. Check back soon.</p>
+      <div class="chamfer-frame">
+        <div class="chamfer bg-card px-8 py-12">
+          <span aria-hidden="true" class="octagon block size-3.5 bg-aero" />
+          <p class="mt-5 font-display text-2xl font-bold text-aero sm:text-3xl">Coming soon</p>
+          <p class="mt-3 text-muted">Tracks are being finalized. Check back soon.</p>
+        </div>
       </div>
     ) : (
-      // Cards stack on phones, 2 across on tablets, 3 on desktop. auto-rows-fr keeps every card in a row the same height.
-      <ul class="grid auto-rows-fr gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {event.tracks.map((t, i) => (
-          // motion-safe:hover:-translate-y-1 lifts the card slightly on hover, but only if motion is allowed.
-          // [&.in-focus]: applies the same lift on phones when the card scrolls into the middle of the screen.
-          <li data-focus class="spotlight flex flex-col rounded-xl border border-line p-6 transition-[translate,border-color] hover:border-aero/50 motion-safe:hover:-translate-y-1 motion-safe:[&.in-focus]:-translate-y-1">
-            <p aria-hidden="true" class:list={["font-display text-sm font-bold", accents[i % accents.length]]}>
-              {String(i + 1).padStart(2, "0")}
-            </p>
-            <h3 class="mt-3 font-display text-xl font-semibold">{t.name}</h3>
-            <p class="mt-2 flex-1 text-muted">{t.description}</p>
-            {/* mt-4 + flex-1 above pins the prize line to the bottom of the card so prizes line up across cards. */}
-            <p class="mt-6 border-t border-line pt-4 text-sm font-semibold">
-              Prize: <span class:list={["font-normal", t.prize ? "text-volt" : "text-muted"]}>{t.prize ?? "TBA"}</span>
-            </p>
-          </li>
-        ))}
+      // 1 column on phones, 2 from 640px up. auto-rows-fr keeps cards in the same row equally tall.
+      <ul class="grid auto-rows-fr gap-5 sm:grid-cols-2">
+        {event.tracks.map((t, i) => {
+          const accent = accents[i % accents.length]!;
+          return (
+            // The first track gets a green frame and a slightly lighter card, as a gentle "featured" look.
+            <li class:list={["chamfer-frame", i === 0 && "bg-aero/60"]}>
+              <div class:list={["chamfer flex h-full flex-col px-8 py-9", i === 0 ? "bg-[#1a2c27]" : "bg-card"]}>
+                <span aria-hidden="true" class:list={["octagon block size-3.5", accent.dot]} />
+                <h3 class:list={["mt-5 font-display text-2xl font-bold", accent.text]}>{t.name}</h3>
+                <p class="mt-3 flex-1 text-fg/85">{t.description}</p>
+                {t.prize && <p class="mt-6 text-sm font-semibold text-volt">Prize: {t.prize}</p>}
+              </div>
+            </li>
+          );
+        })}
       </ul>
     )
   }

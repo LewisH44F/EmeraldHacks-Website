@@ -41,10 +41,15 @@ export interface FaqItem {
   a: string;
 }
 
+export interface Prize {
+  place: string; // e.g. "First place", "Best beginner project"
+  prize: string | null; // e.g. "$500" or "AirPods"; null => "TBA"
+}
+
 export interface TeamMember {
   name: string;
   role: string;
-  photo: string | null; // path inside /public, e.g. "/team/jane.jpg"; null => initials avatar
+  photo: string | null; // path inside /public, e.g. "/team/jane.jpg"; null => logo placeholder tile
 }
 
 export interface EventConfig {
@@ -70,10 +75,12 @@ export interface EventConfig {
   fiscalSponsor: { name: string; url: string };
   scheduleConfirmed: boolean;
   tracks: Track[];
+  prizes: Prize[];
   schedule: ScheduleItem[];
   sponsors: Sponsor[];
   faq: FaqItem[];
   team: TeamMember[];
+  judges: TeamMember[];
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -185,6 +192,13 @@ export const event: EventConfig = {
     { time: "8:45 PM", title: "Awards & closing", description: "Prizes, thank-yous, and photos." },
   ],
 
+  // The Prizes section: one row per prize, in this order. prize: null => "TBA". Empty list => "Coming soon".
+  prizes: [
+    { place: "First place", prize: null },
+    { place: "Second place", prize: null },
+    { place: "Third place", prize: null },
+  ],
+
   // Sponsor logos, grouped by tier on the site. Empty list => a "Be our first sponsor" message.
   // Put logo files in /public/sponsors/ (SVG or PNG, transparent background works best).
   sponsors: [],
@@ -212,4 +226,8 @@ export const event: EventConfig = {
     { name: "Organizer Name", role: "Sponsorships", photo: null },
     { name: "Organizer Name", role: "Logistics", photo: null },
   ],
+
+  // Judges: same format as the team. Photos go in /public/judges/ (square, ~400×400); photo: null => logo tile.
+  // Empty list => a "Judges announced soon" card. Only add people who have actually confirmed.
+  judges: [],
 };

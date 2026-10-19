@@ -30,20 +30,15 @@ const { venue } = event;
     -->
     <div class="@container min-w-0">
       <!-- A small label above the title tells first-time visitors what this is before they read anything else. -->
-      <p class="inline-flex items-center gap-2 rounded-full border border-line bg-ink-2/70 px-3 py-1 text-xs font-semibold tracking-widest text-muted uppercase">
-        <!-- The pulsing dot adds life; motion-safe: means it only pulses if the visitor allows motion. -->
-        <span class="size-2 rounded-full bg-aero motion-safe:animate-pulse" aria-hidden="true"></span>
-        High school hackathon · Dublin, CA
-      </p>
+      <p class="text-xs font-semibold tracking-[0.25em] text-aero uppercase">High school hackathon · Dublin, CA</p>
 
       <!--
-        The title size is 11.5cqi = 11.5% of the COLUMN's width (not the screen's). Unbounded is a very wide font,
-        and a 9-letter name at 11.5% fits the column exactly at every screen size. Sizing by screen width broke on
-        desktop, where the column is only about half the screen. clamp() keeps it between 2rem and 6.5rem.
-        If the event name gets longer, lower 11.5cqi until it fits. The size lives in the .hero-title class in
-        global.css, which also has a fallback for older browsers.
+        The title size is 15.5cqi = 15.5% of the COLUMN's width (not the screen's). I measured "AEROHACKS" in
+        Inter Black at 6.285× its font size, so 15.5% fills about 98% of the column at every screen size.
+        clamp() keeps it between 2rem and 6.5rem. If the event name changes length, re-measure and adjust.
+        The size lives in the .hero-title class in global.css, which also has a fallback for older browsers.
       -->
-      <h1 id="hero-heading" class="text-gradient mt-6 font-display hero-title leading-[0.95] font-extrabold tracking-tight uppercase">
+      <h1 id="hero-heading" class="mt-5 font-display hero-title leading-[0.95] font-black tracking-tight text-fg uppercase">
         {event.name}
       </h1>
       {event.tagline && <p class="mt-5 max-w-xl font-display text-xl text-fg sm:text-2xl">{event.tagline}</p>}
@@ -91,12 +86,11 @@ const { venue } = event;
     <!--
       The dragon. order-first puts it ABOVE the text on phones (kept small, 9.5rem, so the Register button still
       fits on the first screen of a phone), and lg:order-none moves it
-      back to the right column on desktop. The faint circles behind it are "radar" rings for the sky theme.
+      back to the right column on desktop. The faint circle behind it is a "radar" ring for the sky theme.
     -->
     <div class="relative order-first mx-auto w-full max-w-[9.5rem] sm:max-w-xs lg:order-none lg:max-w-none">
-      <!-- aspect-square + centered with translate makes true circles, even though the logo box is wide and short. -->
+      <!-- aspect-square + centered with translate makes a true circle, even though the logo box isn't square. -->
       <div aria-hidden="true" class="absolute top-1/2 left-1/2 aspect-square w-[105%] -translate-1/2 rounded-full border border-line"></div>
-      <div aria-hidden="true" class="absolute top-1/2 left-1/2 aspect-square w-[70%] -translate-1/2 rounded-full border border-dashed border-line"></div>
       <Logo draw class="neon relative w-full text-aero" />
     </div>
   </div>

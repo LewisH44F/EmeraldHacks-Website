@@ -8,8 +8,7 @@ import { event } from "../content/event";
 import SkyField from "../components/SkyField.astro";
 import Astronaut from "../components/Astronaut.astro";
 import SpaceScene from "../components/SpaceScene.astro";
-import SkyDragon from "../components/SkyDragon.astro";
-import Iss from "../components/Iss.astro";
+import Satellite from "../components/Satellite.astro";
 
 interface Props {
   title?: string;
@@ -84,26 +83,20 @@ const ogImage = new URL("/og.png", Astro.site);
     <!-- The animated, interactive background. It's fixed behind all content. -->
     <!--
       The background layers, all fixed behind the content. Later ones draw on top of earlier ones:
-      the mesh, then the planet/satellite/stars, then the space station, the jetpack aeronaut, and the dragon.
-      The flyers are moved by src/scripts/flights.ts (astronaut, station) and src/scripts/dragon.ts (dragon),
-      both imported in the script below.
+      the constellations (move only when you scroll), the twinkling stars, then the satellite and the astronaut.
+      The two flyers are moved by src/scripts/flights.ts, imported in the script below.
     -->
     <SkyField />
     <SpaceScene />
-    <Iss />
+    <Satellite />
     <Astronaut />
-    <SkyDragon />
     <slot />
 
     <script>
-      // Random flight paths for the astronaut and space station, and the dragon's flight engine.
+      // Random flight paths for the astronaut and satellite.
       import "../scripts/flights.ts";
-      import "../scripts/dragon.ts";
 
-      // Site-wide pointer + scroll effects that don't belong to any single component.
-      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-      // 1. Scroll reveal: anything with data-reveal fades/slides in the first time it enters the screen.
+      // Scroll reveal: anything with data-reveal fades/slides in the first time it enters the screen.
       //    The actual animation is CSS (global.css); this just adds the "is-visible" class at the right moment.
       //    threshold 0.12 = trigger once 12% of the element is visible, so it animates as it arrives, not after.
       const revealer = new IntersectionObserver(
@@ -118,37 +111,6 @@ const ogImage = new URL("/og.png", Astro.site);
         { threshold: 0.12 },
       );
       document.querySelectorAll("[data-reveal]").forEach((el) => revealer.observe(el));
-
-      // 2. "In focus" on phones. Phones can't hover, so every hover effect (card glow, card lift, schedule dot
-      //    lighting up) would be invisible on them. Instead, on devices without hover, whatever element with
-      //    data-focus is crossing the middle band of the screen gets the "in-focus" class, and the CSS gives it
-      //    the same look as hovering. Result: effects light up one by one as you scroll with your thumb.
-      //    rootMargin "-40% 0px -40% 0px" shrinks the watched area to the middle 20% of the screen.
-      if (window.matchMedia("(hover: none)").matches) {
-        const focuser = new IntersectionObserver(
-          (entries) => {
-            for (const e of entries) e.target.classList.toggle("in-focus", e.isIntersecting);
-          },
-          { rootMargin: "-40% 0px -40% 0px" },
-        );
-        document.querySelectorAll("[data-focus]").forEach((el) => focuser.observe(el));
-      }
-
-      // 3. Spotlight cards: store the pointer position *relative to the card* in CSS variables (--mx, --my).
-      //    The .spotlight style in global.css draws a glow at that spot. One listener on the whole document
-      //    ("event delegation") is cheaper than one per card.
-      document.addEventListener(
-        "pointermove",
-        (e) => {
-          if (reduceMotion.matches) return;
-          const card = (e.target as HTMLElement).closest<HTMLElement>(".spotlight");
-          if (!card) return;
-          const rect = card.getBoundingClientRect();
-          card.style.setProperty("--mx", `${e.clientX - rect.left}px`);
-          card.style.setProperty("--my", `${e.clientY - rect.top}px`);
-        },
-        { passive: true },
-      );
     </script>
   </body>
 </html>

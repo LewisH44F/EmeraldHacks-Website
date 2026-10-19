@@ -12,10 +12,12 @@ export interface NavSection {
 export const navSections: NavSection[] = [
   { id: "about", label: "About" },
   { id: "tracks", label: "Tracks" },
+  { id: "prizes", label: "Prizes" },
   { id: "schedule", label: "Schedule" },
   { id: "sponsors", label: "Sponsors" },
   // Team sits before FAQ so the people behind the event come right after the sponsor pitch,
   // and the FAQ is the last thing before the footer for anyone still deciding.
   { id: "team", label: "Team" },
+  { id: "judges", label: "Judges" },
   { id: "faq", label: "FAQ" },
 ];

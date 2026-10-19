@@ -1,23 +1,27 @@
 ---
 // Schedule.astro — the 12-hour timeline, in the order listed in `schedule` in event.ts.
 //
-// While `scheduleConfirmed` is false, a "Tentative" label is shown so nobody plans their day around draft times.
+// A vertical line with an octagon marker per item. Markers and times cycle through the accent colors
+// (blue → green → orange → gray) so the eye can track down the list. While `scheduleConfirmed` is false, a
+// "Tentative" label is shown so nobody plans their day around draft times.
 import { event } from "../content/event";
 import { formatDay, parseDate } from "../lib/format";
 import Section from "./Section.astro";
 
 // "Date TBA" reads better than a lone "TBA" sitting above the timeline.
 const day = parseDate(event.date.start) ? formatDay(event.date.start) : "Date TBA";
+
+// Full class names written out (Tailwind only generates classes it can find spelled out in the code).
+const accents = [
+  { text: "text-sky", dot: "bg-sky" },
+  { text: "text-aero", dot: "bg-aero" },
+  { text: "text-ember", dot: "bg-ember" },
+  { text: "text-mist", dot: "bg-mist" },
+];
 ---
 
-<Section id="schedule" title="Schedule">
-  <!--
-    readable-panel (global.css): a dark frosted backing that dims and blurs the flying objects behind it,
-    because a long list of times and titles is hard to read with things moving behind it.
-    max-w-3xl keeps it from stretching across wide screens.
-  -->
-  <div class="readable-panel max-w-3xl p-6 sm:p-8">
-  <p class="mb-8 font-display text-muted">
+<Section id="schedule" title="Schedule" lead="How the day unfolds, start to finish." accent="sky">
+  <p class="mb-10 font-display font-medium text-muted">
     {day}
     {
       !event.scheduleConfirmed && (
@@ -31,23 +35,25 @@ const day = parseDate(event.date.start) ? formatDay(event.date.start) : "Date TB
     event.schedule.length === 0 ? (
       <p class="text-muted">The full schedule will be posted soon.</p>
     ) : (
-      // An ordered list (<ol>) because the order matters. The left border draws a simple timeline line.
-      <ol class="relative border-s-2 border-line">
-        {event.schedule.map((item) => (
-          // grid-cols-[6rem_1fr] gives times a fixed-width column so titles line up down the list.
-          <li data-focus class="group relative grid gap-x-6 py-4 ps-8 sm:grid-cols-[7rem_1fr]">
-            {/* The glowing dot sitting on the timeline line. -start-[7px] centers a 12px dot on the 2px border.
-                It lights up green when you hover the row, or (on phones) when the row scrolls through the middle of the screen. */}
-            <span aria-hidden="true" class="absolute top-[1.4rem] -start-[7px] size-3 rounded-full border-2 border-aero bg-ink transition-colors group-hover:bg-aero group-hover:shadow-[0_0_12px_var(--color-aero)] group-[.in-focus]:bg-aero group-[.in-focus]:shadow-[0_0_12px_var(--color-aero)]"></span>
-            <p class="font-display font-semibold text-aero tabular-nums">{item.time}</p>
-            <div>
-              <h3 class="font-display font-semibold">{item.title}</h3>
-              {item.description && <p class="mt-1 text-muted">{item.description}</p>}
-            </div>
-          </li>
-        ))}
+      // An ordered list (<ol>) because the order matters. The ::before-style line is a 2px absolutely-positioned
+      // bar behind the markers, running from the first marker to the last.
+      <ol class="relative">
+        <span aria-hidden="true" class="absolute top-2 bottom-2 left-[9px] w-0.5 bg-line" />
+        {event.schedule.map((item, i) => {
+          const accent = accents[i % accents.length]!;
+          return (
+            <li class="relative grid grid-cols-[20px_1fr] gap-x-6 pb-10 last:pb-0">
+              {/* The marker: a 20px octagon sitting on the line. */}
+              <span aria-hidden="true" class:list={["octagon mt-1 block size-5", accent.dot]} />
+              <div>
+                <p class:list={["font-display text-lg font-semibold tabular-nums", accent.text]}>{item.time}</p>
+                <h3 class="mt-1 font-display text-xl font-semibold sm:text-2xl">{item.title}</h3>
+                {item.description && <p class="mt-1 text-muted">{item.description}</p>}
+              </div>
+            </li>
+          );
+        })}
       </ol>
     )
   }
-  </div>
 </Section>

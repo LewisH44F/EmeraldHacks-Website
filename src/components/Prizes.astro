@@ -1,0 +1,31 @@
+---
+// Prizes.astro — what the best projects win, as a clean list: the place on the left, the prize on the right.
+//
+// Reads `prizes` from event.ts. A prize of null shows "TBA" (dimmed), so we never promise something we haven't
+// confirmed. An empty list shows a "coming soon" line instead.
+import { event } from "../content/event";
+import { TBA } from "../lib/format";
+import Section from "./Section.astro";
+---
+
+<Section id="prizes" title="Prizes" lead="What the best projects take home." accent="mist">
+  {
+    event.prizes.length === 0 ? (
+      <p class="border-t-2 border-ember pt-8 text-lg text-muted">Prizes will be announced soon.</p>
+    ) : (
+      // A description list pairs each place with its prize, so screen readers read them together.
+      // border-t-2 border-ember = the orange rule across the top of the list.
+      <dl class="border-t-2 border-ember">
+        {event.prizes.map((p) => (
+          <div class="flex items-baseline justify-between gap-6 border-b border-line py-7">
+            <dt class="font-display text-xl font-semibold sm:text-2xl">{p.place}</dt>
+            {/* Confirmed prizes stand out in green; unconfirmed ones say TBA in a quieter color. */}
+            <dd class:list={["text-end font-display text-3xl font-bold tracking-tight sm:text-4xl", p.prize ? "text-aero" : "text-muted"]}>
+              {p.prize ?? TBA}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    )
+  }
+</Section>

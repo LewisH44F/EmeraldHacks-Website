@@ -7,7 +7,7 @@ import { event } from "../content/event";
 import Section from "./Section.astro";
 ---
 
-<Section id="faq" title="FAQ">
+<Section id="faq" title="FAQ" lead="Everything else you might be wondering." accent="mist">
   {
     event.faq.length === 0 ? (
       // The email line below covers "ask us"; this text just shouldn't promise an email that may not exist.

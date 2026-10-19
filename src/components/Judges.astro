@@ -1,0 +1,12 @@
+---
+// Judges.astro — the judges, from `judges` in event.ts, shown with the same PeopleGrid as the team.
+//
+// Empty until judges confirm; until then it shows a "Judges announced soon" card.
+import { event } from "../content/event";
+import Section from "./Section.astro";
+import PeopleGrid from "./PeopleGrid.astro";
+---
+
+<Section id="judges" title="Judges" lead="The people deciding which projects take home the prizes." accent="sky">
+  <PeopleGrid people={event.judges} emptyText="Judges announced soon." />
+</Section>

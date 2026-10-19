@@ -52,10 +52,12 @@ If something isn't confirmed, set it to `null` (or leave a list empty). The site
 | `links.register` | Where every Register / Join interest list button goes | Grey "Sign-ups soon" (not clickable) |
 | `links.sponsorForm` | Where "Become a sponsor" goes | Falls back to emailing `links.email`; if that's empty too, "Sponsor info coming soon" |
 | `links.email`, `.instagram`, `.codeOfConduct` | Footer, FAQ, sponsor links | Hidden |
-| `tracks` | Track cards with prizes (`prize: null` → "Prize: TBA") | "Coming soon" card |
+| `tracks` | Track cards (an optional per-track `prize` shows on the card when set) | "Coming soon" card |
+| `prizes` | The Prizes list: `{ place: "First place", prize: "$500" }`; `prize: null` → "TBA" | "Prizes will be announced soon" |
 | `schedule` | Timeline items, in the order listed | "Posted soon" |
 | `sponsors` | Logos grouped by tier | "Want your logo here first?" |
-| `team` | Organizer cards | "Meet the organizers soon" |
+| `team` | Organizer photo tiles (`photo: null` → logo tile) | "Meet the organizers soon" |
+| `judges` | Judge photo tiles, same format as `team`. Only add confirmed judges. | "Judges announced soon" |
 | `faq` | Questions and answers | "Coming soon" |
 
 ### The three switches
@@ -95,23 +97,22 @@ aerohacks-website/
 ├── src/
 │   ├── content/event.ts      ← ALL event info. The only file most people ever edit.
 │   ├── components/           ← reusable pieces of the page:
-│   │   ├── Hero, About, Tracks, Schedule, Sponsors, Team, Faq   ← one per section
+│   │   ├── Hero, About, Tracks, Prizes, Schedule, Sponsors, Team, Judges, Faq   ← one per section
 │   │   ├── Nav, Footer       ← top bar (with mobile menu) and bottom bar
 │   │   ├── Section           ← shared wrapper: spacing, "01 / ABOUT" label, heading
 │   │   ├── CtaButton         ← the one button style (yellow = sign up)
 │   │   ├── Countdown         ← live timer in the hero
 │   │   ├── Logo, Star        ← the dragon mark and the little ✦ star, drawn as SVG
-│   │   ├── SkyField          ← the interactive animated background
-│   │   ├── Astronaut, SkyDragon, Iss   ← the three background flyers (drawings + body animations)
-│   │   ├── SpaceScene        ← planet, orbiting satellite, twinkling stars
+│   │   ├── SkyField          ← the scroll-linked constellation background
+│   │   ├── PeopleGrid        ← the photo-tile grid shared by Team and Judges
+│   │   ├── Astronaut, Satellite   ← the two background flyers (drawings + small animations)
+│   │   ├── SpaceScene        ← twinkling stars
 │   │   └── Marquee           ← the big, endlessly sliding word bands
 │   ├── lib/
 │   │   ├── sections.ts       ← nav links + section order (keeps nav and page in sync)
 │   │   ├── cta.ts            ← decides what the Register / Become a sponsor buttons say and where they go
 │   │   └── format.ts         ← date formatting and the "TBA" fallback
-│   ├── scripts/dragon.ts     ← the dragon's flight engine (steering, follow-the-leader body, loops)
-│   ├── scripts/flights.ts    ← random trips for the astronaut and space station
-│   ├── scripts/stage.ts      ← lets the astronaut and dragon tag-team so one is always on screen
+│   ├── scripts/flights.ts    ← random trips for the astronaut and satellite
 │   ├── layouts/Base.astro    ← the <html>/<head> shell: SEO + link-preview tags, skip link, site-wide scripts
 │   ├── pages/index.astro     ← the single page: stacks the sections in order
 │   └── styles/global.css     ← brand colors + fonts (@theme), glow and animation styles
@@ -120,7 +121,8 @@ aerohacks-website/
 │   ├── og.png                ← 1200×630 link-preview image (iMessage, Instagram, Discord…)
 │   ├── robots.txt            ← lets search engines index the site
 │   ├── sponsors/             ← sponsor logo files
-│   └── team/                 ← organizer photos
+│   ├── team/                 ← organizer photos
+│   └── judges/               ← judge photos
 ├── astro.config.mjs          ← Astro + Tailwind settings, and the site URL
 ├── netlify.toml              ← Netlify build settings
 ├── package.json              ← dependencies and the npm commands above (JSON can't hold comments)
@@ -131,18 +133,15 @@ aerohacks-website/
 
 - **Colors and fonts** are defined once, in the `@theme` block at the top of `src/styles/global.css`. Change a value there and it updates everywhere. Yellow (`volt`) is reserved for the main sign-up button.
 - **The site is dark-only** on purpose; the black theme is the brand.
-- **Fonts:** Unbounded (headings) and Inter (body text), installed from npm and served from our own site, so nothing loads from Google.
+- **Fonts:** Inter for everything (heavy weights for headings), installed from npm and served from our own site, so nothing loads from Google.
 - **Logo:** `src/components/Logo.astro` is a line-art Aeronaut dragon head. To use an official logo, replace the `<path>` lines in that file (and in `public/favicon.svg`), or swap the component for an `<img>`. Also replace `public/og.png` and `public/apple-touch-icon.png`.
-- **Motion:**
-  - The background mesh (`SkyField.astro`) reacts to scrolling, mouse/finger movement, and taps.
+- **Section design:** every section has a colored accent bar, a big title, and a one-line subtitle on the left, with its content on the right (stacked on phones). Cards and photo tiles use cut ("chamfered") corners: the `.chamfer` / `.chamfer-frame` classes in `global.css`. Timeline dots are `.octagon`.
+- **Motion** (kept deliberately light so phones stay smooth):
+  - The constellation background (`SkyField.astro`) moves **only when you scroll**, by a set amount (near stars more than far ones), and shifts color down the page. It doesn't react to taps or the mouse, and costs nothing when you're not scrolling. Change `PARALLAX` in that file for a stronger or weaker effect.
   - The marquee bands (`Marquee.astro`) slide continuously and never stop. To change the speed, edit `70s` in that file (higher = slower).
-  - **The Aeronaut dragon** (`SkyDragon.astro` draws it, `src/scripts/dragon.ts` flies it). Only its head is steered, along a smooth winding path; every body segment follows exactly where the head has been, so the body flows like a real serpent. On most trips it does a Rayquaza-style loop-de-loop: it coils into a circle, and either carries on or exits the loop heading the other way, head first, then rolls upright with the twist rippling down its body. Its size is set from the screen width, so it fits phones and big screens.
-  - **The astronaut and the space station** (`Astronaut.astro`, `Iss.astro`, moved by `src/scripts/flights.ts`) cross on random trips: random side, heights, speed, and path (glide, swoop, zig-zag, corner-to-corner). Tune speeds and pauses in the `CONFIG` block at the top of that file.
-  - **Someone's always flying:** the astronaut and the dragon tag-team (`src/scripts/stage.ts`). When one leaves, it wakes the other, and a watchdog makes sure the sky is never empty of both.
-  - `SpaceScene.astro` adds a ringed planet in the bottom-right corner (turning cloud bands, glowing atmosphere, particles streaming around both rings), a satellite orbiting it with a blinking light, and twinkling stars.
-  - Text-heavy areas (the schedule, the About text) sit on frosted `.readable-panel` backgrounds that dim and blur whatever flies behind them.
-  - Sections fade in as you reach them. On phones, cards and schedule rows light up as they cross the middle of the screen (phones can't hover).
-  - **"Reduce motion"** (iPhone: Settings → Accessibility → Motion; also on Android, macOS, Windows): the bands still drift, about 3x slower, and the flyers, planet, and stars stay still in place. If the site looks frozen on someone's phone, this setting is the reason.
+  - Two flyers cross the background on random trips (`src/scripts/flights.ts`): the jetpack astronaut (`Astronaut.astro`), out most of the time, and a small satellite (`Satellite.astro`) now and then. Tune speeds and pauses in the `CONFIG` block at the top of that file.
+  - `SpaceScene.astro` adds slowly twinkling stars. Sections fade in as you reach them.
+  - **"Reduce motion"** (iPhone: Settings → Accessibility → Motion; also on Android, macOS, Windows): the bands still drift, about 3x slower; the flyers park in place and the background doesn't move with scrolling. If the site looks frozen on someone's phone, this setting is the reason.
 - **Browser support:** current Safari (Mac + iPhone), Chrome, Edge, Firefox, and Samsung Internet. The floor is set by Tailwind CSS 4: Safari/iOS 16.4+, Chrome/Edge 111+, Firefox 128+. Older browsers still show all the content, just with simpler styling.
 - **Link previews:** `public/og.png` is what shows when someone pastes our link into a chat. Replace it with any 1200×630 PNG of the same name.
 
@@ -171,6 +170,15 @@ aerohacks-website/
 
 1. Optional: put a square photo (about 400×400) in `public/team/`, e.g. `public/team/jane.jpg`.
 2. Add to `team`: `{ name: "Jane Doe", role: "Logistics", photo: "/team/jane.jpg" }`. Use `photo: null` and the site shows their initials instead.
+
+**Judge**
+
+1. Optional: put a square photo (about 400×400) in `public/judges/`, e.g. `public/judges/dr-lee.jpg`.
+2. Add to `judges`: `{ name: "Dr. Lee", role: "Software Engineer, Acme", photo: "/judges/dr-lee.jpg" }` (or `photo: null`).
+
+**Prize**
+
+1. Edit the `prizes` list: `{ place: "First place", prize: "$500" }`. Add rows for special prizes (e.g. "Best beginner project").
 
 **Track** (when they're decided)
 

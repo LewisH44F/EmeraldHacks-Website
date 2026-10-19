@@ -25,7 +25,7 @@ const groups = tiers
   .filter((g) => g.sponsors.length > 0);
 ---
 
-<Section id="sponsors" title="Sponsors">
+<Section id="sponsors" title="Sponsors" lead="The companies and organizations making the day possible." accent="ember">
   {
     groups.length === 0 ? (
       <p class="text-lg text-muted">We're lining up sponsors now. Want your logo here first?</p>
@@ -53,8 +53,9 @@ const groups = tiers
     )
   }
 
-  <!-- The pitch box. It's always shown, because we want new sponsors even after we have some. -->
-  <div data-focus class="spotlight mt-12 rounded-xl border border-line p-6 sm:p-10">
+  <!-- The pitch box: a cut-corner card (see global.css). It's always shown: we want new sponsors even after we have some. -->
+  <div class="chamfer-frame mt-12">
+  <div class="chamfer bg-card p-6 sm:p-10">
     <h3 class="font-display text-2xl font-semibold">Why sponsor {event.name}?</h3>
     {
       event.sponsorPitch.length > 0 && (
@@ -80,5 +81,6 @@ const groups = tiers
         )
       }
     </div>
+  </div>
   </div>
 </Section>

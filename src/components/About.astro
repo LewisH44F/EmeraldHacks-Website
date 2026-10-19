@@ -20,7 +20,8 @@ const facts = [
 ].filter((f) => f.value !== null);
 ---
 
-<Section id="about" title="What is Aerohacks?">
+<!-- split={false}: About's own two-column layout (text + facts box) needs the full width. -->
+<Section id="about" title={`What is ${event.name}?`} lead="Everything you need to know before you sign up." accent="aero" split={false}>
   <!--
     lg:grid-cols-[3fr_2fr] puts the text and the facts side by side on wide screens, text getting more room.
     If `about` is empty I drop to a single column, otherwise the facts box would sit next to a blank gap.
@@ -28,15 +29,15 @@ const facts = [
   <div class:list={["grid gap-10", event.about.length > 0 && "lg:grid-cols-[3fr_2fr]"]}>
     {
       event.about.length > 0 && (
-        // readable-panel (global.css): frosted backing so the paragraph stays easy to read over the moving background.
-        <div class="readable-panel max-w-prose space-y-5 p-6 text-lg leading-relaxed text-fg/90 sm:p-8">
+        <div class="max-w-prose space-y-5 text-lg leading-relaxed text-fg/90">
           {event.about.map((para) => <p>{para}</p>)}
         </div>
       )
     }
 
-    <!-- "spotlight" = the card glows where your pointer is (see global.css). -->
-    <dl data-focus class="spotlight max-w-md space-y-5 rounded-xl border border-line p-6">
+    <!-- A cut-corner card (chamfer-frame/chamfer in global.css) to match the rest of the site. -->
+    <div class="chamfer-frame max-w-md">
+    <dl class="chamfer space-y-5 bg-card p-7">
       {
         facts.map((f) => (
           <div>
@@ -46,6 +47,7 @@ const facts = [
         ))
       }
     </dl>
+    </div>
   </div>
 
   <div class="mt-8">
