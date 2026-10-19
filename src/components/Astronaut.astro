@@ -1,0 +1,191 @@
+---
+// Astronaut.astro — a small aeronaut with a jetpack who slowly floats across the background of the whole site.
+//
+// It drifts across the screen, turns around off-screen, and floats back at a different height, bobbing,
+// slowly tumbling, and waving the whole time. It's deliberately small, semi-transparent, and behind all content
+// (pointer-events: none), so it adds life without competing with the text or ever blocking a tap.
+//
+// It's 100% CSS animation (no JavaScript), so it's smooth and cheap on every device, and it stops completely
+// for visitors who turned on "reduce motion". No props; it's pure decoration.
+---
+
+<!--
+  fixed + -z-10: pinned to the screen behind everything, like the SkyField background.
+  It's placed after SkyField in Base.astro, so it draws on top of the mesh but still under the page content.
+-->
+<div aria-hidden="true" class="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
+  <div class="aeronaut-route">
+    <div class="aeronaut-face">
+      <div class="aeronaut-bob">
+        <svg viewBox="0 0 100 124" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <!-- Jetpack flame fades from yellow to transparent. -->
+            <linearGradient id="aeronaut-flame" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stop-color="#ffd23f" />
+              <stop offset="1" stop-color="#ffd23f" stop-opacity="0" />
+            </linearGradient>
+          </defs>
+          <!-- Jetpack flame (flickers) -->
+          <path class="aeronaut-flame" d="M18 86h14l-7 32z" fill="url(#aeronaut-flame)" />
+          <!-- Jetpack -->
+          <rect x="14" y="44" width="22" height="44" rx="7" fill="#5d6a70" />
+          <!-- Back arm -->
+          <rect x="20" y="54" width="12" height="28" rx="6" fill="#c4ccd0" />
+          <!-- Legs + boots -->
+          <rect x="32" y="80" width="13" height="27" rx="6" fill="#d9dfe2" />
+          <rect x="51" y="80" width="13" height="27" rx="6" fill="#d9dfe2" />
+          <rect x="31" y="101" width="15" height="8" rx="4" fill="#5d6a70" />
+          <rect x="50" y="101" width="15" height="8" rx="4" fill="#5d6a70" />
+          <!-- Body, with a green chest panel and blue/yellow buttons (our brand colors) -->
+          <rect x="28" y="46" width="40" height="42" rx="14" fill="#eef3f1" />
+          <rect x="40" y="58" width="16" height="10" rx="2.5" fill="#39d98a" />
+          <circle cx="44" cy="74" r="2" fill="#5b9bff" />
+          <circle cx="51" cy="74" r="2" fill="#ffd23f" />
+          <!-- Waving arm -->
+          <g class="aeronaut-arm">
+            <rect x="63" y="50" width="12" height="28" rx="6" fill="#e1e7ea" />
+            <circle cx="69" cy="78" r="6" fill="#5d6a70" />
+          </g>
+          <!-- Helmet with a dark visor and a green rim -->
+          <circle cx="48" cy="28" r="24" fill="#eef3f1" />
+          <ellipse cx="52" cy="29" rx="15.5" ry="11.5" fill="#0d1214" stroke="#39d98a" stroke-width="1.5" />
+          <ellipse cx="46" cy="24" rx="5" ry="3" fill="#ffffff" opacity="0.45" />
+        </svg>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Size: 44px on phones up to 84px on big screens. opacity keeps it a background detail, not a focal point. */
+  .aeronaut-route {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: clamp(44px, 5.5vw, 84px);
+    opacity: 0.5;
+    will-change: transform;
+    animation: aeronaut-route 110s linear infinite;
+  }
+
+  /* On phones, there's no empty margin for him to fly through, so he passes behind paragraphs. I make him
+     fainter there so he never competes with the text you're reading. */
+  @media (max-width: 767px) {
+    .aeronaut-route {
+      opacity: 0.3;
+    }
+  }
+
+  /* The flight path, as positions on the screen (vw = % of screen width, vh = % of screen height).
+     0–45%: drifts left → right, slowly sinking. 45–50%: off-screen on the right, repositions lower down.
+     50–95%: drifts back right → left, rising. 95–100%: off-screen on the left, back to the start. */
+  @keyframes aeronaut-route {
+    0% {
+      transform: translate3d(-12vw, 16vh, 0);
+    }
+    45% {
+      transform: translate3d(108vw, 38vh, 0);
+    }
+    50% {
+      transform: translate3d(108vw, 72vh, 0);
+    }
+    95% {
+      transform: translate3d(-12vw, 52vh, 0);
+    }
+    100% {
+      transform: translate3d(-12vw, 16vh, 0);
+    }
+  }
+
+  /* Facing direction: mirrored (scaleX(-1)) on the way back, so he always flies forward. The flip happens at
+     47.5% and 97.5%, while he's off-screen, so nobody sees him turn. step-end = switch instantly, no tween. */
+  .aeronaut-face {
+    animation: aeronaut-face 110s step-end infinite;
+  }
+  @keyframes aeronaut-face {
+    0% {
+      transform: scaleX(1);
+    }
+    47.5% {
+      transform: scaleX(-1);
+    }
+    97.5% {
+      transform: scaleX(1);
+    }
+  }
+
+  /* A gentle float up and down with a slow tilt, like drifting in zero gravity. "alternate" plays it forward
+     then backward, so it eases smoothly both ways. */
+  .aeronaut-bob {
+    animation: aeronaut-bob 7s ease-in-out infinite alternate;
+  }
+  @keyframes aeronaut-bob {
+    from {
+      transform: translate3d(0, -10px, 0) rotate(-14deg);
+    }
+    to {
+      transform: translate3d(0, 10px, 0) rotate(8deg);
+    }
+  }
+
+  .aeronaut-route svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  /* transform-box: fill-box makes rotate/scale happen around the shape itself (not the whole SVG's corner),
+     which is what makes the arm pivot at the shoulder and the flame stretch from the nozzle.
+     Safari and Firefox both need this for SVG parts. */
+  .aeronaut-arm {
+    transform-box: fill-box;
+    transform-origin: 50% 10%;
+    animation: aeronaut-wave 2.6s ease-in-out infinite alternate;
+  }
+  @keyframes aeronaut-wave {
+    from {
+      transform: rotate(-25deg);
+    }
+    to {
+      transform: rotate(-70deg);
+    }
+  }
+
+  .aeronaut-flame {
+    transform-box: fill-box;
+    transform-origin: 50% 0%;
+    animation: aeronaut-flicker 0.6s ease-in-out infinite alternate;
+  }
+  @keyframes aeronaut-flicker {
+    from {
+      transform: scaleY(0.75);
+      opacity: 0.6;
+    }
+    to {
+      transform: scaleY(1.1);
+      opacity: 0.95;
+    }
+  }
+
+  /* "Reduce motion" turned on: no movement at all. He stays parked, small, in the bottom-right corner. */
+  @media (prefers-reduced-motion: reduce) {
+    .aeronaut-route,
+    .aeronaut-face,
+    .aeronaut-bob,
+    .aeronaut-arm,
+    .aeronaut-flame {
+      animation: none;
+    }
+    .aeronaut-route {
+      transform: translate3d(calc(100vw - 110px), calc(100vh - 160px), 0) rotate(-10deg);
+    }
+  }
+
+  /* Printing: leave him off the paper. */
+  @media print {
+    .aeronaut-route {
+      display: none;
+    }
+  }
+</style>

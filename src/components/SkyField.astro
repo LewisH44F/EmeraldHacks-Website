@@ -16,15 +16,28 @@
 ---
 
 <!--
+  h-screen h-lvh: "lvh" = the LARGE viewport height on phones (as if the address bar were hidden). Sizing to it
+  means no strip of empty background appears at the bottom when the address bar slides away. Browsers that don't
+  know lvh (older Safari) ignore it and use h-screen, written first as the fallback.
   -z-10 puts it behind everything. aria-hidden because it carries no information for screen readers.
   The radial gradients underneath give a soft glow even before (or without) the canvas animation.
 -->
 <div
   aria-hidden="true"
-  class="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(ellipse_at_20%_0%,color-mix(in_oklab,var(--color-aero)_14%,transparent),transparent_55%),radial-gradient(ellipse_at_90%_100%,color-mix(in_oklab,var(--color-sky)_12%,transparent),transparent_50%)]"
+  class="skyfield-bg pointer-events-none fixed top-0 left-0 -z-10 h-screen h-lvh w-full"
 >
   <canvas id="skyfield" class="h-full w-full"></canvas>
 </div>
+
+<style>
+  /* Soft green and blue glows in opposite corners, visible even before (or without) the canvas animation.
+     Plain rgba() colors (instead of color-mix()) so it looks the same on older iPhones too. */
+  .skyfield-bg {
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(57, 217, 138, 0.14), transparent 55%),
+      radial-gradient(ellipse at 90% 100%, rgba(91, 155, 255, 0.12), transparent 50%);
+  }
+</style>
 
 <script>
   // ---------------------------------------------------------------------------
@@ -78,10 +91,13 @@
   // ---------------------------------------------------------------------------
   // Sizing
   // ---------------------------------------------------------------------------
-  function resize() {
+  // keepPoints = true just resizes the drawing surface and leaves the points where they are.
+  function resize(keepPoints = false) {
     if (!canvas || !ctx) return;
-    width = window.innerWidth;
-    height = window.innerHeight;
+    // I measure the canvas itself (not window.innerHeight) because on phones the canvas is sized to the
+    // "large" viewport (see the h-lvh note above), which is taller than innerHeight while the address bar shows.
+    width = canvas.clientWidth;
+    height = canvas.clientHeight;
     // Draw at the screen's real pixel density so lines are crisp, but cap it at 2: on 3x phones the
     // extra sharpness isn't visible and would cost ~2x the battery.
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -91,6 +107,7 @@
 
     skipFrames = width < 768;
     measure();
+    if (keepPoints && points.length) return;
 
     // Scale the number of points to the screen area so phones don't get a crowded (and slow) field.
     // Roughly one point per 14,000 px², clamped between 35 and 110.
@@ -291,10 +308,16 @@
     // Re-layout after the window size changes. The 150ms delay (a "debounce") waits until the user has
     // finished resizing, instead of rebuilding the field dozens of times mid-drag.
     let resizeTimer: number | undefined;
+    // On iPhone and Android, the address bar sliding in/out while you scroll fires a "resize" with only the
+    // HEIGHT changing a little. Rebuilding the field then would make every point jump on each scroll direction
+    // change, so for those small height-only changes I keep the points and just resize the canvas.
+    let lastWidth = width;
     window.addEventListener("resize", () => {
       window.clearTimeout(resizeTimer);
       resizeTimer = window.setTimeout(() => {
-        resize();
+        const widthChanged = Math.abs((canvas?.clientWidth ?? 0) - lastWidth) > 1;
+        resize(!widthChanged);
+        lastWidth = width;
         if (!running) frame(false);
       }, 150);
     });

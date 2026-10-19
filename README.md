@@ -48,7 +48,7 @@ If something isn't confirmed, set it to `null` (or leave a list empty). The site
 | `beginnerFriendly` | `true` adds "None needed. Beginners welcome." to About | Line left out |
 | `about` | About paragraphs (one string per paragraph) | Facts box only |
 | `sponsorPitch` | Bullet points in the "Why sponsor" box. No made-up numbers. | Box shows just the button |
-| `marquee` | Words in the big sideways-scrolling bands. Decorative only, so keep facts out of them. | Bands hidden |
+| `marquee` | Words in the big sliding bands. Decorative only, so keep facts out of them. | Bands hidden |
 | `links.register` | Where every Register / Join interest list button goes | Grey "Sign-ups soon" (not clickable) |
 | `links.sponsorForm` | Where "Become a sponsor" goes | Falls back to emailing `links.email`; if that's empty too, "Sponsor info coming soon" |
 | `links.email`, `.instagram`, `.codeOfConduct` | Footer, FAQ, sponsor links | Hidden |
@@ -102,7 +102,8 @@ aerohacks-website/
 │   │   ├── Countdown         ← live timer in the hero
 │   │   ├── Logo, Star        ← the dragon mark and the little ✦ star, drawn as SVG
 │   │   ├── SkyField          ← the interactive animated background
-│   │   └── Marquee           ← the big sideways-scrolling word bands
+│   │   ├── Astronaut         ← the little aeronaut floating across the background
+│   │   └── Marquee           ← the big, endlessly sliding word bands
 │   ├── lib/
 │   │   ├── sections.ts       ← nav links + section order (keeps nav and page in sync)
 │   │   ├── cta.ts            ← decides what the Register / Become a sponsor buttons say and where they go
@@ -128,7 +129,13 @@ aerohacks-website/
 - **The site is dark-only** on purpose; the black theme is the brand.
 - **Fonts:** Unbounded (headings) and Inter (body text), installed from npm and served from our own site, so nothing loads from Google.
 - **Logo:** `src/components/Logo.astro` is a line-art Aeronaut dragon head. To use an official logo, replace the `<path>` lines in that file (and in `public/favicon.svg`), or swap the component for an `<img>`. Also replace `public/og.png` and `public/apple-touch-icon.png`.
-- **Motion:** the background reacts to scrolling, mouse/finger movement, and taps; the marquee bands slide as you scroll; sections fade in. On phones, cards and schedule rows light up as they cross the middle of the screen (phones can't hover). Visitors with "reduce motion" turned on get a still version, and everything still works with JavaScript off.
+- **Motion:**
+  - The background mesh (`SkyField.astro`) reacts to scrolling, mouse/finger movement, and taps.
+  - The marquee bands (`Marquee.astro`) slide continuously on their own (pure CSS). Hovering with a mouse pauses them. To change the speed, edit `70s` in that file (higher = slower).
+  - A small jetpack aeronaut (`Astronaut.astro`) floats across the background every ~2 minutes, waving. Change `110s` there to make the trip slower or faster.
+  - Sections fade in as you reach them. On phones, cards and schedule rows light up as they cross the middle of the screen (phones can't hover).
+  - Visitors with "reduce motion" turned on (iOS, Android, macOS, or Windows settings) get a still version, and everything still works with JavaScript off.
+- **Browser support:** current Safari (Mac + iPhone), Chrome, Edge, Firefox, and Samsung Internet. The floor is set by Tailwind CSS 4: Safari/iOS 16.4+, Chrome/Edge 111+, Firefox 128+. Older browsers still show all the content, just with simpler styling.
 - **Link previews:** `public/og.png` is what shows when someone pastes our link into a chat. Replace it with any 1200×630 PNG of the same name.
 
 ## Deploying

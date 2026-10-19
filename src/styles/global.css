@@ -83,6 +83,9 @@ body {
 /* "Spotlight" cards: a soft glow follows the mouse/finger across the card. The --mx/--my variables are set by
    the pointer script in Base.astro; until then the glow sits off-card (-999px) so nothing shows. */
 .spotlight {
+  /* Fallback first: older browsers (iOS 15 and earlier) don't understand color-mix() and would otherwise drop the
+     whole background, leaving the card transparent. Browsers that do understand it use the declaration below. */
+  background: var(--color-ink-2);
   background:
     radial-gradient(320px circle at var(--mx, -999px) var(--my, -999px), color-mix(in oklab, var(--color-aero) 14%, transparent), transparent 70%),
     var(--color-ink-2);
@@ -94,6 +97,28 @@ body {
   --mx: 50%;
   --my: 50%;
   border-color: color-mix(in oklab, var(--color-aero) 50%, transparent);
+}
+
+/* Safari before version 18 only understands the -webkit- prefixed blur, and Tailwind 4 no longer adds it,
+   so I add it myself for the blur sizes we use. Without this, older iPhones/Macs show no frosted-glass effect. */
+.backdrop-blur-sm {
+  -webkit-backdrop-filter: blur(8px);
+}
+.backdrop-blur-md {
+  -webkit-backdrop-filter: blur(12px);
+}
+
+/* The hero title sizes itself to its column with container units (cqi, see Hero.astro). Browsers older than
+   Safari 16 / Chrome 105 don't know cqi, so everyone starts with a screen-width-based size that fits, and only
+   browsers that pass the @supports check switch to the column-based size. (I use @supports rather than two
+   font-size lines in a row because the CSS minifier deletes the "duplicate" first line.) */
+.hero-title {
+  font-size: clamp(2rem, 9vw, 4.5rem);
+}
+@supports (width: 1cqi) {
+  .hero-title {
+    font-size: clamp(2rem, 11.5cqi, 6.5rem);
+  }
 }
 
 /* ---------------------------------------------------------------------------------------------------------

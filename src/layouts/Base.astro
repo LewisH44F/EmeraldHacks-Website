@@ -6,6 +6,7 @@
 import "../styles/global.css";
 import { event } from "../content/event";
 import SkyField from "../components/SkyField.astro";
+import Astronaut from "../components/Astronaut.astro";
 
 interface Props {
   title?: string;
@@ -79,6 +80,8 @@ const ogImage = new URL("/og.png", Astro.site);
     </a>
     <!-- The animated, interactive background. It's fixed behind all content. -->
     <SkyField />
+    <!-- The little jetpack aeronaut drifting across the background. Also fixed and behind all content. -->
+    <Astronaut />
     <slot />
 
     <script>

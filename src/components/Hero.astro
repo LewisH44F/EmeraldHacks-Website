@@ -40,9 +40,10 @@ const { venue } = event;
         The title size is 11.5cqi = 11.5% of the COLUMN's width (not the screen's). Unbounded is a very wide font,
         and a 9-letter name at 11.5% fits the column exactly at every screen size. Sizing by screen width broke on
         desktop, where the column is only about half the screen. clamp() keeps it between 2rem and 6.5rem.
-        If the event name gets longer, lower 11.5cqi until it fits.
+        If the event name gets longer, lower 11.5cqi until it fits. The size lives in the .hero-title class in
+        global.css, which also has a fallback for older browsers.
       -->
-      <h1 id="hero-heading" class="text-gradient mt-6 font-display text-[clamp(2rem,11.5cqi,6.5rem)] leading-[0.95] font-extrabold tracking-tight uppercase">
+      <h1 id="hero-heading" class="text-gradient mt-6 font-display hero-title leading-[0.95] font-extrabold tracking-tight uppercase">
         {event.name}
       </h1>
       {event.tagline && <p class="mt-5 max-w-xl font-display text-xl text-fg sm:text-2xl">{event.tagline}</p>}

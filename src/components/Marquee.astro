@@ -1,130 +1,127 @@
 ---
-// Marquee.astro — a big band of words that slides sideways as you scroll down the page.
+// Marquee.astro — a big tilted band of words that slides sideways forever, on its own (not tied to scrolling).
 //
-// It's not on a timer: the sideways position is tied to the vertical scroll, so it moves only when you do
-// (scroll down → it slides one way, scroll up → it slides back). Two rows slide in opposite directions.
+// It's pure CSS animation: no JavaScript. That makes it smooth on every device (the browser hands the movement
+// to the GPU) and means it keeps working even if scripts fail. Two rows slide in opposite directions.
 // The words come from `marquee` in event.ts.
+//
+// How the endless loop works: each row contains the SAME group of words twice, side by side. The row slides
+// left by exactly 50% of its width (= one group), at which point the second copy sits exactly where the first
+// one started, so the animation restarts with no visible jump.
 import { event } from "../content/event";
 import Star from "./Star.astro";
 
 interface Props {
-  // Flips which row goes which way, so consecutive bands don't all move identically.
+  // Flips which row goes which way, so consecutive bands don't look identical.
   reverse?: boolean;
 }
 
 const { reverse = false } = Astro.props;
 
-// Repeat the word list enough times that the row is always wider than any screen, even mid-slide.
-const words = Array.from({ length: 4 }, () => event.marquee).flat();
+// One "group" = the word list repeated twice. That's wider than a 4K screen, so there's never an empty gap.
+const group = [...event.marquee, ...event.marquee];
+
+// Row 1 alternates solid / green outline with yellow stars; row 2 alternates blue outline / solid with green stars.
+const rows = [
+  { dir: reverse ? "right" : "left", outlineFirst: false, stroke: "var(--color-aero)", star: "text-volt" },
+  { dir: reverse ? "left" : "right", outlineFirst: true, stroke: "var(--color-sky)", star: "text-aero" },
+];
 ---
 
 {
   event.marquee.length > 0 && (
     // aria-hidden: it's decoration that repeats the same words; a screen reader reading it would just be noise.
     // overflow-hidden clips the extra-wide rows so the page never scrolls sideways.
-    // -rotate-2 tilts the band slightly for energy; the vertical padding keeps the tilted corners from clipping.
-    <div aria-hidden="true" class="marquee relative overflow-hidden py-10 select-none" data-marquee data-reverse={reverse ? "1" : undefined}>
-      <div class="-rotate-2 space-y-2 border-y border-line bg-ink-2/80 py-4 backdrop-blur-sm">
-        <div data-marquee-row="1" class="flex w-max gap-8 font-display text-4xl font-bold whitespace-nowrap uppercase sm:text-6xl">
-          {words.map((w, i) => (
-            <span class:list={["flex items-center gap-8", i % 2 ? "outline-text [--stroke:var(--color-aero)]" : "text-fg"]}>
-              {w}
-              <Star class="size-[0.6em] text-volt" />
-            </span>
-          ))}
-        </div>
-        <div data-marquee-row="-1" class="flex w-max gap-8 font-display text-4xl font-bold whitespace-nowrap uppercase sm:text-6xl">
-          {words.map((w, i) => (
-            <span class:list={["flex items-center gap-8", i % 2 ? "text-fg" : "outline-text [--stroke:var(--color-sky)]"]}>
-              {w}
-              <Star class="size-[0.6em] text-aero" />
-            </span>
-          ))}
-        </div>
+    <div aria-hidden="true" class="marquee relative overflow-hidden py-10 select-none">
+      {/* -rotate-2 tilts the band for energy. It's wider than the screen (w-[110%], pulled left 5%) so the tilted
+          ends never show a gap at the edges. */}
+      <div class="-ms-[5%] w-[110%] -rotate-2 space-y-2 border-y border-line bg-ink-2 py-4">
+        {rows.map((row) => (
+          <div class:list={["marquee-row flex w-max", row.dir === "right" && "marquee-row--right"]}>
+            {/* The same group twice: see the loop explanation at the top of this file. */}
+            {[0, 1].map(() => (
+              <div class="flex shrink-0 items-center font-display text-4xl font-bold whitespace-nowrap uppercase sm:text-6xl">
+                {group.map((word, i) => (
+                  <>
+                    <span
+                      class:list={["px-[0.32em]", (i % 2 === 0) === row.outlineFirst ? "outline-text" : "text-fg"]}
+                      style={`--stroke:${row.stroke}`}
+                    >
+                      {word}
+                    </span>
+                    <Star class:list={["size-[0.55em]", row.star]} />
+                  </>
+                ))}
+              </div>
+            ))}
+          </div>
+        ))}
       </div>
     </div>
   )
 }
 
 <style>
+  /* The endless slide. translate3d (instead of plain translate) asks the browser to run it on the GPU, which is
+     what keeps it smooth on phones and older laptops. "linear" = constant speed, no easing at the ends. */
+  .marquee-row {
+    animation: marquee-left 70s linear infinite;
+    will-change: transform;
+    /* Prevents a one-frame flicker some Safari versions show on animated, rotated layers. */
+    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
+  }
+  .marquee-row--right {
+    animation-name: marquee-right;
+  }
+
+  @keyframes marquee-left {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(-50%, 0, 0);
+    }
+  }
+  @keyframes marquee-right {
+    from {
+      transform: translate3d(-50%, 0, 0);
+    }
+    to {
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  /* Hovering with a mouse pauses the band, so anyone who finds it distracting (or wants to read it) can stop it.
+     (hover: hover) limits this to real mice/trackpads; on phones a tap would otherwise "stick" the pause. */
+  @media (hover: hover) {
+    .marquee:hover .marquee-row {
+      animation-play-state: paused;
+    }
+  }
+
+  /* "Reduce motion" turned on in iOS / macOS / Windows / Android settings: the band stands still. */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-row {
+      animation: none;
+    }
+  }
+
   /* Outlined words. Variable fonts build letters from overlapping shapes, so a plain text outline also traces
      the overlaps INSIDE each letter (stray lines). paint-order: stroke fill draws the outline first and the fill
      on top; filling with the band's own background color covers those inner lines and the inner half of the
-     stroke, which is why the stroke is 3px (only ~1.5px stays visible). */
+     stroke, which is why the stroke is 3px (only ~1.5px stays visible).
+     Browsers without paint-order on text (some older Firefox versions) simply show a slightly thicker outline. */
   .outline-text {
     color: var(--color-ink-2);
     -webkit-text-stroke: 3px var(--stroke);
     paint-order: stroke fill;
   }
+
+  /* Very old browsers with no text-stroke at all: show the word in the stroke color instead of invisibly. */
+  @supports not (-webkit-text-stroke: 1px) {
+    .outline-text {
+      color: var(--stroke);
+    }
+  }
 </style>
-
-<script>
-  // Moves every marquee row sideways based on scroll position. Astro only includes this script once,
-  // even though the component appears several times on the page.
-  const bands = [...document.querySelectorAll<HTMLElement>("[data-marquee]")];
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-  // Only bands currently on screen get updated; IntersectionObserver (a browser feature that reports when
-  // elements enter/leave the screen) keeps this list current so off-screen bands cost nothing.
-  const visible = new Set<HTMLElement>();
-  const io = new IntersectionObserver((entries) => {
-    for (const e of entries) {
-      if (e.isIntersecting) visible.add(e.target as HTMLElement);
-      else visible.delete(e.target as HTMLElement);
-    }
-    schedule();
-  });
-  bands.forEach((b) => io.observe(b));
-
-  // Each row's width, measured once (and again on resize) instead of on every scroll.
-  const rowWidths = new Map<HTMLElement, number>();
-  function measureRows() {
-    document.querySelectorAll<HTMLElement>("[data-marquee-row]").forEach((row) => rowWidths.set(row, row.scrollWidth));
-  }
-  measureRows();
-
-  function update() {
-    ticking = false;
-    if (reduceMotion.matches) return;
-
-    // Phase 1: READ every position first. Phase 2: WRITE every transform. Mixing reads and writes
-    // (read, write, read, write...) forces the browser to redo layout after each write, which causes jank.
-    const jobs: { row: HTMLElement; x: number }[] = [];
-    for (const band of visible) {
-      // How far the band's center is from the screen's center, in pixels. 0 = perfectly centered.
-      const rect = band.getBoundingClientRect();
-      const offset = rect.top + rect.height / 2 - window.innerHeight / 2;
-      const flip = band.dataset.reverse ? -1 : 1;
-      band.querySelectorAll<HTMLElement>("[data-marquee-row]").forEach((row) => {
-        const dir = Number(row.dataset.marqueeRow) * flip;
-        // Start each row shifted left by a quarter of its width so there's always text on both sides,
-        // then slide by 0.6px per pixel of vertical scroll.
-        jobs.push({ row, x: -(rowWidths.get(row) ?? 0) / 4 + offset * 0.6 * dir });
-      });
-    }
-    // translate3d nudges the browser to move the row on the GPU, so it stays smooth on phones.
-    for (const { row, x } of jobs) row.style.transform = `translate3d(${x}px,0,0)`;
-  }
-
-  // requestAnimationFrame batches updates to at most once per screen refresh, no matter how many scroll
-  // events fire. Doing layout work directly in every scroll event is a classic cause of janky scrolling.
-  let ticking = false;
-  function schedule() {
-    if (!ticking) {
-      ticking = true;
-      requestAnimationFrame(update);
-    }
-  }
-
-  window.addEventListener("scroll", schedule, { passive: true });
-  window.addEventListener("resize", () => {
-    measureRows();
-    schedule();
-  });
-  // Fonts load after first paint and change the text width, so re-measure once they're ready.
-  document.fonts?.ready.then(() => {
-    measureRows();
-    schedule();
-  });
-  schedule();
-</script>
