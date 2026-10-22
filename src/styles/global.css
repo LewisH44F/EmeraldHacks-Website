@@ -30,7 +30,7 @@
   --color-volt: #ffd23f; /* yellow: reserved for the main call-to-action so it always stands out */
   --color-ember: #f08a4b; /* orange accent (from the mascot's fins) */
   --color-mist: #b8c0cc; /* soft gray accent, the 4th color in the dot/accent rotation */
-  --color-card: #13221e; /* card / photo-tile background: a deep green-tinted surface */
+  --color-card: #13221e; /* card background: a deep green-tinted surface */
 
   /* --- Fonts --- */
   --font-display: "Inter Variable", ui-sans-serif, system-ui, sans-serif; /* headings (bold weights) */
@@ -160,7 +160,7 @@ body {
 
 /* ---------------------------------------------------------------------------------------------------------
    Shape language: cut ("chamfered") corners
-   Cards, photo tiles, dots, and the little accent bars all use clipped corners instead of rounded ones.
+   Cards, dots, and the little accent bars all use clipped corners instead of rounded ones.
    clip-path cuts the shape out of a normal rectangle; --cut is how big each corner cut is.
    --------------------------------------------------------------------------------------------------------- */
 

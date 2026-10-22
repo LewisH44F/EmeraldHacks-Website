@@ -49,13 +49,3 @@ export function formatTimeRange(startIso: string | null, endIso: string | null):
   const startNoZone = timeFmt.formatToParts(start).filter((p) => p.type !== "timeZoneName").map((p) => p.value).join("").trim();
   return `${startNoZone} – ${timeFmt.format(end)}`;
 }
-
-// "Jane Doe" => "JD". Used for team members without a photo.
-export function initials(name: string): string {
-  return name
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]!.toUpperCase())
-    .join("");
-}
