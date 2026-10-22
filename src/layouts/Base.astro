@@ -67,7 +67,8 @@ const ogImage = new URL("/og.png", Astro.site);
     <script is:inline>document.documentElement.classList.add("js");</script>
   </head>
   <!-- font-sans = Inter for body text; antialiased makes light-on-dark text look thinner and crisper on Macs. -->
-  <body class="bg-ink font-sans text-fg antialiased">
+  <!-- pt-16 = room for the fixed 4rem-tall nav bar, so it never covers the top of the page. -->
+  <body class="bg-ink pt-16 font-sans text-fg antialiased">
     <!--
       "Skip to content" link for keyboard and screen-reader users, so they don't have to tab through the whole nav
       on every visit. sr-only hides it visually until it gets keyboard focus (focus:not-sr-only), then it appears.

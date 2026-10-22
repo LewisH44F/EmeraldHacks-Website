@@ -84,6 +84,8 @@ const { venue } = event;
         <CtaButton href={cta.href} label={cta.label} size="lg" />
         <!-- Secondary button for sponsors. It's quieter on purpose so students aren't confused about which one is theirs. -->
         {sponsor.href && <CtaButton href={sponsor.href} label={sponsor.label} external={sponsor.external} variant="secondary" size="lg" />}
+        {/* Appears automatically once links.discord is set in event.ts. */}
+        {event.links.discord && <CtaButton href={event.links.discord} label="Join our Discord" variant="secondary" size="lg" />}
       </div>
     </div>
 

@@ -33,13 +33,27 @@ import Section from "./Section.astro";
     )
   }
   {
-    event.links.email && (
+    (event.links.email || event.links.discord) && (
       <p class="mt-8 text-muted">
-        Still have a question? Email{" "}
-        <a class="text-sky underline underline-offset-4" href={`mailto:${event.links.email}`}>
-          {event.links.email}
-        </a>
-        .
+        Still have a question?{" "}
+        {event.links.discord && (
+          <>
+            Ask in our{" "}
+            <a class="text-sky underline underline-offset-4" href={event.links.discord} target="_blank" rel="noopener noreferrer">
+              Discord<span class="sr-only"> (opens in a new tab)</span>
+            </a>
+            {event.links.email ? " or email " : "."}
+          </>
+        )}
+        {event.links.email && (
+          <>
+            {!event.links.discord && "Email "}
+            <a class="text-sky underline underline-offset-4" href={`mailto:${event.links.email}`}>
+              {event.links.email}
+            </a>
+            .
+          </>
+        )}
       </p>
     )
   }

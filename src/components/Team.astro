@@ -1,7 +1,7 @@
 ---
 // Team.astro — the organizers, from `team` in event.ts, shown in three tiers (names only, no photos):
 //   1. the director,
-//   2. each division's point person,
+//   2. each division's leader,
 //   3. everyone else, grouped under their division.
 // Each division keeps one accent color (green, orange, blue) through tiers 2 and 3, so you can see who belongs
 // where at a glance.
@@ -34,9 +34,9 @@ const accents = [
     {
       divisions.length > 0 && (
         <>
-          {/* Tier 2: one point person per division. 1 column on phones, 3 side by side from 640px up. */}
+          {/* Tier 2: one leader per division. 1 column on phones, 3 side by side from 640px up. */}
           <div>
-            <h3 class="text-xs font-semibold tracking-[0.25em] text-muted uppercase">Point people</h3>
+            <h3 class="text-xs font-semibold tracking-[0.25em] text-muted uppercase">Division leaders</h3>
             <ul class="mt-4 grid gap-4 sm:grid-cols-3">
               {divisions.map((d, i) => {
                 const accent = accents[i % accents.length]!;
@@ -53,7 +53,7 @@ const accents = [
             </ul>
           </div>
 
-          {/* Tier 3: everyone else, in a column per division (same order and colors as the point people).
+          {/* Tier 3: everyone else, in a column per division (same order and colors as the division leaders).
               sm:min-h-10 on the division names reserves two lines, so the name lists start level even when one
               division name fits on a single line. */}
           <div>

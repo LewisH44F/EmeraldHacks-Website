@@ -15,12 +15,13 @@ const { href, label, external = true, variant = "primary", size = "sm" } = Astro
 
 const sizeClass = size === "lg" ? "px-6 py-3 text-base" : "px-3 py-2 text-sm";
 
-// Primary = yellow with black text. Yellow is reserved for the main action across the whole site, so the eye
-// learns "yellow = sign up". Black on this yellow is ~14:1 contrast, far above the 4.5:1 minimum.
-// The hover lift + glow is a small "this is clickable" reward; motion-safe: skips the lift for reduced-motion users.
+// Primary = solid orange with near-black bold text, so the sign-up button is the most distinct thing on the page
+// (nothing else is solid orange). Near-black on this orange is ~8:1 contrast, well above the 4.5:1 minimum.
+// The soft orange glow makes it pop on the dark background; on hover it brightens and lifts slightly
+// (motion-safe: skips the lift for reduced-motion users).
 const variantClass =
   variant === "primary"
-    ? "bg-volt text-ink shadow-[0_0_0_0_var(--color-volt)] hover:shadow-[0_0_24px_-4px_var(--color-volt)] motion-safe:hover:-translate-y-0.5"
+    ? "bg-ember font-bold text-ink shadow-[0_0_22px_-6px_var(--color-ember)] hover:bg-[#f79d63] hover:shadow-[0_0_30px_-4px_var(--color-ember)] motion-safe:hover:-translate-y-0.5"
     : "border border-aero/60 text-aero hover:bg-aero/10 motion-safe:hover:-translate-y-0.5";
 ---
 
@@ -36,7 +37,15 @@ const variantClass =
       {external && <span class="sr-only"> (opens in a new tab)</span>}
     </a>
   ) : (
-    <span class:list={["inline-block rounded-md border border-dashed border-line font-semibold whitespace-nowrap text-muted", sizeClass]}>
+    // No link yet (e.g. "Sign-ups soon"): the same orange button so it stays prominent, but it's plain text, not a
+    // link, so it can't be clicked into nowhere. The label itself tells people it's not open yet.
+    <span
+      class:list={[
+        "inline-block rounded-md font-semibold whitespace-nowrap",
+        sizeClass,
+        variant === "primary" ? "bg-ember font-bold text-ink shadow-[0_0_22px_-6px_var(--color-ember)]" : "border border-dashed border-line text-muted",
+      ]}
+    >
       {label}
     </span>
   )

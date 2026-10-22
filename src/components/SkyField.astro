@@ -1,10 +1,11 @@
 ---
 // SkyField.astro — the constellation background behind the whole site.
 //
-// A field of points joined by thin lines (constellations), drawn in the same low-poly style as the logo.
+// Faint real constellations (Orion, the Big Dipper, Cassiopeia, ...) over a dusting of dim stars.
 // It moves ONLY when you scroll, by a fixed amount per pixel scrolled:
-//   • Scroll down → the stars glide up past you, near ones faster than far ones (parallax), so the page feels
-//     like it has depth. Scroll back up → they glide back to exactly where they were.
+//   • Scroll down → the stars glide up past you (near ones faster than far ones), and new constellations drift
+//     into view as you go, so each part of the page has its own patch of sky. Scroll back up → everything
+//     glides back to exactly where it was.
 //   • The color shifts green → blue → yellow as you move down the page.
 // It does not react to clicks, taps, or the mouse, and it never animates on its own. When you're not scrolling
 // it costs nothing at all, which is what keeps phones smooth.
@@ -46,22 +47,94 @@
     [255, 210, 63],
   ];
 
-  // How far the stars move per pixel scrolled. 0.35 = a near star moves 35px for every 100px you scroll;
-  // far stars move less (depth). Raise it for a stronger effect.
+  // How far things move per pixel scrolled. 0.35 = a near star moves 35px for every 100px you scroll; far stars
+  // move less (depth). The constellations sit on their own layer that moves a little faster, so they glide past
+  // the scattered stars and feel closer.
   const PARALLAX = 0.35;
-  // Lines are drawn between stars closer than this (in pixels).
-  const LINK_DIST = 120;
+  const CONSTELLATION_PARALLAX = 0.45;
 
+  // ---------------------------------------------------------------------------------------------------------
+  // Real constellations, simplified. Each is a set of stars ("pts", positions inside a 0–1 square) and the lines
+  // that join them ("edges", pairs of star numbers). They're spaced down a tall strip of sky, so as you scroll,
+  // different constellations drift into view: start at the top and you might see Orion; keep going for the Big
+  // Dipper, Cassiopeia, and so on. To add one, copy an entry and plot its stars on a 0–1 grid.
+  // ---------------------------------------------------------------------------------------------------------
+  interface Shape {
+    name: string;
+    pts: [number, number][];
+    edges: [number, number][];
+  }
+  const SHAPES: Shape[] = [
+    {
+      name: "Big Dipper",
+      pts: [[0, 0.32], [0.17, 0.28], [0.32, 0.36], [0.47, 0.44], [0.53, 0.7], [0.82, 0.74], [0.86, 0.46]],
+      edges: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 3]],
+    },
+    {
+      name: "Orion",
+      pts: [[0.22, 0.12], [0.78, 0.16], [0.38, 0.5], [0.49, 0.52], [0.6, 0.54], [0.28, 0.92], [0.82, 0.86], [0.5, 0]],
+      edges: [[7, 0], [7, 1], [0, 2], [1, 4], [2, 3], [3, 4], [2, 5], [4, 6]],
+    },
+    {
+      name: "Cassiopeia",
+      pts: [[0, 0.32], [0.25, 0.66], [0.5, 0.36], [0.75, 0.72], [1, 0.22]],
+      edges: [[0, 1], [1, 2], [2, 3], [3, 4]],
+    },
+    {
+      name: "Cygnus",
+      pts: [[0.5, 0], [0.5, 0.4], [0.5, 1], [0.12, 0.3], [0.88, 0.5]],
+      edges: [[0, 1], [1, 2], [3, 1], [1, 4]],
+    },
+    {
+      name: "Lyra",
+      pts: [[0.3, 0], [0.45, 0.34], [0.68, 0.4], [0.58, 0.9], [0.36, 0.84]],
+      edges: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 1]],
+    },
+    {
+      name: "Leo",
+      pts: [[0.18, 0.8], [0.22, 0.5], [0.1, 0.3], [0.22, 0.08], [0.4, 0.16], [0.96, 0.7], [0.68, 0.44], [0.62, 0.76]],
+      edges: [[0, 1], [1, 2], [2, 3], [3, 4], [1, 6], [6, 5], [5, 7], [7, 0]],
+    },
+    {
+      name: "Little Dipper",
+      pts: [[0, 0.05], [0.2, 0.18], [0.36, 0.3], [0.52, 0.44], [0.78, 0.38], [0.88, 0.64], [0.6, 0.7]],
+      edges: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 3]],
+    },
+    {
+      name: "Scorpius",
+      pts: [[0.02, 0.02], [0.12, 0.14], [0.22, 0.2], [0.32, 0.34], [0.4, 0.5], [0.44, 0.7], [0.54, 0.86], [0.7, 0.92], [0.84, 0.82], [0.82, 0.66]],
+      edges: [[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9]],
+    },
+  ];
+
+  // The background dust: small, dim stars with no lines, so the real constellations are the shapes you notice.
   interface Star {
     x: number; // home position on the canvas, before scrolling
     y: number;
     depth: number; // 0.3 (far) .. 1 (near): size, brightness, and how much it moves with scroll
   }
 
+  // A constellation placed on the sky strip.
+  interface Placed {
+    shape: Shape;
+    x: number; // left edge of its box, px
+    y: number; // top of its box on the strip, px (before scrolling)
+    size: number; // box size, px
+    rot: number; // slight tilt, radians, so they don't all look stamped on
+  }
+
   let width = 0;
   let height = 0;
   let stars: Star[] = [];
+  let placed: Placed[] = [];
   let maxScroll = 1;
+
+  // Shuffle the constellation order once per visit, so the sequence down the page differs between visits.
+  const order = [...SHAPES].sort(() => Math.random() - 0.5);
+  // Random "jitter" numbers per slot, made once and reused, so constellations don't hop around when the page
+  // re-measures (e.g. after fonts load). Only the screen size changes where they go.
+  const jitter: number[][] = [];
+  const jitterFor = (i: number) => (jitter[i] ??= [Math.random(), Math.random(), Math.random()]);
 
   // Match the canvas's drawing surface to its real on-screen size. A canvas has two sizes: its size on the page
   // (set by CSS) and its internal pixel grid (canvas.width/height). If they don't match, the browser STRETCHES
@@ -78,15 +151,35 @@
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  // Scatter a fresh set of stars over the current width and height. Roughly one star per 14,000 px², clamped
-  // to 35..110, so phones get a lighter field than big monitors.
+  // Scatter the background dust over the current width and height (about one per 9,000 px², 40..160).
   function makeStars() {
-    const count = Math.max(35, Math.min(110, Math.round((width * height) / 14000)));
+    const count = Math.max(40, Math.min(160, Math.round((width * height) / 9000)));
     stars = Array.from({ length: count }, () => ({
       x: Math.random() * width,
       y: Math.random() * height,
       depth: 0.3 + Math.random() * 0.7,
     }));
+  }
+
+  // Lay constellations down a strip of sky tall enough for the whole page's scroll, alternating left and right
+  // sides so they don't stack. Sized from the screen: ~125px on phones, up to 260px on big monitors.
+  function placeConstellations() {
+    const size = Math.max(120, Math.min(260, width * 0.32));
+    const spacing = Math.max(height * 0.55, size * 1.6);
+    const stripHeight = maxScroll * CONSTELLATION_PARALLAX + height;
+    const count = Math.ceil(stripHeight / spacing) + 1;
+    placed = Array.from({ length: count }, (_, i) => {
+      const [a, b, c] = jitterFor(i);
+      const leftSide = i % 2 === 0;
+      const x = (leftSide ? 0.03 + a * 0.22 : 0.62 + a * 0.22) * width;
+      return {
+        shape: order[i % order.length]!,
+        x: Math.min(x, width - size - 8),
+        y: height * 0.12 + i * spacing + (b - 0.5) * spacing * 0.3,
+        size,
+        rot: (c - 0.5) * 0.6,
+      };
+    });
   }
 
   // The page's total scrollable distance; re-measured only when the page or window changes size.
@@ -104,50 +197,61 @@
     return [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
   }
 
-  // Draw the whole field for the current scroll position. Called only when something changes.
+  // Draw everything for the current scroll position. Called only when something changes.
   function draw() {
     if (!ctx) return;
     ctx.clearRect(0, 0, width, height);
     const scroll = window.scrollY;
     const [r, g, b] = colorAt(scroll / maxScroll);
-    // With "reduce motion" on, the stars don't move with scrolling (only the color changes).
-    const shift = reduceMotion.matches ? 0 : scroll * PARALLAX;
+    // With "reduce motion" on, nothing moves with scrolling (only the color changes).
+    const still = reduceMotion.matches;
 
-    // Each star's on-screen position: its home position moved up by the scroll (more for near stars), wrapped
-    // around the top/bottom edges with a little margin so the field never runs out.
+    // 1) Background dust: moves up with the scroll (near stars faster), wrapping around top/bottom.
     const span = height + 40;
-    const pts = stars.map((s) => {
+    const shift = still ? 0 : scroll * PARALLAX;
+    for (const s of stars) {
       let y = (s.y - shift * s.depth) % span;
       if (y < -20) y += span;
-      return { x: s.x, y: y - 20 + 20, depth: s.depth };
-    });
-
-    // Lines between nearby stars. Each pair is checked once; closer pairs get stronger lines.
-    ctx.lineWidth = 1;
-    for (let i = 0; i < pts.length; i++) {
-      const a = pts[i]!;
-      for (let j = i + 1; j < pts.length; j++) {
-        const c = pts[j]!;
-        const dx = a.x - c.x;
-        const dy = a.y - c.y;
-        if (Math.abs(dx) > LINK_DIST || Math.abs(dy) > LINK_DIST) continue; // cheap early exit
-        const dist = Math.hypot(dx, dy);
-        if (dist < LINK_DIST) {
-          ctx.strokeStyle = `rgba(${r},${g},${b},${(1 - dist / LINK_DIST) * 0.22 * Math.min(a.depth, c.depth)})`;
-          ctx.beginPath();
-          ctx.moveTo(a.x, a.y);
-          ctx.lineTo(c.x, c.y);
-          ctx.stroke();
-        }
-      }
+      ctx.fillStyle = `rgba(${r},${g},${b},${0.18 + s.depth * 0.3})`;
+      ctx.beginPath();
+      ctx.arc(s.x, y, 0.5 + s.depth * 0.9, 0, Math.PI * 2);
+      ctx.fill();
     }
 
-    // The stars themselves: nearer = bigger and brighter.
-    for (const p of pts) {
-      ctx.fillStyle = `rgba(${r},${g},${b},${0.35 + p.depth * 0.5})`;
+    // 2) Constellations: only the ones currently in view are drawn. Lines are faint; stars a little brighter,
+    //    each with a soft halo, so the shapes read clearly without competing with the page.
+    const cShift = still ? 0 : scroll * CONSTELLATION_PARALLAX;
+    for (const c of placed) {
+      const top = c.y - cShift;
+      if (top > height + 20 || top + c.size < -20) continue;
+      const cx = c.x + c.size / 2;
+      const cy = top + c.size / 2;
+      const cos = Math.cos(c.rot);
+      const sin = Math.sin(c.rot);
+      // Each star's screen position: scaled into the box, then tilted around the box's center.
+      const pts = c.shape.pts.map(([u, v]) => {
+        const dx = (u - 0.5) * c.size;
+        const dy = (v - 0.5) * c.size;
+        return [cx + dx * cos - dy * sin, cy + dx * sin + dy * cos] as const;
+      });
+      ctx.strokeStyle = `rgba(${r},${g},${b},0.22)`;
+      ctx.lineWidth = 1;
       ctx.beginPath();
-      ctx.arc(p.x, p.y, 0.6 + p.depth * 1.4, 0, Math.PI * 2);
-      ctx.fill();
+      for (const [i, j] of c.shape.edges) {
+        ctx.moveTo(pts[i]![0], pts[i]![1]);
+        ctx.lineTo(pts[j]![0], pts[j]![1]);
+      }
+      ctx.stroke();
+      for (const [x, y] of pts) {
+        ctx.fillStyle = `rgba(${r},${g},${b},0.1)`;
+        ctx.beginPath();
+        ctx.arc(x, y, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = `rgba(${r},${g},${b},0.7)`;
+        ctx.beginPath();
+        ctx.arc(x, y, 1.7, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
   }
 
@@ -168,6 +272,7 @@
     fitCanvas(canvas.clientWidth || window.innerWidth, canvas.clientHeight || window.innerHeight);
     makeStars();
     measure();
+    placeConstellations();
     draw();
     window.addEventListener("scroll", requestDraw, { passive: true });
 
@@ -186,12 +291,15 @@
       fitCanvas(box.width, box.height);
       if (widthChanged) makeStars();
       else stars.forEach((st) => (st.y *= scaleY));
+      placeConstellations();
       requestDraw();
     }).observe(canvas);
 
-    // The page gets taller after load (fonts, FAQ answers opening); keep the color mapping accurate.
+    // The page gets taller after load (fonts, FAQ answers opening); keep the color mapping and the length of
+    // the constellation strip accurate.
     new ResizeObserver(() => {
       measure();
+      placeConstellations();
       requestDraw();
     }).observe(document.body);
 

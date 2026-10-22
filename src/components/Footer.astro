@@ -6,9 +6,9 @@
 import { event } from "../content/event";
 import Logo from "./Logo.astro";
 
-const { email, instagram, codeOfConduct } = event.links;
+const { email, instagram, codeOfConduct, discord } = event.links;
 // Screen readers announce lists ("list, 0 items"), so I skip the <ul> entirely when there's nothing in it.
-const hasLinks = Boolean(email || instagram || codeOfConduct);
+const hasLinks = Boolean(email || instagram || discord || codeOfConduct);
 ---
 
 <!-- bg-ink/80 + backdrop-blur: the animated background still shows through faintly at the bottom. -->
@@ -35,6 +35,13 @@ const hasLinks = Boolean(email || instagram || codeOfConduct);
               <li>
                 <a class="hover:text-aero" href={instagram} target="_blank" rel="noopener noreferrer">
                   Instagram<span class="sr-only"> (opens in a new tab)</span>
+                </a>
+              </li>
+            )}
+            {discord && (
+              <li>
+                <a class="hover:text-aero" href={discord} target="_blank" rel="noopener noreferrer">
+                  Discord<span class="sr-only"> (opens in a new tab)</span>
                 </a>
               </li>
             )}

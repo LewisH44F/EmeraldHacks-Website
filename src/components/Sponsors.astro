@@ -1,7 +1,8 @@
 ---
 // Sponsors.astro — sponsor logos grouped by tier, plus the pitch for companies thinking about sponsoring.
 //
-// Reads `sponsors`, `sponsorPitch`, and the sponsor links from event.ts. With no sponsors yet, it shows a
+// Reads `sponsors`, `sponsorPitch`, `sponsorPackages`, and the sponsor links from event.ts. The packages table
+// (Bronze → Platinum) shows what each sponsorship level includes. With no sponsors yet, it shows a
 // "be our first sponsor" message instead of an empty grid — an empty grid looks like nobody believes in the event.
 import { event, type SponsorTier } from "../content/event";
 import { sponsorCta } from "../lib/cta";
@@ -11,12 +12,22 @@ import Star from "./Star.astro";
 
 const cta = sponsorCta();
 
-// Tiers in display order, with logo heights: bigger sponsors get bigger logos, which is part of what they pay for.
-// Each tier label also gets its own color.
+// Each tier's name and color, used by both the logo groups and the packages table. Colors are metal-like:
+// platinum = icy blue-white, gold = yellow, silver = light gray, bronze = copper orange.
+// Full class names written out (Tailwind only generates classes it can find spelled out in the code).
+const TIER_STYLE: Record<SponsorTier, { label: string; text: string; bar: string }> = {
+  platinum: { label: "Platinum", text: "text-[#cfe3ff]", bar: "bg-[#cfe3ff]" },
+  gold: { label: "Gold", text: "text-volt", bar: "bg-volt" },
+  silver: { label: "Silver", text: "text-mist", bar: "bg-mist" },
+  bronze: { label: "Bronze", text: "text-[#d08a52]", bar: "bg-[#d08a52]" },
+};
+
+// Logo groups, highest tier first, with logo heights: bigger sponsors get bigger logos (part of what they pay for).
 const tiers: { tier: SponsorTier; label: string; logoClass: string; labelClass: string }[] = [
+  { tier: "platinum", label: "Platinum", logoClass: "h-20", labelClass: TIER_STYLE.platinum.text },
   { tier: "gold", label: "Gold", logoClass: "h-16", labelClass: "text-volt" },
-  { tier: "silver", label: "Silver", logoClass: "h-12", labelClass: "text-fg" },
-  { tier: "bronze", label: "Bronze", logoClass: "h-10", labelClass: "text-ember" },
+  { tier: "silver", label: "Silver", logoClass: "h-12", labelClass: TIER_STYLE.silver.text },
+  { tier: "bronze", label: "Bronze", logoClass: "h-10", labelClass: TIER_STYLE.bronze.text },
 ];
 
 // Only keep tiers that actually have sponsors, so we don't print an empty "Bronze" heading.
@@ -49,6 +60,39 @@ const groups = tiers
             </ul>
           </div>
         ))}
+      </div>
+    )
+  }
+
+  {
+    event.sponsorPackages.length > 0 && (
+      <div class="mt-12">
+        <h3 class="font-display text-2xl font-semibold">Sponsorship tiers</h3>
+        {/* One card per tier, lowest to highest: 1 column on phones, 2 per row from 640px up.
+            The top tier (last in the list) gets a highlighted frame. */}
+        <ul class="mt-6 grid gap-4 sm:grid-cols-2">
+          {event.sponsorPackages.map((p, i) => {
+            const style = TIER_STYLE[p.tier];
+            const top = i === event.sponsorPackages.length - 1;
+            return (
+              <li class:list={["chamfer-frame", top && "bg-[#cfe3ff]/50"]} style="--cut: 18px">
+                <div class="chamfer flex h-full flex-col bg-card px-6 py-6" style="--cut: 18px">
+                  <span aria-hidden="true" class:list={["accent-bar w-8", style.bar]} />
+                  <p class:list={["mt-4 font-display text-xl font-bold", style.text]}>{style.label}</p>
+                  <p class="mt-1 font-display text-2xl font-bold tracking-tight">{p.amount ?? "TBA"}</p>
+                  <ul class="mt-4 space-y-2 text-sm text-fg/85">
+                    {p.perks.map((perk) => (
+                      <li class="flex gap-2">
+                        <Star class:list={["mt-1 size-3 shrink-0", style.text]} />
+                        {perk}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       </div>
     )
   }

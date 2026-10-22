@@ -15,7 +15,7 @@
 // the editor and `npm run check` flag it before it reaches the live site. You don't need to edit these.
 // ---------------------------------------------------------------------------------------------------------
 
-export type SponsorTier = "gold" | "silver" | "bronze";
+export type SponsorTier = "platinum" | "gold" | "silver" | "bronze";
 
 export interface Track {
   name: string;
@@ -36,6 +36,13 @@ export interface Sponsor {
   url: string;
 }
 
+// One sponsorship package in the "Sponsorship tiers" table.
+export interface SponsorPackage {
+  tier: SponsorTier;
+  amount: string | null; // e.g. "$500"; null => "TBA"
+  perks: string[]; // what this tier gets (each tier's list is shown in full; say "Everything in Silver" to stack)
+}
+
 export interface FaqItem {
   q: string;
   a: string;
@@ -51,7 +58,7 @@ export interface Person {
   role: string;
 }
 
-// One organizing division: its name, its point person (lead), and everyone else on it.
+// One organizing division: its name, its division leader (lead), and everyone else on it.
 export interface Division {
   name: string;
   lead: string;
@@ -68,6 +75,7 @@ export interface EventConfig {
   experience: string | null;
   about: string[];
   sponsorPitch: string[];
+  sponsorPackages: SponsorPackage[];
   marquee: string[];
   links: {
     register: string;
@@ -75,6 +83,7 @@ export interface EventConfig {
     instagram: string;
     email: string;
     codeOfConduct: string;
+    discord: string;
   };
   registrationOpen: boolean;
   showFiscalSponsor: boolean;
@@ -147,6 +156,16 @@ export const event: EventConfig = {
     "Logo placement on this site and at the event, by tier.",
   ],
 
+  // Sponsorship packages, lowest to highest. amount: null => "TBA".
+  // DRAFT: these perks are a starting point, not promises yet. Confirm what we can actually deliver (and the
+  // prices) before sending this page to sponsors.
+  sponsorPackages: [
+    { tier: "bronze", amount: null, perks: ["Logo on our website", "Thank-you on our social media"] },
+    { tier: "silver", amount: null, perks: ["Everything in Bronze", "Logo on event-day signage"] },
+    { tier: "gold", amount: null, perks: ["Everything in Silver", "Shout-out at the opening and closing ceremonies", "Larger logo placement"] },
+    { tier: "platinum", amount: null, perks: ["Everything in Gold", "Host a workshop or name a prize", "Top logo placement everywhere"] },
+  ],
+
   // Words in the big sideways-scrolling bands between sections. Short and punchy; they repeat to fill the width.
   // Keep them decorative. Don't put facts (dates, prizes) here, they'd be easy to forget when things change.
   marquee: ["12 hours", "Build anything", "Ship it", "Learn fast", "Find your team", "Dublin, CA"],
@@ -163,6 +182,9 @@ export const event: EventConfig = {
     email: "aerohacks9468@gmail.com",
     // Link to the code of conduct (a Google Doc or a page). "" => hidden.
     codeOfConduct: "",
+    // Discord invite link, e.g. "https://discord.gg/abc123". "" => hidden. Once set, a "Join our Discord"
+    // button appears in the hero and the FAQ, and a link in the footer.
+    discord: "",
   },
 
   // false => the main button says "Join interest list" (still uses links.register).
@@ -214,34 +236,29 @@ export const event: EventConfig = {
   // Put logo files in /public/sponsors/ (SVG or PNG, transparent background works best).
   sponsors: [],
 
-  // Questions and answers. Answers are plain text.
+  // Questions and answers. Answers are plain text. Only questions the rest of the page DOESN'T already answer
+  // (date, location, cost, who can attend, experience, length, and sponsoring are all covered elsewhere).
   // DRAFT WARNING: several answers below (team size, meals, laptop loans, waiver) are my best guess at
   // what we'll offer, not confirmed decisions. Confirm or rewrite each one before we publicly launch.
   faq: [
-    { q: "When and where is it?", a: "March 2027 in Dublin, CA. The exact date and location are being finalized, and we'll post them here as soon as they're confirmed." },
-    { q: "How much does it cost?", a: "Cost TBA. We'll confirm before registration opens." },
-    { q: "Who can attend?", a: "High school students. Exact eligibility TBA." },
-    { q: "Do I need coding experience?", a: "No. Aerohacks is for everyone, from complete beginners to advanced programmers." },
     { q: "Is there an age requirement?", a: "Attendees must be in high school. Anyone under 18 needs a signed parent/guardian permission form." },
     { q: "How big can teams be?", a: "Teams of up to 4. You can also come solo and find a team at the event." },
     { q: "What should I bring?", a: "A laptop, charger, student ID, a water bottle, and anything you need to be comfortable for 12 hours." },
     { q: "Will there be food?", a: "Yes, meals are provided. You can tell us about allergies and dietary restrictions when you register." },
-    { q: "Is it overnight?", a: "No. Aerohacks is 12 hours during one day. Everyone goes home the same evening." },
     { q: "What if I don't have a laptop?", a: "Let us know when you register and we'll try to arrange one." },
     { q: "Do my parents need to sign anything?", a: "Yes. Anyone under 18 needs a parent/guardian permission and liability waiver. We'll send it after you register." },
     { q: "Where do I park / how do I get there?", a: "Parking and directions will be posted once the location is finalized." },
-    { q: "How can my company or organization sponsor Aerohacks?", a: "We'd love to hear from you! Email us at aerohacks9468@gmail.com and we'll send over sponsorship details." },
   ],
 
 
-  // The organizing team, shown in tiers: the director on top, then each division's point person, then everyone
+  // The organizing team, shown in tiers: the director on top, then each division's leader, then everyone
   // else grouped by division. Names only, no photos. Spell names exactly as each person wants them shown.
   team: {
     director: { name: "Raghav Garg", role: "Director" },
     divisions: [
-      { name: "Sponsorships and Outreach", lead: "Kashvi", members: ["Calvin", "Kruthik", "Nikita"] },
-      { name: "Marketing and Media", lead: "Charumathi", members: ["Aarya", "Gurucharan", "Vansh"] },
-      { name: "Logistics and Program Direction", lead: "Nasser", members: ["Rishi", "Nihtahli", "Shivish", "Zayan"] },
+      { name: "Sponsorships and Outreach", lead: "Kashvi", members: ["Calvin Kwok", "Kruthik Madhamsetty", "Nikita Prabhu"] },
+      { name: "Marketing and Media", lead: "Charumathi", members: ["Aarya Chawathe", "Gurucharan Vidhyashankar", "Vansh Komarraju"] },
+      { name: "Logistics and Program Direction", lead: "Nasser", members: ["Rishi Agraharam", "Nihtahli Anand", "Shivish Aneja", "Zayan Ahmer"] },
     ],
   },
 

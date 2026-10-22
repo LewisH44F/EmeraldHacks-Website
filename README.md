@@ -51,14 +51,16 @@ If something isn't confirmed, set it to `null` (or leave a list empty). The site
 | `about` | About paragraphs (one string per paragraph) | Facts box only |
 | `sponsorPitch` | Bullet points in the "Why sponsor" box. No made-up numbers. | Box shows just the button |
 | `marquee` | Words in the big sliding bands. Decorative only, so keep facts out of them. | Bands hidden |
-| `links.register` | Where every Register / Join interest list button goes | Grey "Sign-ups soon" (not clickable) |
+| `links.register` | Where every Register / Join interest list button (the orange one) goes | Orange "Sign-ups soon" label (not clickable) |
 | `links.sponsorForm` | Where "Become a sponsor" goes | Falls back to emailing `links.email`; if that's empty too, "Sponsor info coming soon" |
 | `links.email`, `.instagram`, `.codeOfConduct` | Footer, FAQ, sponsor links | Hidden |
+| `links.discord` | Paste the Discord invite here: adds a "Join our Discord" button in the hero, a link in the FAQ, and one in the footer | All three hidden |
 | `tracks` | Track cards (an optional per-track `prize` shows on the card when set) | "Coming soon" card |
 | `prizes` | The Prizes list: `{ place: "First place", prize: "$500" }`; `prize: null` → "TBA" | "Prizes will be announced soon" |
 | `schedule` | Timeline items, in the order listed | "Posted soon" |
+| `sponsorPackages` | The Bronze / Silver / Gold / Platinum tier cards: `amount` (e.g. `"$250"`) and `perks` | `amount: null` → "TBA" |
 | `sponsors` | Logos grouped by tier | "Want your logo here first?" |
-| `team` | The organizers in tiers: `director` on top, then each division's `lead` (point person), then its `members` | Director only |
+| `team` | The organizers in tiers: `director` on top, then each division's `lead` (shown as "Division leaders"), then its `members` | Director only |
 | `judges` | Judges as `{ name, role }`. Only add confirmed judges. | "Judges announced soon" |
 | `faq` | Questions and answers | "Coming soon" |
 
@@ -102,7 +104,7 @@ aerohacks-website/
 │   │   ├── Hero, About, Tracks, Prizes, Schedule, Sponsors, Team, Judges, Faq   ← one per section
 │   │   ├── Nav, Footer       ← top bar (with mobile menu) and bottom bar
 │   │   ├── Section           ← shared wrapper: spacing, "01 / ABOUT" label, heading
-│   │   ├── CtaButton         ← the one button style (yellow = sign up)
+│   │   ├── CtaButton         ← the one button style (orange = sign up)
 │   │   ├── Countdown         ← live timer in the hero
 │   │   ├── Logo, Star        ← the dragon mark and the little ✦ star, drawn as SVG
 │   │   ├── SkyField          ← the scroll-linked constellation background
@@ -128,13 +130,14 @@ aerohacks-website/
 
 ## Look and feel
 
-- **Colors and fonts** are defined once, in the `@theme` block at the top of `src/styles/global.css`. Change a value there and it updates everywhere. Yellow (`volt`) is reserved for the main sign-up button.
+- **Colors and fonts** are defined once, in the `@theme` block at the top of `src/styles/global.css`. Change a value there and it updates everywhere. Orange (`ember`) is reserved for the main sign-up button, so it stands out from everything else.
 - **The site is dark-only** on purpose; the black theme is the brand.
+- **The top bar is pinned** (`position: fixed` in `Nav.astro`), so it stays put even when you over-scroll past the top on an iPhone. The page has 64px of top padding (`pt-16` on `<body>` in `Base.astro`) so nothing hides under it; change both together.
 - **Fonts:** Inter for everything (heavy weights for headings), installed from npm and served from our own site, so nothing loads from Google.
 - **Logo:** `src/components/Logo.astro` is a line-art Aeronaut dragon head. To use an official logo, replace the `<path>` lines in that file (and in `public/favicon.svg`), or swap the component for an `<img>`. Also replace `public/og.png` and `public/apple-touch-icon.png`.
 - **Section design:** every section has a colored accent bar, a big title, and a one-line subtitle on the left, with its content on the right (stacked on phones). Cards and photo tiles use cut ("chamfered") corners: the `.chamfer` / `.chamfer-frame` classes in `global.css`. Timeline dots are `.octagon`.
 - **Motion** (kept deliberately light so phones stay smooth):
-  - The constellation background (`SkyField.astro`) moves **only when you scroll**, by a set amount (near stars more than far ones), and shifts color down the page. It doesn't react to taps or the mouse, and costs nothing when you're not scrolling. Change `PARALLAX` in that file for a stronger or weaker effect.
+  - The constellation background (`SkyField.astro`) moves **only when you scroll**, by a set amount (near stars more than far ones), and shifts color down the page. Faint real constellations (Big Dipper, Orion, Cassiopeia, Cygnus, Lyra, Leo, Little Dipper, Scorpius) are spread down the page, so different ones drift into view as you scroll. Add or edit shapes in `SHAPES` in that file. It doesn't react to taps or the mouse, and costs nothing when you're not scrolling. Change `PARALLAX` in that file for a stronger or weaker effect.
   - The marquee bands (`Marquee.astro`) slide continuously and never stop. To change the speed, edit `70s` in that file (higher = slower).
   - `SpaceScene.astro` adds slowly twinkling stars. Sections fade in as you reach them.
   - **"Reduce motion"** (iPhone: Settings → Accessibility → Motion; also on Android, macOS, Windows): the bands still drift, about 3x slower; the stars stop twinkling and the background doesn't move with scrolling. If the site looks frozen on someone's phone, this setting is the reason.
@@ -156,7 +159,7 @@ aerohacks-website/
    ```ts
    { name: "Acme", tier: "gold", logo: "/sponsors/acme.svg", url: "https://acme.com" },
    ```
-   `tier` must be `"gold"`, `"silver"`, or `"bronze"` (`npm run check` will complain about anything else). Note the logo path starts at `/sponsors/`, not `/public/sponsors/`.
+   `tier` must be `"platinum"`, `"gold"`, `"silver"`, or `"bronze"` (`npm run check` will complain about anything else). Note the logo path starts at `/sponsors/`, not `/public/sponsors/`.
 
 **FAQ**
 
@@ -164,8 +167,8 @@ aerohacks-website/
 
 **Team member**
 
-1. Find their division under `team.divisions` in `event.ts` and add their name to its `members` list, e.g. `members: ["Calvin", "Kruthik", "Nikita", "Jane"]`.
-2. A new point person goes in that division's `lead`. A whole new division is another `{ name, lead, members }` entry.
+1. Find their division under `team.divisions` in `event.ts` and add their name to its `members` list, e.g. `members: ["Calvin Kwok", "Jane Doe"]`.
+2. A new division leader goes in that division's `lead` (use their full name). A whole new division is another `{ name, lead, members }` entry.
    Names show exactly as typed, so double-check spelling with each person.
 
 **Judge**

@@ -15,10 +15,12 @@ const cta = registerCta();
 ---
 
 <!--
-  "sticky top-0" keeps the bar pinned while you scroll. z-50 keeps it above section content.
-  The semi-opaque background + backdrop-blur lets content show faintly underneath without hurting readability.
+  "fixed top-0" pins the bar to the SCREEN, not the page. (It used to be "sticky", which belongs to the page: when
+  you overscrolled past the top on a phone, the page bounced down and dragged the bar off the top edge with it.)
+  Because a fixed bar takes no space in the page, Base.astro adds matching padding (pt-16) to <body>.
+  z-50 keeps it above section content. The semi-opaque background + blur lets content show faintly underneath.
 -->
-<header class="sticky top-0 z-50 border-b border-line bg-ink/75 backdrop-blur-md">
+<header class="fixed inset-x-0 top-0 z-50 border-b border-line bg-ink/75 backdrop-blur-md">
   <!--
     Scroll progress bar: a thin yellow line along the bottom of the nav that fills as you read down the page.
     It starts at scaleX(0) (empty) and grows from the left (origin-left); the script updates the scale.
