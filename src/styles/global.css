@@ -148,34 +148,13 @@ body {
 
 /* With "reduce motion" on, hover/open transitions (like the FAQ "+" rotating or cards lifting) happen instantly.
    I deliberately DON'T blanket-kill all animations here: each moving piece decides its own calm version.
-   The marquee bands keep sliding (just much slower), and the flying objects park in place.
-   See Marquee.astro, SpaceScene.astro, and src/scripts/flights.ts. */
+   The marquee bands keep sliding (just much slower), and the stars stop twinkling.
+   See Marquee.astro and SpaceScene.astro. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     transition-duration: 0.01ms !important;
-  }
-}
-
-/* ---------------------------------------------------------------------------------------------------------
-   Flyers (Astronaut, Satellite).
-   src/scripts/flights.ts moves each .flyer around the screen. Before the script runs (or if it can't), they
-   wait far off-screen, so nothing ever flashes in the top-left corner.
-   --------------------------------------------------------------------------------------------------------- */
-.flyer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transform: translate3d(-300vw, 0, 0);
-  will-change: transform;
-}
-.flyer-face {
-  will-change: transform;
-}
-@media print {
-  .flyer {
-    display: none;
   }
 }
 

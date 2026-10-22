@@ -6,9 +6,7 @@
 import "../styles/global.css";
 import { event } from "../content/event";
 import SkyField from "../components/SkyField.astro";
-import Astronaut from "../components/Astronaut.astro";
 import SpaceScene from "../components/SpaceScene.astro";
-import Satellite from "../components/Satellite.astro";
 
 interface Props {
   title?: string;
@@ -83,19 +81,13 @@ const ogImage = new URL("/og.png", Astro.site);
     <!-- The animated, interactive background. It's fixed behind all content. -->
     <!--
       The background layers, all fixed behind the content. Later ones draw on top of earlier ones:
-      the constellations (move only when you scroll), the twinkling stars, then the satellite and the astronaut.
-      The two flyers are moved by src/scripts/flights.ts, imported in the script below.
+      the constellations (move only when you scroll), then the twinkling stars.
     -->
     <SkyField />
     <SpaceScene />
-    <Satellite />
-    <Astronaut />
     <slot />
 
     <script>
-      // Random flight paths for the astronaut and satellite.
-      import "../scripts/flights.ts";
-
       // Scroll reveal: anything with data-reveal fades/slides in the first time it enters the screen.
       //    The actual animation is CSS (global.css); this just adds the "is-visible" class at the right moment.
       //    threshold 0.12 = trigger once 12% of the element is visible, so it animates as it arrives, not after.

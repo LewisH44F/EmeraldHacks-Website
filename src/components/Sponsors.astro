@@ -73,11 +73,14 @@ const groups = tiers
     <div class="mt-6 flex flex-wrap items-center gap-4">
       <CtaButton href={cta.href} label={cta.label} external={cta.external} size="lg" />
       {
-        /* If the button goes to a form, I still show the email so sponsors who prefer a human can reach one. */
-        cta.external && event.links.email && (
-          <a href={`mailto:${event.links.email}`} class="text-sky underline underline-offset-4">
-            {event.links.email}
-          </a>
+        /* The email is always written out too, so sponsors can copy it or reach a person directly. */
+        event.links.email && (
+          <p class="text-fg/90">
+            Interested? Email{" "}
+            <a href={`mailto:${event.links.email}`} class="text-sky underline underline-offset-4">
+              {event.links.email}
+            </a>
+          </p>
         )
       }
     </div>

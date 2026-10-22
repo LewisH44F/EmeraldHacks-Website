@@ -2,7 +2,7 @@
 // About.astro — explains what a hackathon is, who can come, and what it costs. Written for beginners and parents.
 //
 // The paragraphs come from `about` in event.ts. The "quick facts" list uses `eligibility`, `cost`, and
-// `beginnerFriendly`; anything null shows "TBA" so we never promise something unconfirmed.
+// `experience`; anything null shows "TBA" (or, for experience, is left out) so we never promise something unconfirmed.
 import { event } from "../content/event";
 import { registerCta } from "../lib/cta";
 import { TBA } from "../lib/format";
@@ -16,7 +16,7 @@ const facts = [
   { label: "Who", value: event.eligibility ?? TBA },
   { label: "Cost", value: event.cost ?? TBA },
   { label: "Length", value: "12 hours, one day. Not overnight." },
-  { label: "Experience", value: event.beginnerFriendly ? "None needed. Beginners welcome." : null },
+  { label: "Experience", value: event.experience },
 ].filter((f) => f.value !== null);
 ---
 

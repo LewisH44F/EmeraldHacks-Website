@@ -12,9 +12,11 @@ import Logo from "./Logo.astro";
 
 const cta = registerCta();
 const sponsor = sponsorCta();
-const day = formatDay(event.date.start);
-const time = formatTimeRange(event.date.start, event.date.end);
 const hasDate = parseDate(event.date.start) !== null;
+// With an exact date: "Saturday, March 13, 2027" plus the time. Without one: the rough timeframe from the
+// config (e.g. "March 2027") with its "being finalized" note, or plain "TBA" if neither is set.
+const day = hasDate ? formatDay(event.date.start) : (event.date.approx ?? TBA);
+const time = hasDate ? formatTimeRange(event.date.start, event.date.end) : event.date.pendingNote;
 const { venue } = event;
 ---
 
@@ -59,6 +61,8 @@ const { venue } = event;
           <dt class="text-xs font-semibold tracking-widest text-sky uppercase">Where</dt>
           <dd class="mt-1 text-lg font-medium">
             {venue.name ?? TBA}
+            {/* While the venue isn't set, a short "being finalized" note from the config sits under the TBA. */}
+            {!venue.name && venue.pendingNote && <span class="block text-sm text-muted">{venue.pendingNote}</span>}
             {venue.address && <span class="block text-sm text-muted">{venue.address}</span>}
             {
               venue.mapUrl && (

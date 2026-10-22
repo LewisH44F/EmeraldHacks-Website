@@ -42,10 +42,12 @@ If something isn't confirmed, set it to `null` (or leave a list empty). The site
 | Field | What it controls | When empty / `null` |
 | --- | --- | --- |
 | `name`, `tagline` | Title in the hero, nav, browser tab, and link previews | Tagline line is hidden |
-| `date.start`, `date.end` | Hero date/time, schedule date, countdown | "TBA", no countdown |
+| `date.start`, `date.end` | Hero date/time, schedule date, countdown | See `date.approx` |
+| `date.approx`, `date.pendingNote` | While there's no exact date: a rough timeframe ("March 2027") and a note ("Exact date being finalized") | "TBA", no countdown |
 | `venue.name`, `.address`, `.mapUrl` | "Where" box in the hero; each part can be confirmed separately | "TBA" / hidden |
+| `venue.pendingNote` | Shown under "TBA" while there's no venue name ("Location being finalized") | Nothing extra |
 | `cost`, `eligibility` | "Cost" and "Who" in the About facts | "TBA" |
-| `beginnerFriendly` | `true` adds "None needed. Beginners welcome." to About | Line left out |
+| `experience` | "Experience" in the About facts ("Anyone, from beginners to advanced") | Line left out |
 | `about` | About paragraphs (one string per paragraph) | Facts box only |
 | `sponsorPitch` | Bullet points in the "Why sponsor" box. No made-up numbers. | Box shows just the button |
 | `marquee` | Words in the big sliding bands. Decorative only, so keep facts out of them. | Bands hidden |
@@ -56,8 +58,8 @@ If something isn't confirmed, set it to `null` (or leave a list empty). The site
 | `prizes` | The Prizes list: `{ place: "First place", prize: "$500" }`; `prize: null` → "TBA" | "Prizes will be announced soon" |
 | `schedule` | Timeline items, in the order listed | "Posted soon" |
 | `sponsors` | Logos grouped by tier | "Want your logo here first?" |
-| `team` | Organizer photo tiles (`photo: null` → logo tile) | "Meet the organizers soon" |
-| `judges` | Judge photo tiles, same format as `team`. Only add confirmed judges. | "Judges announced soon" |
+| `team` | The organizers in tiers: `director` on top, then each division's `lead` (point person), then its `members` | Director only |
+| `judges` | Judges as `{ name, role }`. Only add confirmed judges. | "Judges announced soon" |
 | `faq` | Questions and answers | "Coming soon" |
 
 ### The three switches
@@ -104,15 +106,12 @@ aerohacks-website/
 │   │   ├── Countdown         ← live timer in the hero
 │   │   ├── Logo, Star        ← the dragon mark and the little ✦ star, drawn as SVG
 │   │   ├── SkyField          ← the scroll-linked constellation background
-│   │   ├── PeopleGrid        ← the photo-tile grid shared by Team and Judges
-│   │   ├── Astronaut, Satellite   ← the two background flyers (drawings + small animations)
 │   │   ├── SpaceScene        ← twinkling stars
 │   │   └── Marquee           ← the big, endlessly sliding word bands
 │   ├── lib/
 │   │   ├── sections.ts       ← nav links + section order (keeps nav and page in sync)
 │   │   ├── cta.ts            ← decides what the Register / Become a sponsor buttons say and where they go
 │   │   └── format.ts         ← date formatting and the "TBA" fallback
-│   ├── scripts/flights.ts    ← random trips for the astronaut and satellite
 │   ├── layouts/Base.astro    ← the <html>/<head> shell: SEO + link-preview tags, skip link, site-wide scripts
 │   ├── pages/index.astro     ← the single page: stacks the sections in order
 │   └── styles/global.css     ← brand colors + fonts (@theme), glow and animation styles
@@ -120,9 +119,7 @@ aerohacks-website/
 │   ├── favicon.svg, apple-touch-icon.png   ← browser tab icon / iPhone home-screen icon
 │   ├── og.png                ← 1200×630 link-preview image (iMessage, Instagram, Discord…)
 │   ├── robots.txt            ← lets search engines index the site
-│   ├── sponsors/             ← sponsor logo files
-│   ├── team/                 ← organizer photos
-│   └── judges/               ← judge photos
+│   └── sponsors/             ← sponsor logo files
 ├── astro.config.mjs          ← Astro + Tailwind settings, and the site URL
 ├── netlify.toml              ← Netlify build settings
 ├── package.json              ← dependencies and the npm commands above (JSON can't hold comments)
@@ -139,9 +136,8 @@ aerohacks-website/
 - **Motion** (kept deliberately light so phones stay smooth):
   - The constellation background (`SkyField.astro`) moves **only when you scroll**, by a set amount (near stars more than far ones), and shifts color down the page. It doesn't react to taps or the mouse, and costs nothing when you're not scrolling. Change `PARALLAX` in that file for a stronger or weaker effect.
   - The marquee bands (`Marquee.astro`) slide continuously and never stop. To change the speed, edit `70s` in that file (higher = slower).
-  - Two flyers cross the background on random trips (`src/scripts/flights.ts`): the jetpack astronaut (`Astronaut.astro`), out most of the time, and a small satellite (`Satellite.astro`) now and then. Tune speeds and pauses in the `CONFIG` block at the top of that file.
   - `SpaceScene.astro` adds slowly twinkling stars. Sections fade in as you reach them.
-  - **"Reduce motion"** (iPhone: Settings → Accessibility → Motion; also on Android, macOS, Windows): the bands still drift, about 3x slower; the flyers park in place and the background doesn't move with scrolling. If the site looks frozen on someone's phone, this setting is the reason.
+  - **"Reduce motion"** (iPhone: Settings → Accessibility → Motion; also on Android, macOS, Windows): the bands still drift, about 3x slower; the stars stop twinkling and the background doesn't move with scrolling. If the site looks frozen on someone's phone, this setting is the reason.
 - **Browser support:** current Safari (Mac + iPhone), Chrome, Edge, Firefox, and Samsung Internet. The floor is set by Tailwind CSS 4: Safari/iOS 16.4+, Chrome/Edge 111+, Firefox 128+. Older browsers still show all the content, just with simpler styling.
 - **Link previews:** `public/og.png` is what shows when someone pastes our link into a chat. Replace it with any 1200×630 PNG of the same name.
 
@@ -168,13 +164,13 @@ aerohacks-website/
 
 **Team member**
 
-1. Optional: put a square photo (about 400×400) in `public/team/`, e.g. `public/team/jane.jpg`.
-2. Add to `team`: `{ name: "Jane Doe", role: "Logistics", photo: "/team/jane.jpg" }`. Use `photo: null` and the site shows their initials instead.
+1. Find their division under `team.divisions` in `event.ts` and add their name to its `members` list, e.g. `members: ["Calvin", "Kruthik", "Nikita", "Jane"]`.
+2. A new point person goes in that division's `lead`. A whole new division is another `{ name, lead, members }` entry.
+   Names show exactly as typed, so double-check spelling with each person.
 
 **Judge**
 
-1. Optional: put a square photo (about 400×400) in `public/judges/`, e.g. `public/judges/dr-lee.jpg`.
-2. Add to `judges`: `{ name: "Dr. Lee", role: "Software Engineer, Acme", photo: "/judges/dr-lee.jpg" }` (or `photo: null`).
+1. Add to `judges`: `{ name: "Dr. Lee", role: "Software Engineer, Acme" }`.
 
 **Prize**
 

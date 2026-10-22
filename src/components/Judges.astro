@@ -1,12 +1,33 @@
 ---
-// Judges.astro — the judges, from `judges` in event.ts, shown with the same PeopleGrid as the team.
+// Judges.astro — the judges, from `judges` in event.ts: name and role, no photos (matching the team section).
 //
 // Empty until judges confirm; until then it shows a "Judges announced soon" card.
 import { event } from "../content/event";
 import Section from "./Section.astro";
-import PeopleGrid from "./PeopleGrid.astro";
 ---
 
 <Section id="judges" title="Judges" lead="The people deciding which projects take home the prizes." accent="sky">
-  <PeopleGrid people={event.judges} emptyText="Judges announced soon." />
+  {
+    event.judges.length === 0 ? (
+      <div class="chamfer-frame">
+        <div class="chamfer bg-card px-8 py-10">
+          <span aria-hidden="true" class="octagon block size-3.5 bg-sky" />
+          <p class="mt-5 font-display text-2xl font-bold text-sky">Judges announced soon</p>
+          <p class="mt-3 text-muted">We'll introduce them here once they're confirmed.</p>
+        </div>
+      </div>
+    ) : (
+      // 1 column on phones, 2 from 640px up.
+      <ul class="grid gap-4 sm:grid-cols-2">
+        {event.judges.map((j) => (
+          <li class="chamfer-frame" style="--cut: 18px">
+            <div class="chamfer h-full bg-card px-6 py-6" style="--cut: 18px">
+              <p class="font-display text-xl font-bold">{j.name}</p>
+              <p class="mt-1 text-muted">{j.role}</p>
+            </div>
+          </li>
+        ))}
+      </ul>
+    )
+  }
 </Section>

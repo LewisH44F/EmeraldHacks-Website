@@ -8,8 +8,12 @@ import { event } from "../content/event";
 import { formatDay, parseDate } from "../lib/format";
 import Section from "./Section.astro";
 
-// "Date TBA" reads better than a lone "TBA" sitting above the timeline.
-const day = parseDate(event.date.start) ? formatDay(event.date.start) : "Date TBA";
+// The exact date if set; otherwise the rough timeframe (e.g. "March 2027 · exact date TBA"), or "Date TBA".
+const day = parseDate(event.date.start)
+  ? formatDay(event.date.start)
+  : event.date.approx
+    ? `${event.date.approx} · exact date TBA`
+    : "Date TBA";
 
 // Full class names written out (Tailwind only generates classes it can find spelled out in the code).
 const accents = [

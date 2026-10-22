@@ -46,20 +46,26 @@ export interface Prize {
   prize: string | null; // e.g. "$500" or "AirPods"; null => "TBA"
 }
 
-export interface TeamMember {
+export interface Person {
   name: string;
   role: string;
-  photo: string | null; // path inside /public, e.g. "/team/jane.jpg"; null => logo placeholder tile
+}
+
+// One organizing division: its name, its point person (lead), and everyone else on it.
+export interface Division {
+  name: string;
+  lead: string;
+  members: string[];
 }
 
 export interface EventConfig {
   name: string;
   tagline: string;
-  date: { start: string | null; end: string | null };
-  venue: { name: string | null; address: string | null; mapUrl: string | null };
+  date: { start: string | null; end: string | null; approx: string | null; pendingNote: string | null };
+  venue: { name: string | null; address: string | null; mapUrl: string | null; pendingNote: string | null };
   cost: string | null;
   eligibility: string | null;
-  beginnerFriendly: boolean;
+  experience: string | null;
   about: string[];
   sponsorPitch: string[];
   marquee: string[];
@@ -79,8 +85,8 @@ export interface EventConfig {
   schedule: ScheduleItem[];
   sponsors: Sponsor[];
   faq: FaqItem[];
-  team: TeamMember[];
-  judges: TeamMember[];
+  team: { director: Person; divisions: Division[] };
+  judges: Person[];
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -100,6 +106,10 @@ export const event: EventConfig = {
   date: {
     start: null,
     end: null,
+    // While start is null: a rough timeframe to show instead of a bare "TBA" (e.g. "March 2027"), and a short
+    // note under it. Set both to null to show just "TBA". Once start is set, these are ignored.
+    approx: "March 2027",
+    pendingNote: "Exact date being finalized",
   },
 
   // Where it happens. Each field is independent: you can confirm the venue name before the address.
@@ -108,6 +118,8 @@ export const event: EventConfig = {
     name: null,
     address: null,
     mapUrl: null,
+    // Shown under "TBA" while the venue name is null. null => nothing extra is shown.
+    pendingNote: "Location being finalized",
   },
 
   // What attendees pay, as a short phrase, e.g. "Free". null => "TBA".
@@ -117,9 +129,8 @@ export const event: EventConfig = {
   // Who can attend, e.g. "High school students (grades 9–12)". null => "TBA".
   eligibility: null,
 
-  // true => the About section says "No experience needed". Only set true if we really will support beginners
-  // (workshops, mentors). false => the line is simply left out.
-  beginnerFriendly: true,
+  // Who the event is for, skill-wise, shown as "Experience" in the About facts. null => the line is left out.
+  experience: "Anyone, from beginners to advanced",
 
   // Paragraphs for the About section, written for beginners AND parents. Each string is one paragraph.
   // I keep this copy here (not in the component) so the team can reword it without touching code.
@@ -149,7 +160,7 @@ export const event: EventConfig = {
     // Full Instagram URL, e.g. "https://instagram.com/aerohacks". "" => hidden.
     instagram: "",
     // Public contact email (just the address, no "mailto:"). Used for sponsor inquiries and general questions.
-    email: "",
+    email: "aerohacks9468@gmail.com",
     // Link to the code of conduct (a Google Doc or a page). "" => hidden.
     codeOfConduct: "",
   },
@@ -204,30 +215,37 @@ export const event: EventConfig = {
   sponsors: [],
 
   // Questions and answers. Answers are plain text.
-  // DRAFT WARNING: several answers below (team size, meals, mentors, laptop loans, waiver) are my best guess at
+  // DRAFT WARNING: several answers below (team size, meals, laptop loans, waiver) are my best guess at
   // what we'll offer, not confirmed decisions. Confirm or rewrite each one before we publicly launch.
   faq: [
+    { q: "When and where is it?", a: "March 2027 in Dublin, CA. The exact date and location are being finalized, and we'll post them here as soon as they're confirmed." },
     { q: "How much does it cost?", a: "Cost TBA. We'll confirm before registration opens." },
     { q: "Who can attend?", a: "High school students. Exact eligibility TBA." },
+    { q: "Do I need coding experience?", a: "No. Aerohacks is for everyone, from complete beginners to advanced programmers." },
     { q: "Is there an age requirement?", a: "Attendees must be in high school. Anyone under 18 needs a signed parent/guardian permission form." },
-    { q: "Do I need coding experience?", a: "No. We'll run beginner workshops and have mentors around all day to help you get unstuck." },
     { q: "How big can teams be?", a: "Teams of up to 4. You can also come solo and find a team at the event." },
     { q: "What should I bring?", a: "A laptop, charger, student ID, a water bottle, and anything you need to be comfortable for 12 hours." },
     { q: "Will there be food?", a: "Yes, meals are provided. You can tell us about allergies and dietary restrictions when you register." },
     { q: "Is it overnight?", a: "No. Aerohacks is 12 hours during one day. Everyone goes home the same evening." },
     { q: "What if I don't have a laptop?", a: "Let us know when you register and we'll try to arrange one." },
     { q: "Do my parents need to sign anything?", a: "Yes. Anyone under 18 needs a parent/guardian permission and liability waiver. We'll send it after you register." },
-    { q: "Where do I park / how do I get there?", a: "Venue and parking details TBA." },
+    { q: "Where do I park / how do I get there?", a: "Parking and directions will be posted once the location is finalized." },
+    { q: "How can my company or organization sponsor Aerohacks?", a: "We'd love to hear from you! Email us at aerohacks9468@gmail.com and we'll send over sponsorship details." },
   ],
 
-  // Organizers. photo: null => a circle with their initials. Photos go in /public/team/ (square, ~400×400).
-  team: [
-    { name: "Organizer Name", role: "Lead Organizer", photo: null },
-    { name: "Organizer Name", role: "Sponsorships", photo: null },
-    { name: "Organizer Name", role: "Logistics", photo: null },
-  ],
 
-  // Judges: same format as the team. Photos go in /public/judges/ (square, ~400×400); photo: null => logo tile.
+  // The organizing team, shown in tiers: the director on top, then each division's point person, then everyone
+  // else grouped by division. Names only, no photos. Spell names exactly as each person wants them shown.
+  team: {
+    director: { name: "Raghav Garg", role: "Director" },
+    divisions: [
+      { name: "Sponsorships and Outreach", lead: "Kashvi", members: ["Calvin", "Kruthik", "Nikita"] },
+      { name: "Marketing and Media", lead: "Charumathi", members: ["Aarya", "Gurucharan", "Vansh"] },
+      { name: "Logistics and Program Direction", lead: "Nasser", members: ["Rishi", "Nihtahli", "Shivish", "Zayan"] },
+    ],
+  },
+
+  // Judges: name and role, e.g. { name: "Dr. Lee", role: "Software Engineer, Acme" }.
   // Empty list => a "Judges announced soon" card. Only add people who have actually confirmed.
   judges: [],
 };
