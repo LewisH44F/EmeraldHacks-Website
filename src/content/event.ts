@@ -238,15 +238,12 @@ export const event: EventConfig = {
 
   // Questions and answers. Answers are plain text. Only questions the rest of the page DOESN'T already answer
   // (date, location, cost, who can attend, experience, length, and sponsoring are all covered elsewhere).
-  // DRAFT WARNING: several answers below (team size, meals, laptop loans, waiver) are my best guess at
-  // what we'll offer, not confirmed decisions. Confirm or rewrite each one before we publicly launch.
   faq: [
-    { q: "Is there an age requirement?", a: "Attendees must be in high school. Anyone under 18 needs a signed parent/guardian permission form." },
-    { q: "How big can teams be?", a: "Teams of up to 4. You can also come solo and find a team at the event." },
+    { q: "Is there an age requirement?", a: "Attendees must be in high school." },
+    { q: "How big can teams be?", a: "Up to 4 people per team." },
     { q: "What should I bring?", a: "A laptop, charger, student ID, a water bottle, and anything you need to be comfortable for 12 hours." },
-    { q: "Will there be food?", a: "Yes, meals are provided. You can tell us about allergies and dietary restrictions when you register." },
-    { q: "What if I don't have a laptop?", a: "Let us know when you register and we'll try to arrange one." },
-    { q: "Do my parents need to sign anything?", a: "Yes. Anyone under 18 needs a parent/guardian permission and liability waiver. We'll send it after you register." },
+    { q: "Will there be food?", a: "Yes. We provide lunch and dinner, plus a light breakfast (things like donuts, coffee, and juice)." },
+    { q: "Do my parents need to sign anything?", a: "Yes. There's a contract that has to be signed before the event." },
     { q: "Where do I park / how do I get there?", a: "Parking and directions will be posted once the location is finalized." },
   ],
 
@@ -256,9 +253,9 @@ export const event: EventConfig = {
   team: {
     director: { name: "Raghav Garg", role: "Director" },
     divisions: [
-      { name: "Sponsorships and Outreach", lead: "Kashvi", members: ["Calvin Kwok", "Kruthik Madhamsetty", "Nikita Prabhu"] },
-      { name: "Marketing and Media", lead: "Charumathi", members: ["Aarya Chawathe", "Gurucharan Vidhyashankar", "Vansh Komarraju"] },
-      { name: "Logistics and Program Direction", lead: "Nasser", members: ["Rishi Agraharam", "Nihtahli Anand", "Shivish Aneja", "Zayan Ahmer"] },
+      { name: "Sponsorships and Outreach", lead: "Kashvi Gupta", members: ["Calvin Kwok", "Kruthik Madhamsetty", "Nikita Prabhu"] },
+      { name: "Marketing and Media", lead: "Charumathi Vijaybhaskar", members: ["Aarya Chawathe", "Gurucharan Vidhyashankar", "Vansh Komarraju"] },
+      { name: "Logistics and Program Direction", lead: "Nasser Alsindi", members: ["Rishi Agraharam", "Nihtahli Anand", "Shivish Aneja", "Zayan Ahmer"] },
     ],
   },
 
