@@ -44,6 +44,13 @@
   /* When the browser scrolls something into view (a jump link, or the next link while tabbing with the
      keyboard), keep it 5rem below the top so the 4rem sticky nav doesn't cover it. */
   scroll-padding-top: 5rem;
+  /* Stop the "rubber band" bounce when you scroll past the top or bottom of the page (iPhone/iPad Safari 16+,
+     Chrome, Edge, Firefox), so the footer stays pinned to the bottom of the screen and the page never pulls
+     away from the nav. Tradeoff: this also turns off Chrome-on-Android's pull-down-to-refresh. */
+  overscroll-behavior-y: none;
+  /* Older browsers that still bounce show this color in the gap, which matches the footer, so it looks like
+     the footer just continues instead of a strip of different color. */
+  background-color: var(--color-ink);
 }
 
 body {
