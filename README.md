@@ -48,10 +48,10 @@ If something isn't confirmed, set it to `null` (or leave a list empty). The site
 | `venue.pendingNote` | Shown under "TBA" while there's no venue name ("Location being finalized") | Nothing extra |
 | `cost`, `eligibility` | "Cost" and "Who" in the About facts ("Free"; "Anyone, from beginners to advanced, …") | "TBA" |
 | `about` | About paragraphs (one string per paragraph) | Facts box only |
-| `sponsorPitch` | Bullet points in the "Why sponsor" box. No made-up numbers. | Box shows just the button |
 | `marquee` | Words in the big sliding bands. Decorative only, so keep facts out of them. | Bands hidden |
 | `links.register` | Where every Register / Join interest list button (the orange one) goes | Orange "Sign-ups soon" label (not clickable) |
-| `links.email` | Footer, FAQ, and the "Interested in making this possible? Email …" line for sponsors (there's no sponsor button) | Hidden |
+| `links.email` | Footer, FAQ, and the "Help us make this event possible! … email us at …" line under Sponsors (there's no sponsor button) | Hidden |
+| `links.prospectus` | Sponsorship prospectus link (PDF or Drive). Adds "Check out our prospectus" to the sponsor line | Line mentions email only |
 | `links.instagram`, `.linkedin` | Icons in the floating dock on the landing screen + footer links | Hidden |
 | `links.codeOfConduct` | Footer link | Hidden |
 | `links.discord` | The Discord invite: a "Join our Discord" button in the hero, an icon in the floating dock, and links in the FAQ and footer | All hidden |

@@ -73,7 +73,6 @@ export interface EventConfig {
   cost: string | null;
   eligibility: string | null;
   about: string[];
-  sponsorPitch: string[];
   sponsorPackages: SponsorPackage[];
   marquee: string[];
   links: {
@@ -83,6 +82,7 @@ export interface EventConfig {
     codeOfConduct: string;
     discord: string;
     linkedin: string;
+    prospectus: string;
   };
   registrationOpen: boolean;
   showFiscalSponsor: boolean;
@@ -145,13 +145,6 @@ export const event: EventConfig = {
     // TODO: once confirmed, add a sentence about adult supervision / chaperones. Parents look for this first.
   ],
 
-  // Bullet points in the "Why sponsor" box. Keep these honest: don't add attendee numbers until we have real ones.
-  sponsorPitch: [
-    "Put your brand in front of motivated students in Dublin.",
-    "Support Dublin's first student-run 12-hour hackathon and help beginners write their first lines of code.",
-    "Logo placement on this site and at the event, by tier.",
-  ],
-
   // Sponsorship packages, lowest to highest. amount: null => "TBA".
   // DRAFT: these perks are a starting point, not promises yet. Confirm what we can actually deliver (and the
   // prices) before sending this page to sponsors.
@@ -181,6 +174,9 @@ export const event: EventConfig = {
     discord: "https://discord.gg/bnb2wbS5yH",
     // Full LinkedIn page URL. "" => hidden. When set: an icon in the landing-page dock and a footer link.
     linkedin: "",
+    // Link to the sponsorship prospectus (a PDF in /public or a Google Drive link). "" => the sponsor line
+    // just says "Email us at ...". Once set, it says "Check out our prospectus ... or email us at ...".
+    prospectus: "",
   },
 
   // false => the main button says "Join interest list" (still uses links.register).
