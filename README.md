@@ -55,7 +55,7 @@ If something isn't confirmed, set it to `null` (or leave a list empty). The site
 | `links.instagram`, `.linkedin` | Icons in the floating dock on the landing screen + footer links | Hidden |
 | `links.codeOfConduct` | Footer link | Hidden |
 | `links.discord` | The Discord invite: a "Join our Discord" button in the hero, an icon in the floating dock, and links in the FAQ and footer | All hidden |
-| `tracks` | Track cards (an optional per-track `prize` shows on the card when set) | "Coming soon" card |
+| `tracks` | Track cards (an optional per-track `prize` shows on the card when set) | "Revealed on event day" card |
 | `prizes` | The Prizes list: `{ place: "First place", prize: "$500" }`; `prize: null` → "TBA" | "Prizes will be announced soon" |
 | `schedule` | Timeline items, in the order listed | "Posted soon" |
 | `sponsorPackages` | The Bronze / Silver / Gold / Platinum tier cards: `amount` (e.g. `"$250"`) and `perks` | `amount: null` → "TBA" |

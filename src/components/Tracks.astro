@@ -3,7 +3,7 @@
 //
 // Reads `tracks` from event.ts. Each card gets an accent color (green → orange → blue, repeating) for its dot and
 // title. If a track has its own prize set, it's shown on the card; overall prizes live in the Prizes section.
-// If the list is empty, a "Coming soon" card shows instead.
+// If the list is empty, a "Revealed on event day" card shows instead.
 import { event } from "../content/event";
 import Section from "./Section.astro";
 
@@ -21,8 +21,8 @@ const accents = [
       <div class="chamfer-frame">
         <div class="chamfer bg-card px-8 py-12">
           <span aria-hidden="true" class="octagon block size-3.5 bg-aero" />
-          <p class="mt-5 font-display text-2xl font-bold text-aero sm:text-3xl">Coming soon</p>
-          <p class="mt-3 text-muted">Tracks are being finalized. Check back soon.</p>
+          <p class="mt-5 font-display text-2xl font-bold text-aero sm:text-3xl">Revealed on event day</p>
+          <p class="mt-3 text-muted">Tracks will be released on the day of the event.</p>
         </div>
       </div>
     ) : (

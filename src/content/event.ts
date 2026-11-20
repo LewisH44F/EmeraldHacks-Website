@@ -206,11 +206,10 @@ export const event: EventConfig = {
   // The 12-hour timeline, in order. These are DRAFT times — see scheduleConfirmed above.
   schedule: [
     { time: "8:00 AM", title: "Check-in", description: "Grab your badge and a light breakfast, find a seat, meet your team." },
-    { time: "9:00 AM", title: "Opening ceremony", description: "Rules, tracks, and sponsor intros." },
+    { time: "9:00 AM", title: "Opening ceremony", description: "Rules, the tracks reveal, and sponsor intros." },
     { time: "9:30 AM", title: "Hacking begins", description: "The clock starts. Start building." },
     { time: "10:30 AM", title: "Beginner workshop", description: "Build your first web app from scratch." },
     { time: "12:30 PM", title: "Lunch", description: "Provided." },
-    { time: "2:00 PM", title: "Workshop", description: "Topic TBA." },
     { time: "5:30 PM", title: "Dinner", description: "Provided." },
     { time: "7:30 PM", title: "Submissions due", description: "Hands off keyboards. Submit your project." },
     { time: "7:45 PM", title: "Judging", description: "Demo your project to the judges." },
