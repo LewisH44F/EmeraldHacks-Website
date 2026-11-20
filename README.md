@@ -2,7 +2,7 @@
 
 ## What this is
 
-Emerald Hacks is a free, 12-hour hackathon in Dublin, CA for students from elementary school through high school, run by the Computer Science Honor Society (CSHS) at Emerald High. (It was called Aerohacks until that name turned out to be taken.) This repo is the event website: a single page that explains the event to students, parents, and sponsors, and sends them to our registration form. It's a static site: no backend, no database, and no student data stored by us. Sign-ups go through an outside form (Google Forms, Tally, etc.) because our attendees are minors and I don't want us holding their personal data on something we built ourselves.
+Emerald Hacks is a free, 12-hour hackathon in Dublin, CA for middle and high school students, run by the Computer Science Honor Society (CSHS) at Emerald High. (It was called Aerohacks until that name turned out to be taken.) This repo is the event website: a single page that explains the event to students, parents, and sponsors, and sends them to our registration form. It's a static site: no backend, no database, and no student data stored by us. Sign-ups go through an outside form (Google Forms, Tally, etc.) because our attendees are minors and I don't want us holding their personal data on something we built ourselves.
 
 ## Live site
 

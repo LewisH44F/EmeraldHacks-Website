@@ -116,7 +116,7 @@ export const event: EventConfig = {
     end: null,
     // While start is null: a rough timeframe to show instead of a bare "TBA" (e.g. "March 2027"), and a short
     // note under it. Set both to null to show just "TBA". Once start is set, these are ignored.
-    approx: "March 20, 2027",
+    approx: "March 2027",
     pendingNote: "Exact date being finalized",
   },
 
@@ -135,7 +135,7 @@ export const event: EventConfig = {
   cost: "Free",
 
   // Who can attend, shown as "Who" in the About facts. null => "TBA".
-  eligibility: "Anyone, from beginners to advanced, elementary schoolers to high schoolers",
+  eligibility: "Anyone, from beginners to advanced, middle schoolers to high schoolers",
 
   // Paragraphs for the About section, written for beginners AND parents. Each string is one paragraph.
   // I keep this copy here (not in the component) so the team can reword it without touching code.
