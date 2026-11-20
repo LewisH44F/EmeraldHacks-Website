@@ -2,11 +2,11 @@
 
 ## What this is
 
-Emerald Hacks is a free, 12-hour hackathon in Dublin, CA for students from elementary school through high school, run by the Computer Science Honor Society (CSHS) at Emerald High. (It was called Aerohacks until the name turned out to be taken; the repo and Netlify site names still say aerohacks.) This repo is the event website: a single page that explains the event to students, parents, and sponsors, and sends them to our registration form. It's a static site: no backend, no database, and no student data stored by us. Sign-ups go through an outside form (Google Forms, Tally, etc.) because our attendees are minors and I don't want us holding their personal data on something we built ourselves.
+Emerald Hacks is a free, 12-hour hackathon in Dublin, CA for students from elementary school through high school, run by the Computer Science Honor Society (CSHS) at Emerald High. (It was called Aerohacks until that name turned out to be taken.) This repo is the event website: a single page that explains the event to students, parents, and sponsors, and sends them to our registration form. It's a static site: no backend, no database, and no student data stored by us. Sign-ups go through an outside form (Google Forms, Tally, etc.) because our attendees are minors and I don't want us holding their personal data on something we built ourselves.
 
 ## Live site
 
-**https://aerohacks.netlify.app**
+**https://emeraldcanhack.netlify.app**
 
 ## Tech stack
 
@@ -97,7 +97,7 @@ Save, run `npm run check`, commit, push. The live site updates in about a minute
 ## Project structure
 
 ```
-aerohacks-website/
+EmeraldHacks-Website/
 ├── src/
 │   ├── content/event.ts      ← ALL event info. The only file most people ever edit.
 │   ├── components/           ← reusable pieces of the page:
@@ -149,7 +149,7 @@ aerohacks-website/
 ## Deploying
 
 - Every push to `main` triggers a Netlify build and goes live automatically, usually in about a minute.
-- To check a deploy: Netlify dashboard → the **aerohacks** site (the site name hasn't been renamed) → **Deploys**. A failed deploy leaves the previous version live, so a broken push never takes the site down. Open the failed deploy to read the build log.
+- To check a deploy: Netlify dashboard → the **emeraldcanhack** site → **Deploys**. A failed deploy leaves the previous version live, so a broken push never takes the site down. Open the failed deploy to read the build log.
 - **Deploy previews:** every pull request gets its own preview URL (Netlify posts it on the PR). Click through it before merging.
 
 ## Adding a sponsor / FAQ / team member
