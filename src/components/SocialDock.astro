@@ -1,6 +1,8 @@
 ---
 // SocialDock.astro — the small column of Discord / Instagram / LinkedIn icons pinned to the bottom-right
-// corner of the screen. It stays there the whole time you scroll, so the links are always one tap away.
+// corner of the screen. On tablets and computers it stays there the whole time you scroll. On phones (under
+// 640px wide) it only shows on the first screen and fades out once you scroll past the hero, because there
+// it would sit on top of the content; it comes back when you scroll up again.
 // Each icon only appears once its link is set in `links` in event.ts, so there are never dead icons.
 // Icon shapes are from Bootstrap Icons (MIT license, icons.getbootstrap.com), copied in so nothing loads from
 // another site.
@@ -16,8 +18,9 @@ const icons = [
 {
   icons.length > 0 && (
     <aside
+      id="social-dock"
       aria-label="Social links"
-      class="fixed right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 flex flex-col gap-3 sm:right-6 sm:bottom-6"
+      class="fixed right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 flex flex-col gap-3 transition-[opacity,translate] duration-300 max-sm:data-hidden:pointer-events-none max-sm:data-hidden:translate-y-3 max-sm:data-hidden:opacity-0 sm:right-6 sm:bottom-6"
     >
       {icons.map((i) => (
         <a
@@ -36,3 +39,30 @@ const icons = [
   )
 }
 
+<script>
+  // Phones only: hide the dock once the hero (first screen) scrolls away. The observer's root is shrunk to the
+  // bottom 65% of the viewport (-35% off the top), so "hero visible" means its bottom edge is still below the
+  // top third of the screen. The fade itself is CSS (max-sm:data-hidden:… in the classes above), so on wider
+  // screens the data-hidden attribute does nothing and the dock always shows.
+  const dock = document.getElementById("social-dock");
+  const hero = document.getElementById("hero");
+  if (dock && hero) {
+    const phone = window.matchMedia("(max-width: 639.98px)");
+    let heroVisible = true;
+    const update = () => {
+      const hidden = phone.matches && !heroVisible;
+      dock.toggleAttribute("data-hidden", hidden);
+      // inert: hidden icons can't be tabbed to or read out by screen readers.
+      dock.inert = hidden;
+    };
+    new IntersectionObserver(
+      ([entry]) => {
+        heroVisible = entry!.isIntersecting;
+        update();
+      },
+      { rootMargin: "-35% 0px 0px 0px" },
+    ).observe(hero);
+    // Re-check if the window is resized across the phone breakpoint (or a tablet is rotated).
+    phone.addEventListener("change", update);
+  }
+</script>
