@@ -5,12 +5,9 @@
 // (Bronze → Platinum) shows what each sponsorship level includes. With no sponsors yet, it shows a
 // "be our first sponsor" message instead of an empty grid — an empty grid looks like nobody believes in the event.
 import { event, type SponsorTier } from "../content/event";
-import { sponsorCta } from "../lib/cta";
 import Section from "./Section.astro";
-import CtaButton from "./CtaButton.astro";
 import Star from "./Star.astro";
 
-const cta = sponsorCta();
 
 // Each tier's name and color, used by both the logo groups and the packages table. Colors are metal-like:
 // platinum = icy blue-white, gold = yellow, silver = light gray, bronze = copper orange.
@@ -114,20 +111,17 @@ const groups = tiers
         </ul>
       )
     }
-    <div class="mt-6 flex flex-wrap items-center gap-4">
-      <CtaButton href={cta.href} label={cta.label} external={cta.external} size="lg" />
-      {
-        /* The email is always written out too, so sponsors can copy it or reach a person directly. */
-        event.links.email && (
-          <p class="text-fg/90">
-            Interested? Email{" "}
-            <a href={`mailto:${event.links.email}`} class="text-sky underline underline-offset-4">
-              {event.links.email}
-            </a>
-          </p>
-        )
-      }
-    </div>
+    {
+      /* No sponsor button: sponsors reach a person directly by email. The address is written out so it can be copied. */
+      event.links.email && (
+        <p class="mt-6 text-lg text-fg/90">
+          Interested in making this possible? Email{" "}
+          <a href={`mailto:${event.links.email}?subject=${encodeURIComponent(`Sponsoring ${event.name}`)}`} class="[overflow-wrap:anywhere] text-sky underline underline-offset-4">
+            {event.links.email}
+          </a>
+        </p>
+      )
+    }
   </div>
   </div>
 </Section>

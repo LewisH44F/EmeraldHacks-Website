@@ -22,16 +22,3 @@ export function registerCta(): Cta {
   return { label: href ? label : "Sign-ups soon", href };
 }
 
-// The "Become a sponsor" button. I prefer the sponsor form (structured info, nothing gets lost in an inbox),
-// fall back to email, and only show "coming soon" if we have neither.
-export function sponsorCta(): Cta & { external: boolean } {
-  const form = event.links.sponsorForm.trim();
-  if (form) return { label: "Become a sponsor", href: form, external: true };
-  const email = event.links.email.trim();
-  if (email) {
-    // Pre-filling the subject line makes our inbox easier to sort and saves the sponsor a step.
-    const subject = encodeURIComponent(`Sponsoring ${event.name}`);
-    return { label: "Become a sponsor", href: `mailto:${email}?subject=${subject}`, external: false };
-  }
-  return { label: "Sponsor info coming soon", href: null, external: false };
-}

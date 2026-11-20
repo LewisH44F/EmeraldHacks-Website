@@ -4,14 +4,13 @@
 // Everything here comes from event.ts. Unconfirmed date/venue show "TBA". The countdown is only rendered
 // when a start date exists (see Countdown.astro). The big dragon logo draws itself on load.
 import { event } from "../content/event";
-import { registerCta, sponsorCta } from "../lib/cta";
+import { registerCta } from "../lib/cta";
 import { formatDay, formatTimeRange, parseDate, TBA } from "../lib/format";
 import CtaButton from "./CtaButton.astro";
 import Countdown from "./Countdown.astro";
 import Logo from "./Logo.astro";
 
 const cta = registerCta();
-const sponsor = sponsorCta();
 const hasDate = parseDate(event.date.start) !== null;
 // With an exact date: "Saturday, March 13, 2027" plus the time. Without one: the rough timeframe from the
 // config (e.g. "March 2027") with its "being finalized" note, or plain "TBA" if neither is set.
@@ -32,11 +31,11 @@ const { venue } = event;
     -->
     <div class="@container min-w-0">
       <!-- A small label above the title tells first-time visitors what this is before they read anything else. -->
-      <p class="text-xs font-semibold tracking-[0.25em] text-aero uppercase">High school hackathon · Dublin, CA</p>
+      <p class="text-xs font-semibold tracking-[0.25em] text-aero uppercase">12-hour hackathon · Dublin, CA</p>
 
       <!--
-        The title size is 15.5cqi = 15.5% of the COLUMN's width (not the screen's). I measured "AEROHACKS" in
-        Inter Black at 6.285× its font size, so 15.5% fills about 98% of the column at every screen size.
+        The title size is 19cqi = 19% of the COLUMN's width (not the screen's). The name wraps onto two lines
+        ("EMERALD" / "HACKS"), and the longest word sets the width.
         clamp() keeps it between 2rem and 6.5rem. If the event name changes length, re-measure and adjust.
         The size lives in the .hero-title class in global.css, which also has a fallback for older browsers.
       -->
@@ -82,8 +81,6 @@ const { venue } = event;
 
       <div class="mt-10 flex flex-wrap gap-3">
         <CtaButton href={cta.href} label={cta.label} size="lg" />
-        <!-- Secondary button for sponsors. It's quieter on purpose so students aren't confused about which one is theirs. -->
-        {sponsor.href && <CtaButton href={sponsor.href} label={sponsor.label} external={sponsor.external} variant="secondary" size="lg" />}
         {/* Appears automatically once links.discord is set in event.ts. */}
         {event.links.discord && <CtaButton href={event.links.discord} label="Join our Discord" variant="secondary" size="lg" />}
       </div>

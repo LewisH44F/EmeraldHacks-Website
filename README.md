@@ -1,8 +1,8 @@
-# Aerohacks
+# Emerald Hacks
 
 ## What this is
 
-Aerohacks is Dublin's first 12-hour high school hackathon, run by the Computer Science Honor Society (CSHS) at Emerald High. This repo is the event website: a single page that explains the event to students, parents, and sponsors, and sends them to our registration and sponsor forms. It's a static site: no backend, no database, and no student data stored by us. Sign-ups go through an outside form (Google Forms, Tally, etc.) because our attendees are minors and I don't want us holding their personal data on something we built ourselves.
+Emerald Hacks is a free, 12-hour hackathon in Dublin, CA for students from elementary school through high school, run by the Computer Science Honor Society (CSHS) at Emerald High. (It was called Aerohacks until the name turned out to be taken; the repo and Netlify site names still say aerohacks.) This repo is the event website: a single page that explains the event to students, parents, and sponsors, and sends them to our registration form. It's a static site: no backend, no database, and no student data stored by us. Sign-ups go through an outside form (Google Forms, Tally, etc.) because our attendees are minors and I don't want us holding their personal data on something we built ourselves.
 
 ## Live site
 
@@ -46,15 +46,15 @@ If something isn't confirmed, set it to `null` (or leave a list empty). The site
 | `date.approx`, `date.pendingNote` | While there's no exact date: a rough timeframe ("March 2027") and a note ("Exact date being finalized") | "TBA", no countdown |
 | `venue.name`, `.address`, `.mapUrl` | "Where" box in the hero; each part can be confirmed separately | "TBA" / hidden |
 | `venue.pendingNote` | Shown under "TBA" while there's no venue name ("Location being finalized") | Nothing extra |
-| `cost`, `eligibility` | "Cost" and "Who" in the About facts | "TBA" |
-| `experience` | "Experience" in the About facts ("Anyone, from beginners to advanced") | Line left out |
+| `cost`, `eligibility` | "Cost" and "Who" in the About facts ("Free"; "Anyone, from beginners to advanced, …") | "TBA" |
 | `about` | About paragraphs (one string per paragraph) | Facts box only |
 | `sponsorPitch` | Bullet points in the "Why sponsor" box. No made-up numbers. | Box shows just the button |
 | `marquee` | Words in the big sliding bands. Decorative only, so keep facts out of them. | Bands hidden |
 | `links.register` | Where every Register / Join interest list button (the orange one) goes | Orange "Sign-ups soon" label (not clickable) |
-| `links.sponsorForm` | Where "Become a sponsor" goes | Falls back to emailing `links.email`; if that's empty too, "Sponsor info coming soon" |
-| `links.email`, `.instagram`, `.codeOfConduct` | Footer, FAQ, sponsor links | Hidden |
-| `links.discord` | Paste the Discord invite here: adds a "Join our Discord" button in the hero, a link in the FAQ, and one in the footer | All three hidden |
+| `links.email` | Footer, FAQ, and the "Interested in making this possible? Email …" line for sponsors (there's no sponsor button) | Hidden |
+| `links.instagram`, `.linkedin` | Icons in the floating dock on the landing screen + footer links | Hidden |
+| `links.codeOfConduct` | Footer link | Hidden |
+| `links.discord` | The Discord invite: a "Join our Discord" button in the hero, an icon in the floating dock, and links in the FAQ and footer | All hidden |
 | `tracks` | Track cards (an optional per-track `prize` shows on the card when set) | "Coming soon" card |
 | `prizes` | The Prizes list: `{ place: "First place", prize: "$500" }`; `prize: null` → "TBA" | "Prizes will be announced soon" |
 | `schedule` | Timeline items, in the order listed | "Posted soon" |
@@ -106,13 +106,14 @@ aerohacks-website/
 │   │   ├── Section           ← shared wrapper: spacing, "01 / ABOUT" label, heading
 │   │   ├── CtaButton         ← the one button style (orange = sign up)
 │   │   ├── Countdown         ← live timer in the hero
+│   │   ├── SocialDock        ← floating Discord / Instagram / LinkedIn icons, shown only on the landing screen
 │   │   ├── Logo, Star        ← the dragon mark and the little ✦ star, drawn as SVG
 │   │   ├── SkyField          ← the scroll-linked constellation background
 │   │   ├── SpaceScene        ← twinkling stars
 │   │   └── Marquee           ← the big, endlessly sliding word bands
 │   ├── lib/
 │   │   ├── sections.ts       ← nav links + section order (keeps nav and page in sync)
-│   │   ├── cta.ts            ← decides what the Register / Become a sponsor buttons say and where they go
+│   │   ├── cta.ts            ← decides what the Register button says and where it goes
 │   │   └── format.ts         ← date formatting and the "TBA" fallback
 │   ├── layouts/Base.astro    ← the <html>/<head> shell: SEO + link-preview tags, skip link, site-wide scripts
 │   ├── pages/index.astro     ← the single page: stacks the sections in order
@@ -139,6 +140,7 @@ aerohacks-website/
 - **Motion** (kept deliberately light so phones stay smooth):
   - The constellation background (`SkyField.astro`) moves **only when you scroll**, by a set amount (near stars more than far ones), and shifts color down the page. Faint real constellations (Big Dipper, Orion, Cassiopeia, Cygnus, Lyra, Leo, Little Dipper, Scorpius) are spread down the page, so different ones drift into view as you scroll. Add or edit shapes in `SHAPES` in that file. It doesn't react to taps or the mouse, and costs nothing when you're not scrolling. Change `PARALLAX` in that file for a stronger or weaker effect.
   - The marquee bands (`Marquee.astro`) slide continuously and never stop. To change the speed, edit `70s` in that file (higher = slower).
+  - The social icon dock (`SocialDock.astro`) sits in the bottom-right corner of the landing screen, fades out once you scroll past it, and comes back when you scroll up. An icon only appears once its link is set.
   - `SpaceScene.astro` adds slowly twinkling stars. Sections fade in as you reach them.
   - **"Reduce motion"** (iPhone: Settings → Accessibility → Motion; also on Android, macOS, Windows): the bands still drift, about 3x slower; the stars stop twinkling and the background doesn't move with scrolling. If the site looks frozen on someone's phone, this setting is the reason.
 - **Browser support:** current Safari (Mac + iPhone), Chrome, Edge, Firefox, and Samsung Internet. The floor is set by Tailwind CSS 4: Safari/iOS 16.4+, Chrome/Edge 111+, Firefox 128+. Older browsers still show all the content, just with simpler styling.
@@ -147,7 +149,7 @@ aerohacks-website/
 ## Deploying
 
 - Every push to `main` triggers a Netlify build and goes live automatically, usually in about a minute.
-- To check a deploy: Netlify dashboard → the **aerohacks** site → **Deploys**. A failed deploy leaves the previous version live, so a broken push never takes the site down. Open the failed deploy to read the build log.
+- To check a deploy: Netlify dashboard → the **aerohacks** site (the site name hasn't been renamed) → **Deploys**. A failed deploy leaves the previous version live, so a broken push never takes the site down. Open the failed deploy to read the build log.
 - **Deploy previews:** every pull request gets its own preview URL (Netlify posts it on the PR). Click through it before merging.
 
 ## Adding a sponsor / FAQ / team member

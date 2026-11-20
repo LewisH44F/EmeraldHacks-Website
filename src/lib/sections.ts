@@ -5,7 +5,7 @@
 // To rename a nav label, change `label` here. Don't change an `id` unless you also want the URL (#about) to change.
 
 export interface NavSection {
-  id: string; // the anchor in the URL, e.g. "about" => aerohacks.netlify.app/#about
+  id: string; // the anchor in the URL, e.g. "about" => our-site.com/#about
   label: string; // the text shown in the nav
 }
 

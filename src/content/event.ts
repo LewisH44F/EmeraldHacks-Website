@@ -72,18 +72,17 @@ export interface EventConfig {
   venue: { name: string | null; address: string | null; mapUrl: string | null; pendingNote: string | null };
   cost: string | null;
   eligibility: string | null;
-  experience: string | null;
   about: string[];
   sponsorPitch: string[];
   sponsorPackages: SponsorPackage[];
   marquee: string[];
   links: {
     register: string;
-    sponsorForm: string;
     instagram: string;
     email: string;
     codeOfConduct: string;
     discord: string;
+    linkedin: string;
   };
   registrationOpen: boolean;
   showFiscalSponsor: boolean;
@@ -104,7 +103,7 @@ export interface EventConfig {
 
 export const event: EventConfig = {
   // Shown in the nav, hero, browser tab, and link previews.
-  name: "Aerohacks",
+  name: "Emerald Hacks",
 
   // One short line under the name in the hero.
   tagline: "12 hours. Build anything.",
@@ -117,7 +116,7 @@ export const event: EventConfig = {
     end: null,
     // While start is null: a rough timeframe to show instead of a bare "TBA" (e.g. "March 2027"), and a short
     // note under it. Set both to null to show just "TBA". Once start is set, these are ignored.
-    approx: "March 2027",
+    approx: "March 20, 2027",
     pendingNote: "Exact date being finalized",
   },
 
@@ -133,26 +132,23 @@ export const event: EventConfig = {
 
   // What attendees pay, as a short phrase, e.g. "Free". null => "TBA".
   // I made this a field instead of hardcoding "free" because parents will treat whatever we show as a promise.
-  cost: null,
+  cost: "Free",
 
-  // Who can attend, e.g. "High school students (grades 9–12)". null => "TBA".
-  eligibility: null,
-
-  // Who the event is for, skill-wise, shown as "Experience" in the About facts. null => the line is left out.
-  experience: "Anyone, from beginners to advanced",
+  // Who can attend, shown as "Who" in the About facts. null => "TBA".
+  eligibility: "Anyone, from beginners to advanced, elementary schoolers to high schoolers",
 
   // Paragraphs for the About section, written for beginners AND parents. Each string is one paragraph.
   // I keep this copy here (not in the component) so the team can reword it without touching code.
   about: [
-    "A hackathon is a day-long event where students team up to build a project from scratch: an app, a website, a game, a robot, anything. Most hackathons also have workshops, mentors, food, and prizes.",
-    "Aerohacks runs for 12 hours in a single day and ends the same evening. It's organized by students in Emerald High's Computer Science Honor Society.",
+    "Emerald Hacks is a day-long event where students team up and build a project from scratch over the course of 12 hours: an app, a website, a game, a robot, anything. It's a chance to learn something new, make friends, and compete for prizes, whether it's your first time coding or your fiftieth.",
+    "It's organized by students in the Computer Science Honor Society at Emerald High School in Dublin, CA, and ends the same evening it starts.",
     // TODO: once confirmed, add a sentence about adult supervision / chaperones. Parents look for this first.
   ],
 
   // Bullet points in the "Why sponsor" box. Keep these honest: don't add attendee numbers until we have real ones.
   sponsorPitch: [
-    "Put your brand in front of motivated high school students in Dublin.",
-    "Support Dublin's first high school hackathon and help beginners write their first lines of code.",
+    "Put your brand in front of motivated students in Dublin.",
+    "Support Dublin's first student-run 12-hour hackathon and help beginners write their first lines of code.",
     "Logo placement on this site and at the event, by tier.",
   ],
 
@@ -174,17 +170,17 @@ export const event: EventConfig = {
     // Registration (or interest-list) form — Google Form, Tally, etc. I link out instead of building a form
     // because attendees are minors and I don't want us storing their data on something we built ourselves.
     register: "",
-    // Form sponsors fill out to express interest. "" => the button falls back to emailing us.
-    sponsorForm: "",
-    // Full Instagram URL, e.g. "https://instagram.com/aerohacks". "" => hidden.
-    instagram: "",
+    // Full Instagram URL. "" => hidden. Shown in the landing-page icon dock and the footer.
+    instagram: "https://www.instagram.com/emerald.hacks/",
     // Public contact email (just the address, no "mailto:"). Used for sponsor inquiries and general questions.
-    email: "aerohacks9468@gmail.com",
+    email: "emeraldhacks9468@gmail.com",
     // Link to the code of conduct (a Google Doc or a page). "" => hidden.
     codeOfConduct: "",
-    // Discord invite link, e.g. "https://discord.gg/abc123". "" => hidden. Once set, a "Join our Discord"
-    // button appears in the hero and the FAQ, and a link in the footer.
-    discord: "",
+    // Discord invite link. "" => hidden. When set: a "Join our Discord" button in the hero, an icon in the
+    // landing-page icon dock, and links in the FAQ and footer.
+    discord: "https://discord.gg/bnb2wbS5yH",
+    // Full LinkedIn page URL. "" => hidden. When set: an icon in the landing-page dock and a footer link.
+    linkedin: "",
   },
 
   // false => the main button says "Join interest list" (still uses links.register).
@@ -213,11 +209,11 @@ export const event: EventConfig = {
 
   // The 12-hour timeline, in order. These are DRAFT times — see scheduleConfirmed above.
   schedule: [
-    { time: "8:00 AM", title: "Check-in", description: "Grab your badge, find a seat, meet your team." },
+    { time: "8:00 AM", title: "Check-in", description: "Grab your badge and a light breakfast, find a seat, meet your team." },
     { time: "9:00 AM", title: "Opening ceremony", description: "Rules, tracks, and sponsor intros." },
     { time: "9:30 AM", title: "Hacking begins", description: "The clock starts. Start building." },
     { time: "10:30 AM", title: "Beginner workshop", description: "Build your first web app from scratch." },
-    { time: "12:30 PM", title: "Lunch", description: "Provided. Tell us about dietary needs when you register." },
+    { time: "12:30 PM", title: "Lunch", description: "Provided." },
     { time: "2:00 PM", title: "Workshop", description: "Topic TBA." },
     { time: "5:30 PM", title: "Dinner", description: "Provided." },
     { time: "7:30 PM", title: "Submissions due", description: "Hands off keyboards. Submit your project." },
@@ -239,11 +235,11 @@ export const event: EventConfig = {
   // Questions and answers. Answers are plain text. Only questions the rest of the page DOESN'T already answer
   // (date, location, cost, who can attend, experience, length, and sponsoring are all covered elsewhere).
   faq: [
-    { q: "Is there an age requirement?", a: "Attendees must be in high school." },
     { q: "How big can teams be?", a: "Up to 4 people per team." },
+    { q: "Need help finding a team?", a: "Check our Discord. There's a channel for finding teammates before the event." },
     { q: "What should I bring?", a: "A laptop, charger, student ID, a water bottle, and anything you need to be comfortable for 12 hours." },
     { q: "Will there be food?", a: "Yes. We provide lunch and dinner, plus a light breakfast (things like donuts, coffee, and juice)." },
-    { q: "Do my parents need to sign anything?", a: "Yes. There's a contract that has to be signed before the event." },
+    { q: "Do my parents need to sign anything?", a: "Yes, there's a waiver, and it's coming soon. Keep an eye on your email, and stay up to date by joining our Discord and following our Instagram." },
     { q: "Where do I park / how do I get there?", a: "Parking and directions will be posted once the location is finalized." },
   ],
 
@@ -253,8 +249,8 @@ export const event: EventConfig = {
   team: {
     director: { name: "Raghav Garg", role: "Director" },
     divisions: [
-      { name: "Sponsorships and Outreach", lead: "Kashvi Gupta", members: ["Calvin Kwok", "Kruthik Madhamsetty", "Nikita Prabhu"] },
-      { name: "Marketing and Media", lead: "Charumathi Vijaybhaskar", members: ["Aarya Chawathe", "Gurucharan Vidhyashankar", "Vansh Komarraju"] },
+      { name: "Sponsorships and Outreach", lead: "Kashvi Gupta", members: ["Calvin Kwok", "Dylan Lam", "Kruthik Madhamsetty", "Nikita Prabhu"] },
+      { name: "Marketing and Media", lead: "Charumathi Vijayabhaskar", members: ["Aarya Chawathe", "Vansh Komarraju"] },
       { name: "Logistics and Program Direction", lead: "Nasser Alsindi", members: ["Rishi Agraharam", "Nihtahli Anand", "Shivish Aneja", "Zayan Ahmer"] },
     ],
   },

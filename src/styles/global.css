@@ -89,11 +89,11 @@ body {
    browsers that pass the @supports check switch to the column-based size. (I use @supports rather than two
    font-size lines in a row because the CSS minifier deletes the "duplicate" first line.) */
 .hero-title {
-  font-size: clamp(2rem, 13vw, 5rem);
+  font-size: clamp(2rem, 16vw, 5.5rem);
 }
 @supports (width: 1cqi) {
   .hero-title {
-    font-size: clamp(2rem, 15.5cqi, 6.5rem);
+    font-size: clamp(2rem, 19cqi, 7rem);
   }
 }
 

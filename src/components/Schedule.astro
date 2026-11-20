@@ -8,11 +8,12 @@ import { event } from "../content/event";
 import { formatDay, parseDate } from "../lib/format";
 import Section from "./Section.astro";
 
-// The exact date if set; otherwise the rough timeframe (e.g. "March 2027 · exact date TBA"), or "Date TBA".
+// The exact date if set; otherwise the planned date plus its note (e.g. "March 20, 2027 · exact date being
+// finalized"), or "Date TBA".
 const day = parseDate(event.date.start)
   ? formatDay(event.date.start)
   : event.date.approx
-    ? `${event.date.approx} · exact date TBA`
+    ? [event.date.approx, event.date.pendingNote?.toLowerCase()].filter(Boolean).join(" · ")
     : "Date TBA";
 
 // Full class names written out (Tailwind only generates classes it can find spelled out in the code).
