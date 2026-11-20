@@ -163,16 +163,16 @@ export const event: EventConfig = {
     // Registration (or interest-list) form — Google Form, Tally, etc. I link out instead of building a form
     // because attendees are minors and I don't want us storing their data on something we built ourselves.
     register: "",
-    // Full Instagram URL. "" => hidden. Shown in the landing-page icon dock and the footer.
+    // Full Instagram URL. "" => hidden. Shown in the bottom-right icon dock and the footer.
     instagram: "https://www.instagram.com/emerald.hacks/",
     // Public contact email (just the address, no "mailto:"). Used for sponsor inquiries and general questions.
     email: "emeraldhacks9468@gmail.com",
     // Link to the code of conduct (a Google Doc or a page). "" => hidden.
     codeOfConduct: "",
     // Discord invite link. "" => hidden. When set: a "Join our Discord" button in the hero, an icon in the
-    // landing-page icon dock, and links in the FAQ and footer.
+    // bottom-right icon dock, and links in the FAQ and footer.
     discord: "https://discord.gg/bnb2wbS5yH",
-    // Full LinkedIn page URL. "" => hidden. When set: an icon in the landing-page dock and a footer link.
+    // Full LinkedIn page URL. "" => hidden. When set: an icon in the bottom-right dock and a footer link.
     linkedin: "",
     // Link to the sponsorship prospectus (a PDF in /public or a Google Drive link). "" => the sponsor line
     // just says "Email us at ...". Once set, it says "Check out our prospectus ... or email us at ...".

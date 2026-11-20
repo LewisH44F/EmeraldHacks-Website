@@ -52,7 +52,7 @@ If something isn't confirmed, set it to `null` (or leave a list empty). The site
 | `links.register` | Where every Register / Join interest list button (the orange one) goes | Orange "Sign-ups soon" label (not clickable) |
 | `links.email` | Footer, FAQ, and the "Help us make this event possible! … email us at …" line under Sponsors (there's no sponsor button) | Hidden |
 | `links.prospectus` | Sponsorship prospectus link (PDF or Drive). Adds "Check out our prospectus" to the sponsor line | Line mentions email only |
-| `links.instagram`, `.linkedin` | Icons in the floating dock on the landing screen + footer links | Hidden |
+| `links.instagram`, `.linkedin` | Icons in the floating bottom-right dock + footer links | Hidden |
 | `links.codeOfConduct` | Footer link | Hidden |
 | `links.discord` | The Discord invite: a "Join our Discord" button in the hero, an icon in the floating dock, and links in the FAQ and footer | All hidden |
 | `tracks` | Track cards (an optional per-track `prize` shows on the card when set) | "Revealed on event day" card |
@@ -106,7 +106,7 @@ EmeraldHacks-Website/
 │   │   ├── Section           ← shared wrapper: spacing, "01 / ABOUT" label, heading
 │   │   ├── CtaButton         ← the one button style (orange = sign up)
 │   │   ├── Countdown         ← live timer in the hero
-│   │   ├── SocialDock        ← floating Discord / Instagram / LinkedIn icons, shown only on the landing screen
+│   │   ├── SocialDock        ← floating Discord / Instagram / LinkedIn icons, always in the bottom-right corner
 │   │   ├── Logo, Star        ← the dragon mark and the little ✦ star, drawn as SVG
 │   │   ├── SkyField          ← the scroll-linked constellation background
 │   │   ├── SpaceScene        ← twinkling stars
@@ -140,7 +140,7 @@ EmeraldHacks-Website/
 - **Motion** (kept deliberately light so phones stay smooth):
   - The constellation background (`SkyField.astro`) moves **only when you scroll**, by a set amount (near stars more than far ones), and shifts color down the page. Faint real constellations (Big Dipper, Orion, Cassiopeia, Cygnus, Lyra, Leo, Little Dipper, Scorpius) are spread down the page, so different ones drift into view as you scroll. Add or edit shapes in `SHAPES` in that file. It doesn't react to taps or the mouse, and costs nothing when you're not scrolling. Change `PARALLAX` in that file for a stronger or weaker effect.
   - The marquee bands (`Marquee.astro`) slide continuously and never stop. To change the speed, edit `70s` in that file (higher = slower).
-  - The social icon dock (`SocialDock.astro`) sits in the bottom-right corner of the landing screen, fades out once you scroll past it, and comes back when you scroll up. An icon only appears once its link is set.
+  - The social icon dock (`SocialDock.astro`) stays pinned to the bottom-right corner of the screen the whole time you scroll. An icon only appears once its link is set.
   - `SpaceScene.astro` adds slowly twinkling stars. Sections fade in as you reach them.
   - **"Reduce motion"** (iPhone: Settings → Accessibility → Motion; also on Android, macOS, Windows): the bands still drift, about 3x slower; the stars stop twinkling and the background doesn't move with scrolling. If the site looks frozen on someone's phone, this setting is the reason.
 - **Browser support:** current Safari (Mac + iPhone), Chrome, Edge, Firefox, and Samsung Internet. The floor is set by Tailwind CSS 4: Safari/iOS 16.4+, Chrome/Edge 111+, Firefox 128+. Older browsers still show all the content, just with simpler styling.

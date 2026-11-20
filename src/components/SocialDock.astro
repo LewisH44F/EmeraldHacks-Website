@@ -1,10 +1,7 @@
 ---
-// SocialDock.astro — the small column of Discord / Instagram / LinkedIn icons in the bottom-right corner of
-// the landing screen.
-//
-// It only shows while the hero (the first screen) is in view: once you scroll past it, the icons fade out so
-// they don't sit on top of the rest of the page, and they come back when you scroll up again. Each icon only
-// appears once its link is set in `links` in event.ts, so there are never dead icons.
+// SocialDock.astro — the small column of Discord / Instagram / LinkedIn icons pinned to the bottom-right
+// corner of the screen. It stays there the whole time you scroll, so the links are always one tap away.
+// Each icon only appears once its link is set in `links` in event.ts, so there are never dead icons.
 // Icon shapes are from Bootstrap Icons (MIT license, icons.getbootstrap.com), copied in so nothing loads from
 // another site.
 import { event } from "../content/event";
@@ -19,9 +16,8 @@ const icons = [
 {
   icons.length > 0 && (
     <aside
-      id="social-dock"
       aria-label="Social links"
-      class="fixed right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 flex flex-col gap-3 transition-[opacity,translate] duration-300 data-[hidden]:pointer-events-none data-[hidden]:translate-y-3 data-[hidden]:opacity-0 sm:right-6 sm:bottom-6"
+      class="fixed right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-40 flex flex-col gap-3 sm:right-6 sm:bottom-6"
     >
       {icons.map((i) => (
         <a
@@ -40,21 +36,3 @@ const icons = [
   )
 }
 
-<script>
-  // Show the dock only while the hero is on screen. The observer's root is shrunk to the bottom 65% of the
-  // viewport (-35% off the top), so the dock hides once the hero's bottom edge scrolls above the top third of
-  // the screen, and comes back as soon as it drops below it again. No scroll listener needed.
-  const dock = document.getElementById("social-dock");
-  const hero = document.getElementById("hero");
-  if (dock && hero) {
-    new IntersectionObserver(
-      ([entry]) => {
-        const hidden = !entry!.isIntersecting;
-        dock.toggleAttribute("data-hidden", hidden);
-        // inert: hidden icons can't be tabbed to or read out by screen readers.
-        dock.inert = hidden;
-      },
-      { rootMargin: "-35% 0px 0px 0px" },
-    ).observe(hero);
-  }
-</script>
