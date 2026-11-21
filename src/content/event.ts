@@ -166,7 +166,7 @@ export const event: EventConfig = {
     "Access to industry experts and judges",
     "A portfolio-worthy project to showcase",
     "New friends and teammates",
-    "Emerald Hacks swag",
+    "Emerald Hacks and tech bro swag",
   ],
 
   // Words in the big sideways-scrolling bands between sections. Short and punchy; they repeat to fill the width.
