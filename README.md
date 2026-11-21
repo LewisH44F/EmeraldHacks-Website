@@ -49,7 +49,7 @@ If something isn't confirmed, set it to `null` (or leave a list empty). The site
 | `cost`, `eligibility` | "Cost" and "Who" in the About facts ("Free"; "Anyone, from beginners to advanced, …") | "TBA" |
 | `about` | About paragraphs (one string per paragraph) | Facts box only |
 | `marquee` | Words in the big sliding bands. Decorative only, so keep facts out of them. | Bands hidden |
-| `links.register` | Where every Register / Join interest list button (the orange one) goes | Orange "Sign-ups soon" label (not clickable) |
+| `links.register` | Where every orange Sign up / Join interest list button goes (currently our Luma page) | Orange "Sign-ups soon" label (not clickable) |
 | `links.email` | Footer, FAQ, and the "Help us make this event possible! … email us at …" line under Sponsors (there's no sponsor button) | Hidden |
 | `links.prospectus` | Sponsorship prospectus link (PDF or Drive). Adds "Check out our prospectus" to the sponsor line | Line mentions email only |
 | `links.instagram`, `.linkedin` | Icons in the floating bottom-right dock + footer links | Hidden |
@@ -66,7 +66,7 @@ If something isn't confirmed, set it to `null` (or leave a list empty). The site
 
 ### The three switches
 
-- **`registrationOpen`**: `false` makes the buttons say "Join interest list", and `true` makes them say "Register". Both go to `links.register`. Flip it to `true` the day real registration opens.
+- **`registrationOpen`**: `false` makes the buttons say "Join interest list", and `true` (the current setting) makes them say "Sign up". Both go to `links.register`. Set it back to `false` if sign-ups close.
 - **`showFiscalSponsor`**: keep this `false` until Hack Club HCB approves us. While it's `false`, no Hack Club / HCB name or branding appears anywhere. When it's `true`, the footer shows the `fiscalSponsor` line.
 - **`scheduleConfirmed`**: `false` puts a "Tentative" label on the schedule. Flip it once times are final.
 

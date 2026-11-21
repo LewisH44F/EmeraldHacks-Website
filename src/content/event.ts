@@ -162,7 +162,7 @@ export const event: EventConfig = {
   links: {
     // Registration (or interest-list) form — Google Form, Tally, etc. I link out instead of building a form
     // because attendees are minors and I don't want us storing their data on something we built ourselves.
-    register: "",
+    register: "https://luma.com/sur3yv0d",
     // Full Instagram URL. "" => hidden. Shown in the bottom-right icon dock and the footer.
     instagram: "https://www.instagram.com/emerald.hacks/",
     // Public contact email (just the address, no "mailto:"). Used for sponsor inquiries and general questions.
@@ -180,8 +180,8 @@ export const event: EventConfig = {
   },
 
   // false => the main button says "Join interest list" (still uses links.register).
-  // true  => it says "Register". Flip this the day real registration opens.
-  registrationOpen: false,
+  // true  => it says "Sign up". On: sign-ups are open on Luma.
+  registrationOpen: true,
 
   // Keep false until Hack Club HCB approves our fiscal sponsorship. While false, NO Hack Club / HCB
   // name or branding appears anywhere on the site.

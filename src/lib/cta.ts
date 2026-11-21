@@ -13,7 +13,7 @@ export interface Cta {
 export function registerCta(): Cta {
   // Before registration opens we still want to capture interest, so the same form link is reused
   // with softer wording.
-  const label = event.registrationOpen ? "Register" : "Join interest list";
+  const label = event.registrationOpen ? "Sign up" : "Join interest list";
 
   // The fallback label is short on purpose: it has to fit next to the logo and menu button on a 360px phone.
   // I'd rather show an honest "coming soon" than a button that goes nowhere or to a broken link.
