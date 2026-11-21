@@ -46,6 +46,8 @@ export interface SponsorPackage {
 export interface FaqItem {
   q: string;
   a: string;
+  // Optional link shown at the end of the answer, e.g. a form people need to fill out.
+  link?: { label: string; href: string };
 }
 
 export interface Prize {
@@ -234,6 +236,11 @@ export const event: EventConfig = {
     { q: "Need help finding a team?", a: "Check our Discord. There's a channel for finding teammates before the event." },
     { q: "What should I bring?", a: "A laptop, charger, student ID, a water bottle, and anything you need to be comfortable for 12 hours." },
     { q: "Will there be food?", a: "Yes. We provide lunch and dinner, plus a light breakfast (things like donuts, coffee, and juice)." },
+    {
+      q: "What if I have dietary restrictions or allergies?",
+      a: "Let us know so we can plan food you can eat. If you have a dietary restriction or food allergy, please fill out this form before the event:",
+      link: { label: "Dietary restrictions form", href: "https://docs.google.com/forms/d/e/1FAIpQLSdcbHsvbCgALH-WcSVSEheO9HNQFtXZNrrBUW3LhYZfi-27AQ/viewform" },
+    },
     { q: "Do my parents need to sign anything?", a: "Yes, there's a waiver, and it's coming soon. Keep an eye on your email, and stay up to date by joining our Discord and following our Instagram." },
     { q: "Where do I park / how do I get there?", a: "Parking and directions will be posted once the location is finalized." },
   ],

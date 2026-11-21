@@ -26,7 +26,18 @@ import Section from "./Section.astro";
                 +
               </span>
             </summary>
-            <p class="px-5 pb-5 leading-relaxed text-muted">{item.a}</p>
+            <p class="px-5 pb-5 leading-relaxed text-muted">
+              {item.a}
+              {/* Optional link (e.g. a form), set with `link` on the FAQ item in event.ts. */}
+              {item.link && (
+                <>
+                  {" "}
+                  <a class="text-sky underline underline-offset-4" href={item.link.href} target="_blank" rel="noopener noreferrer">
+                    {item.link.label}<span class="sr-only"> (opens in a new tab)</span>
+                  </a>
+                </>
+              )}
+            </p>
           </details>
         ))}
       </div>

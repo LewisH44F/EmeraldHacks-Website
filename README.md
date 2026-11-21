@@ -166,6 +166,7 @@ EmeraldHacks-Website/
 **FAQ**
 
 1. Add to `faq`: `{ q: "Is there Wi-Fi?", a: "Yes, ..." }`. Questions show in the order listed.
+2. To end an answer with a link (like the dietary form), add `link: { label: "Fill out the form", href: "https://..." }`.
 
 **Team member**
 
