@@ -48,6 +48,7 @@ If something isn't confirmed, set it to `null` (or leave a list empty). The site
 | `venue.pendingNote` | Shown under "TBA" while there's no venue name ("Location being finalized") | Nothing extra |
 | `cost`, `eligibility` | "Cost" and "Who" in the About facts ("Free"; "Anyone, from beginners to advanced, …") | "TBA" |
 | `about` | About paragraphs (one string per paragraph) | Facts box only |
+| `perks` | The "What You'll Get" checklist under About. Only list things we'll definitely have. | Section hidden |
 | `marquee` | Words in the big sliding bands. Decorative only, so keep facts out of them. | Bands hidden |
 | `links.register` | Where every orange Sign up / Join interest list button goes (currently our Luma page) | Orange "Sign-ups soon" label (not clickable) |
 | `links.email` | Footer, FAQ, and the "Help us make this event possible! … email us at …" line under Sponsors (there's no sponsor button) | Hidden |
@@ -101,7 +102,7 @@ EmeraldHacks-Website/
 ├── src/
 │   ├── content/event.ts      ← ALL event info. The only file most people ever edit.
 │   ├── components/           ← reusable pieces of the page:
-│   │   ├── Hero, About, Tracks, Prizes, Schedule, Sponsors, Team, Judges, Faq   ← one per section
+│   │   ├── Hero, About, Perks, Tracks, Prizes, Schedule, Sponsors, Team, Judges, Faq   ← one per section
 │   │   ├── Nav, Footer       ← top bar (with mobile menu) and bottom bar
 │   │   ├── Section           ← shared wrapper: spacing, "01 / ABOUT" label, heading
 │   │   ├── CtaButton         ← the one button style (orange = sign up)

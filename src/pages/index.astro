@@ -7,6 +7,7 @@ import Base from "../layouts/Base.astro";
 import Nav from "../components/Nav.astro";
 import Hero from "../components/Hero.astro";
 import About from "../components/About.astro";
+import Perks from "../components/Perks.astro";
 import Tracks from "../components/Tracks.astro";
 import Schedule from "../components/Schedule.astro";
 import Sponsors from "../components/Sponsors.astro";
@@ -27,6 +28,8 @@ import SocialDock from "../components/SocialDock.astro";
     <!-- Marquee bands break up the page and slide sideways as you scroll. They're decoration (aria-hidden). -->
     <Marquee />
     <About />
+    <!-- "What You'll Get" checklist, sitting right under About. -->
+    <Perks />
     <Tracks />
     <Prizes />
     <Marquee reverse />

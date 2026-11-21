@@ -75,6 +75,7 @@ export interface EventConfig {
   cost: string | null;
   eligibility: string | null;
   about: string[];
+  perks: string[];
   sponsorPackages: SponsorPackage[];
   marquee: string[];
   links: {
@@ -155,6 +156,17 @@ export const event: EventConfig = {
     { tier: "silver", amount: null, perks: ["Everything in Bronze", "Logo on event-day signage"] },
     { tier: "gold", amount: null, perks: ["Everything in Silver", "Shout-out at the opening and closing ceremonies", "Larger logo placement"] },
     { tier: "platinum", amount: null, perks: ["Everything in Gold", "Host a workshop or name a prize", "Top logo placement everywhere"] },
+  ],
+
+  // The "What You'll Get" checklist under About. One short line each. Only list things we're sure we'll have.
+  // Empty list => the section is hidden.
+  perks: [
+    "Free pizza and drinks",
+    "Guidance from experienced developers",
+    "Access to industry experts and judges",
+    "A portfolio-worthy project to showcase",
+    "New friends and teammates",
+    "Emerald Hacks swag",
   ],
 
   // Words in the big sideways-scrolling bands between sections. Short and punchy; they repeat to fill the width.
