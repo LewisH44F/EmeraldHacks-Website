@@ -151,11 +151,13 @@ export const event: EventConfig = {
   // Sponsorship packages, lowest to highest. amount: null => "TBA".
   // DRAFT: these perks are a starting point, not promises yet. Confirm what we can actually deliver (and the
   // prices) before sending this page to sponsors.
+  // Empty list => a "Sponsorship tiers: coming soon, reach out to [email]" card instead of tier cards.
+  // To bring tiers back, uncomment the drafts below and fill in the amounts.
   sponsorPackages: [
-    { tier: "bronze", amount: null, perks: ["Logo on our website", "Thank-you on our social media"] },
-    { tier: "silver", amount: null, perks: ["Everything in Bronze", "Logo on event-day signage"] },
-    { tier: "gold", amount: null, perks: ["Everything in Silver", "Shout-out at the opening and closing ceremonies", "Larger logo placement"] },
-    { tier: "platinum", amount: null, perks: ["Everything in Gold", "Host a workshop or name a prize", "Top logo placement everywhere"] },
+    // { tier: "bronze", amount: null, perks: ["Logo on our website", "Thank-you on our social media"] },
+    // { tier: "silver", amount: null, perks: ["Everything in Bronze", "Logo on event-day signage"] },
+    // { tier: "gold", amount: null, perks: ["Everything in Silver", "Shout-out at the opening and closing ceremonies", "Larger logo placement"] },
+    // { tier: "platinum", amount: null, perks: ["Everything in Gold", "Host a workshop or name a prize", "Top logo placement everywhere"] },
   ],
 
   // The "What You'll Get" checklist under About. One short line each. Only list things we're sure we'll have.

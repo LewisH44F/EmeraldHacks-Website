@@ -59,8 +59,8 @@ If something isn't confirmed, set it to `null` (or leave a list empty). The site
 | `tracks` | Track cards (an optional per-track `prize` shows on the card when set) | "Revealed on event day" card |
 | `prizes` | The Prizes list: `{ place: "First place", prize: "$500" }`; `prize: null` → "TBA" | "Prizes will be announced soon" |
 | `schedule` | Timeline items, in the order listed | "Posted soon" |
-| `sponsorPackages` | The Bronze / Silver / Gold / Platinum tier cards: `amount` (e.g. `"$250"`) and `perks` | `amount: null` → "TBA" |
-| `sponsors` | Logos grouped by tier | "Want your logo here first?" |
+| `sponsorPackages` | The Bronze / Silver / Gold / Platinum tier cards: `amount` (e.g. `"$250"`) and `perks`. Drafts are commented out in `event.ts`. | "Sponsorship tiers: coming soon" card with the email |
+| `sponsors` | Logos grouped by tier | Hidden |
 | `team` | The organizers in tiers: `director` on top, then each division's `lead` (shown as "Division leaders"), then its `members` | Director only |
 | `judges` | Judges as `{ name, role }`. Only add confirmed judges. | "Judges announced soon" |
 | `faq` | Questions and answers | "Coming soon" |
