@@ -6,7 +6,7 @@ Emerald Hacks is a free, 12-hour hackathon in Dublin, CA for middle and high sch
 
 ## Live site
 
-**https://emeraldcanhack.netlify.app**
+**https://emerald-hacks.com**
 
 ## Tech stack
 
