@@ -224,15 +224,14 @@ export const event: EventConfig = {
 
   // The 12-hour timeline, in order. These are DRAFT times — see scheduleConfirmed above.
   schedule: [
-    { time: "8:00 AM", title: "Check-in", description: "Grab your badge and a light breakfast, find a seat, meet your team." },
-    { time: "9:00 AM", title: "Opening ceremony", description: "Rules, the tracks reveal, and sponsor intros." },
-    { time: "9:30 AM", title: "Hacking begins", description: "The clock starts. Start building." },
-    { time: "10:30 AM", title: "Beginner workshop", description: "Build your first web app from scratch." },
-    { time: "12:30 PM", title: "Lunch", description: "Provided." },
-    { time: "5:30 PM", title: "Dinner", description: "Provided." },
-    { time: "7:30 PM", title: "Submissions due", description: "Hands off keyboards. Submit your project." },
-    { time: "7:45 PM", title: "Judging", description: "Demo your project to the judges." },
-    { time: "8:45 PM", title: "Awards & closing", description: "Prizes, thank-yous, and photos." },
+    { time: "8:00 AM", title: "Registration & check-in", description: "Grab your badge and a light breakfast, find a seat, meet your team." },
+    { time: "8:30 AM", title: "Opening ceremony", description: "Rules, the tracks reveal, and sponsor intros." },
+    { time: "9:00 AM", title: "Hacking begins!", description: "The clock starts. Start building." },
+    { time: "10:00 AM", title: "Workshop: How to win hackathons", description: "For beginners: how to pick an idea, split the work, and pitch it." },
+    { time: "12:00 PM", title: "Lunch break", description: "Provided." },
+    { time: "6:00 PM", title: "Submissions due / Dinner", description: "Hands off keyboards. Submit your project, then eat." },
+    { time: "6:30 PM", title: "Judging", description: "Demo your project to the judges." },
+    { time: "8:30 PM", title: "Awards ceremony", description: "Prizes, thank-yous, and photos." },
   ],
 
   // The Prizes section: one row per prize, in this order. prize: null => "TBA". Empty list => "Coming soon".
