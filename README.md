@@ -45,7 +45,7 @@ If something isn't confirmed, set it to `null` (or leave a list empty). The site
 | `date.start`, `date.end` | Hero date/time, schedule date, countdown | See `date.approx` |
 | `date.approx`, `date.pendingNote` | While there's no exact date: a rough timeframe ("March 2027") and a note ("Exact date being finalized") | "TBA", no countdown |
 | `venue.name`, `.address`, `.mapUrl` | "Where" box in the hero; each part can be confirmed separately | "TBA" / hidden |
-| `venue.pendingNote` | Shown under "TBA" while there's no venue name ("Location being finalized") | Nothing extra |
+| `venue.pendingNote` | Shown under the venue name while there's no address ("Exact location being finalized") | Nothing extra |
 | `cost`, `eligibility` | "Cost" and "Who" in the About facts ("Free"; "Anyone, from beginners to advanced, …") | "TBA" |
 | `about` | About paragraphs (one string per paragraph) | Facts box only |
 | `perks` | The "What You'll Get" checklist under About. Only list things we'll definitely have. | Section hidden |

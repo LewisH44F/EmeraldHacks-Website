@@ -60,8 +60,8 @@ const { venue } = event;
           <dt class="text-xs font-semibold tracking-widest text-sky uppercase">Where</dt>
           <dd class="mt-1 text-lg font-medium">
             {venue.name ?? TBA}
-            {/* While the venue isn't set, a short "being finalized" note from the config sits under the TBA. */}
-            {!venue.name && venue.pendingNote && <span class="block text-sm text-muted">{venue.pendingNote}</span>}
+            {/* Until there's a street address, a short "being finalized" note from the config sits under the name. */}
+            {!venue.address && venue.pendingNote && <span class="block text-sm text-muted">{venue.pendingNote}</span>}
             {venue.address && <span class="block text-sm text-muted">{venue.address}</span>}
             {
               venue.mapUrl && (

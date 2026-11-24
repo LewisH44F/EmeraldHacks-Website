@@ -115,7 +115,9 @@ export const event: EventConfig = {
   // I require the offset because Dublin, CA is on Pacific time and visitors' browsers may not be —
   // without it, the countdown could be off by hours. null => "Date TBA" and the countdown is hidden.
   date: {
-    start: null,
+    // March 20, 2027 is after daylight saving starts (March 14), so Pacific time is -07:00.
+    start: "2027-03-20T08:00:00-07:00",
+    // null until the end time is confirmed: the hero shows just the start time, and the countdown counts to it.
     end: null,
     // While start is null: a rough timeframe to show instead of a bare "TBA" (e.g. "March 2027"), and a short
     // note under it. Set both to null to show just "TBA". Once start is set, these are ignored.
@@ -126,11 +128,12 @@ export const event: EventConfig = {
   // Where it happens. Each field is independent: you can confirm the venue name before the address.
   // mapUrl is a Google/Apple Maps link; null => no "Directions" link is shown.
   venue: {
-    name: null,
+    // Just the city for now; swap in the building name once it's confirmed.
+    name: "Dublin, California",
     address: null,
     mapUrl: null,
-    // Shown under "TBA" while the venue name is null. null => nothing extra is shown.
-    pendingNote: "Location being finalized",
+    // Shown under the venue name while there's no street address yet. null => nothing extra is shown.
+    pendingNote: "Exact location being finalized",
   },
 
   // What attendees pay, as a short phrase, e.g. "Free". null => "TBA".
